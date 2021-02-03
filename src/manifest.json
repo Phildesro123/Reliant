@@ -25,6 +25,7 @@
     "icon-34.png",
     "icon.png"
   ],
+  "version": "0.1",
   "manifest_version": 2,
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
 }
