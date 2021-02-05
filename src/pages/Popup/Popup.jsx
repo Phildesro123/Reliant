@@ -16,7 +16,6 @@ const getAuthor = () => {
   /* We must send a message to the content script and wait for response from it */
 }
 
-
 const Popup = () => {
   return (
           <Container style={{width: '400px', padding:"10px",  textAlign:"center"}}>
@@ -42,7 +41,7 @@ const Popup = () => {
                     <Button variant="outline-primary" block>Comment</Button>
                   </Col>
                   <Col className="pr-0" style={{paddingLeft: "5px"}}>
-                    <Button block onClick = {message}>More</Button>
+                    <Button block onClick = {message}>Activate</Button>
                   </Col>
                 </Row>
               </Col>
