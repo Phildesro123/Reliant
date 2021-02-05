@@ -8,9 +8,6 @@
     "default_popup": "popup.html",
     "default_icon": "icon.png"
   },
-  "chrome_url_overrides": {
-    "newtab": "newtab.html"
-  },
   "icons": {
     "128": "icon.png"
   },
