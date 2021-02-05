@@ -9,7 +9,13 @@ import Card from 'react-bootstrap/Card';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
+import message from './modules/messenger'
 import './Popup.css';
+
+const getAuthor = () => {
+  /* We must send a message to the content script and wait for response from it */
+}
+
 
 const Popup = () => {
   return (
@@ -36,7 +42,7 @@ const Popup = () => {
                     <Button variant="outline-primary" block>Comment</Button>
                   </Col>
                   <Col className="pr-0" style={{paddingLeft: "5px"}}>
-                    <Button block >More</Button>
+                    <Button block onClick = {message}>More</Button>
                   </Col>
                 </Row>
               </Col>
