@@ -10,6 +10,8 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import message from './modules/messenger'
+import InputGroup from "react-bootstrap/InputGroup";
+import FormControl from "react-bootstrap/FormControl";
 import './Popup.css';
 
 const getAuthor = () => {
@@ -45,6 +47,31 @@ const Popup = () => {
                   </Col>
                 </Row>
               </Col>
+              <Row>
+                <InputGroup size="sm" className="mb-2" style={{paddingLeft:"14px", paddingTop:"10px", paddingRight:"14px"}}>
+                  <InputGroup.Prepend>
+                    <InputGroup.Text id="basic-addon1">Username</InputGroup.Text>
+                  </InputGroup.Prepend>
+                  <FormControl
+                    placeholder="Username"
+                    aria-label="Username"
+                    aria-describedby="basic-addon1"
+                  />
+                </InputGroup>
+                <InputGroup size="sm" className="mb-0" style={{paddingLeft:"14px", paddingRight:"14px"}}>
+                  <InputGroup.Prepend>
+                    <InputGroup.Text id="basic-addon1"> Password</InputGroup.Text>
+                  </InputGroup.Prepend>
+                  <FormControl
+                    placeholder="Password"
+                    aria-label="Password"
+                    aria-describedby="basic-addon1"
+                  />
+                </InputGroup>
+              </Row>
+              <Row className="pr-0" style={{paddingLeft:"185px", paddingRight: "5px", paddingTop:"5px"}}>
+                <Button variant="outline-success" size="sm" block>Login</Button>
+              </Row>
             </Row>
             </Container>
   );
