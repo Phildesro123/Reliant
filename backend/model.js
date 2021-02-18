@@ -11,4 +11,4 @@ let detail = new Schema({
 }, {collection: 'Users'});
 
 
-module.exports = mongoose.model("detail", detail);
+module.exports = mongoose.model("Users", detail);
