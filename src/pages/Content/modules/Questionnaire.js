@@ -11,10 +11,12 @@ const Questionnaire = () => {
             </div>
             <div className="question-container">
                 <h4 className="question">How biased was the author?</h4>
+                <span className="spacing"></span>
                 <StarRating></StarRating>
             </div>
             <div className="question-container">
                 <h4 className="question">What is your overall rating?</h4>
+                <span className="spacing"></span>
                 <StarRating></StarRating>
             </div>
         </div>

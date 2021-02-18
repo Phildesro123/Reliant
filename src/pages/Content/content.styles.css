@@ -24,6 +24,7 @@ input[type='radio'] {
 .question-container {
   display: inline-flex;
   align-items: center;
+  width: 100%;
 }
 
 .star-container {
@@ -31,6 +32,5 @@ input[type='radio'] {
 }
 
 .spacing {
-  overflow: auto;
-  width: fill;
+  flex-grow: 1;
 }
