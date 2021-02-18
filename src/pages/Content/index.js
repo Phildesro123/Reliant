@@ -1,4 +1,8 @@
 import { printLine } from './modules/print';
+import React from 'react';
+import { render } from 'react-dom';
+import StarRating from './modules/questionarre';
+
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
 document.querySelector('div').addEventListener('selectionchange', () => {
@@ -19,23 +23,13 @@ var even = 0; // 0 --> Original Color, 1 --> Random Color
 //Will clean this up later
 chrome.runtime.onMessage.addListener((req, send, sendResponse) => {
   if (req.type === 'injectReact') {
-    console.log('I WILL INJECT THE REEACT');
-    const modal = document.createElement('dialog');
-    modal.setAttribute('style', 'height:40%');
-    modal.innerHTML = `<iframe id="headlineFetcher" style="height:100%"></iframe>
-        <div style="position:absolute; top:0px; left:5px;">  
-            <button>x</button>
-        </div>`;
-    document.body.appendChild(modal);
-    const dialog = document.querySelector('dialog');
-    dialog.showModal();
-    dialog.querySelector('button').addEventListener('click', () => {
-      dialog.close();
-    });
-    const iframe = document.getElementById('headlineFetcher');
-    iframe.src = chrome.extension.getURL('../Popup/index.html');
-    iframe.frameBorder = 0;
+   //Do nt
   } else {
+    const contentBody = document.body();
+    const questionarre = document.createElement('div');
+    contentBody.appendChild(questionarre);
+    render(<StarRating/>, questionarre);
+    console.log('I WILL INJECT THE REEACT');
     even = (even + 1) % 2;
     console.log(
       send.tab ? 'from a content script:' + send.tab.url : 'from the extension'

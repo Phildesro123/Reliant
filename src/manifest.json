@@ -23,7 +23,8 @@
     "content.styles.css",
     "icon-128.png",
     "icon-34.png",
-    "icon.png"
+    "icon.png",
+    "popup.html"
   ],
   "version": "0.1",
   "manifest_version": 2,
