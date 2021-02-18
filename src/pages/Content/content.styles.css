@@ -14,6 +14,7 @@ input[type='radio'] {
   border-color: darksalmon;
   border-radius: 25px;
   width: 60%;
+  max-width: 800px;
   height: auto;
   margin: auto;
   margin-top: 20px;
