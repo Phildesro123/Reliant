@@ -1,6 +1,9 @@
 {
   "name": "Reliant Web Extension",
   "options_page": "options.html",
+  "permissions":[
+    "contextMenus"
+  ],
   "background": {
     "page": "background.html"
   },
