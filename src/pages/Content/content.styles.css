@@ -1,0 +1,36 @@
+input[type='radio'] {
+  display: none;
+}
+
+.star {
+  cursor: pointer;
+  transition: color 200ms;
+}
+
+.questionnaire {
+  background: rgba(255, 255, 255, 0);
+  border-style: solid;
+  border-width: 15px;
+  border-color: darksalmon;
+  border-radius: 25px;
+  width: 60%;
+  height: auto;
+  margin: auto;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 15px;
+}
+
+.question-container {
+  display: inline-flex;
+  align-items: center;
+}
+
+.star-container {
+  margin: 10px;
+}
+
+.spacing {
+  overflow: auto;
+  width: fill;
+}

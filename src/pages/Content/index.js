@@ -1,7 +1,7 @@
 import { printLine } from './modules/print';
 import React from 'react';
 import { render } from 'react-dom';
-import StarRating from './modules/questionarre';
+import StarRating from './modules/Questionnaire';
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
@@ -25,10 +25,10 @@ chrome.runtime.onMessage.addListener((req, send, sendResponse) => {
   if (req.type === 'injectReact') {
    //Do nt
   } else {
-    const contentBody = document.body();
-    const questionarre = document.createElement('div');
-    contentBody.appendChild(questionarre);
-    render(<StarRating/>, questionarre);
+    const contentBody = document.body;
+    const questionnaire = document.createElement('div');
+    contentBody.appendChild(questionnaire);
+    render(<StarRating/>, questionnaire);
     console.log('I WILL INJECT THE REEACT');
     even = (even + 1) % 2;
     console.log(
