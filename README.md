@@ -147,3 +147,7 @@ ApiCall({ key: secrets.key });
 ---
 
 Michael Xieyang Liu | [Website](https://lxieyang.github.io)
+------------
+
+
+Websites Reliant should work on: Medium, NY times, CNN, Fox, Verge, Vox/Wired
