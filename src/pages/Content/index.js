@@ -2,12 +2,31 @@ import { printLine } from './modules/print';
 import React from 'react';
 import { render } from 'react-dom';
 import StarRating from './modules/Questionnaire';
+import { resolveModuleName } from 'typescript';
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
 document.querySelector('div').addEventListener('selectionchange', () => {
   console.log('Selection updated');
 });
+
+
+async function getUserInfo() {
+  return new Promise(resolve => {
+    chrome.runtime.sendMessage({}, (userInfo) => {
+      resolve(userInfo)
+    });
+  });
+}
+
+async function submitQuestionnaire() {
+  const userInfo = await getUserInfo()
+  console.log("Email:", userInfo.email, "ID:", userInfo.id)
+}
+
+submitQuestionnaire()
+
+
 function getRandomColor() {
   var letters = '0123456789ABCDEF';
   var color = '#';
