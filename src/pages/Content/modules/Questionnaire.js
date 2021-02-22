@@ -21,7 +21,7 @@ const Questionnaire = () => {
                 <StarRating></StarRating>
             </div>
             <div>
-                <Button as="input" type="submit" value="Submit"/>
+                <Button as="input" type="submit" value="Submit" onClick={()=>/*Submit data from starrating*/ console.log("Submitting questionnaire results") }/>
             </div>
         </div>
     );
