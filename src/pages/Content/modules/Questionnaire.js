@@ -1,5 +1,6 @@
-import React from 'react'
-import StarRating from './StarRating'
+import React from 'react';
+import StarRating from './StarRating';
+import { submitQuestionnaire }  from '..';
 const Questionnaire = () => {
     return (
         <div className="questionnaire">
@@ -19,6 +20,7 @@ const Questionnaire = () => {
                 <span className="spacing"></span>
                 <StarRating></StarRating>
             </div>
+            <button block onClick = {() => submitQuestionnaire()}>Submit</button>
         </div>
     );
 }

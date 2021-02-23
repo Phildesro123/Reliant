@@ -19,12 +19,11 @@ async function getUserInfo() {
   });
 }
 
-async function submitQuestionnaire() {
+export async function submitQuestionnaire() {
+  //Logic for submitting questionarre
   const userInfo = await getUserInfo()
   console.log("Email:", userInfo.email, "ID:", userInfo.id)
 }
-
-submitQuestionnaire()
 
 
 function getRandomColor() {
