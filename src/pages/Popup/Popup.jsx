@@ -1,24 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import authorImage from '../../assets/img/escobar.jpg';
-import logo from '../../assets/img/logo.svg';
-import Greetings from '../../containers/Greetings/Greetings';
 import Image from 'react-bootstrap/Image';
-import Badge from 'react-bootstrap/Badge';
 import Container from 'react-bootstrap/Container';
-import Card from 'react-bootstrap/Card';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import message from './modules/messenger'
 import InputGroup from "react-bootstrap/InputGroup";
 import FormControl from "react-bootstrap/FormControl";
+import {getUserInfo} from "../Content/index"
 import './Popup.css';
 
 const getAuthor = () => {
   /* We must send a message to the content script and wait for response from it */
 }
 
+
+
+
 const Popup = () => {
+  const [userInfo, setUserInfo] = useState(null)
+  async () => {
+    const userInfo = await getUserInfo();
+    console.log("Popup User Info:", userInfo);
+    setUserInfo(userInfo);
+  }
+
   return (
           <Container style={{width: '400px', padding:"10px",  textAlign:"center"}}>
             <Row className='m-0'>
@@ -50,7 +57,7 @@ const Popup = () => {
               <Row>
                 <InputGroup size="sm" className="mb-2" style={{paddingLeft:"14px", paddingTop:"10px", paddingRight:"14px"}}>
                   <InputGroup.Prepend>
-                    <InputGroup.Text id="basic-addon1">Username</InputGroup.Text>
+                    <InputGroup.Text id="basic-addon1">{userInfo.email}</InputGroup.Text>
                   </InputGroup.Prepend>
                   <FormControl
                     placeholder="Username"

@@ -11,7 +11,7 @@ document.querySelector('div').addEventListener('selectionchange', () => {
 });
 
 
-async function getUserInfo() {
+export async function getUserInfo() {
   return new Promise(resolve => {
     chrome.runtime.sendMessage({}, (userInfo) => {
       resolve(userInfo)
