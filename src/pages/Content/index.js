@@ -19,10 +19,10 @@ async function getUserInfo() {
   });
 }
 
-export async function submitQuestionnaire() {
+export async function submitQuestionnaire(score) {
   //Logic for submitting questionarre
   const userInfo = await getUserInfo()
-  console.log("Email:", userInfo.email, "ID:", userInfo.id)
+  console.log("Email:", userInfo.email, "ID:", userInfo.id, "Questionnaire avg:", score)
 }
 
 

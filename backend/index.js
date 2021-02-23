@@ -1,7 +1,8 @@
+const path = require('path')
+require('dotenv').config({path: __dirname + '/../.env'});
 let detail = require('./model');
 const express = require('express');
 const router = express.Router();
-require('dotenv').config();
 
 const app = express();
 
@@ -14,8 +15,7 @@ app.use(cors());
 //Connect to MongoDB database
 
 var MongoClient = require('mongodb').MongoClient;
-mongoose.connect(
-  process.env.MONGODB_URI,
+mongoose.connect(process.env.MONGODB_URI,
   { useNewUrlParser: true, useUnifiedTopology: true },
   () => {
     console.log('MongoDB is connected');
