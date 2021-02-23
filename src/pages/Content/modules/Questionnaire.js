@@ -1,8 +1,6 @@
-import React, { useEffect } from 'react'
-import StarRating from './StarRating'
-import {Button} from 'react-bootstrap'
-
-
+import React from 'react';
+import StarRating from './StarRating';
+import { submitQuestionnaire }  from '..';
 const Questionnaire = () => {
     return (
         <div className="questionnaire">
@@ -25,6 +23,7 @@ const Questionnaire = () => {
             <div>
                 <Button as="input" type="submit" value="Submit" onClick={handleSubmit}/>
             </div>
+            <button block onClick = {() => submitQuestionnaire()}>Submit</button>
         </div>
     );
 }
