@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState } from 'react';
 import authorImage from '../../assets/img/escobar.jpg';
 import Image from 'react-bootstrap/Image';
 import Container from 'react-bootstrap/Container';
@@ -19,12 +19,10 @@ const getAuthor = () => {
 
 
 const Popup = () => {
-  const [userInfo, setUserInfo] = useState(null)
-  async () => {
-    const userInfo = await getUserInfo();
-    console.log("Popup User Info:", userInfo);
-    setUserInfo(userInfo);
-  }
+  const [userEmail, setUserEmail] = useState(null)
+  useEffect(() => {
+    getUserInfo().then(data => setUserEmail(data.email));
+  }, []);
 
   return (
           <Container style={{width: '400px', padding:"10px",  textAlign:"center"}}>
@@ -54,31 +52,9 @@ const Popup = () => {
                   </Col>
                 </Row>
               </Col>
-              <Row>
-                <InputGroup size="sm" className="mb-2" style={{paddingLeft:"14px", paddingTop:"10px", paddingRight:"14px"}}>
-                  <InputGroup.Prepend>
-                    <InputGroup.Text id="basic-addon1">{userInfo.email}</InputGroup.Text>
-                  </InputGroup.Prepend>
-                  <FormControl
-                    placeholder="Username"
-                    aria-label="Username"
-                    aria-describedby="basic-addon1"
-                  />
-                </InputGroup>
-                <InputGroup size="sm" className="mb-0" style={{paddingLeft:"14px", paddingRight:"14px"}}>
-                  <InputGroup.Prepend>
-                    <InputGroup.Text id="basic-addon1"> Password</InputGroup.Text>
-                  </InputGroup.Prepend>
-                  <FormControl
-                    placeholder="Password"
-                    aria-label="Password"
-                    aria-describedby="basic-addon1"
-                  />
-                </InputGroup>
-              </Row>
-              <Row className="pr-0" style={{paddingLeft:"185px", paddingRight: "5px", paddingTop:"5px"}}>
-                <Button variant="outline-success" size="sm" block>Login</Button>
-              </Row>
+              <div style={{paddingTop:"10px", width:"100%", textAlign:"center"}}>
+                <h6 style={{margin:"0px", fontSize:"10px"}}>Logged in as: {userEmail}</h6>
+              </div>
             </Row>
             </Container>
   );
