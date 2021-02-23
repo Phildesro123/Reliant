@@ -1,8 +1,6 @@
-import { printLine } from './modules/print';
 import React from 'react';
 import { render } from 'react-dom';
 import StarRating from './modules/Questionnaire';
-import { resolveModuleName } from 'typescript';
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
@@ -71,11 +69,3 @@ chrome.runtime.onMessage.addListener((req, send, sendResponse) => {
     sendResponse({ message: 'ACK' });
   }
 });
-printLine("Using the 'printLine' function from the Print Module");
-/*let paragraphs = document.getElementsByTagName('p');
-//console.log(paragraphs)
-for (const paragraph of paragraphs) {
-    //console.log(paragraph.textContent)
-    paragraph.style['background-color'] = getRandomColor();
-}
-*/
