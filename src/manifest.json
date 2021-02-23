@@ -1,8 +1,11 @@
 {
   "name": "Reliant Web Extension",
+  "description": "A web extension that enhances your article reading experience.",
   "options_page": "options.html",
   "permissions":[
-    "contextMenus"
+    "contextMenus",
+    "identity",
+    "identity.email"
   ],
   "background": {
     "page": "background.html"

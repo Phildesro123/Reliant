@@ -16,4 +16,16 @@ chrome.contextMenus.create({
     contexts: ['all']
   });
 
-  chrome.contextMenus.onClicked.addListener(clickHandler);
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    if(chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError);
+        throw Error("Unable to send to " + request)
+    }
+    chrome.identity.getProfileUserInfo(function(info) {
+        sendResponse({email: info.email, id: info.id});
+    });
+    return true; //This line is what allows us to wait for the async sendResponse
+});
+
+chrome.contextMenus.onClicked.addListener(clickHandler);
+
