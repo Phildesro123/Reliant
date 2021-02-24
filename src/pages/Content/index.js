@@ -67,11 +67,19 @@ function getRandomColor() {
   return color;
 }
 
+var first = true; //Used to ensure the questionnaire can only be injected once.
+var loaded = false;
+var colors = []; // Array holding paragraph colors in the form [original, random]
+var even = 0; // 0 --> Original Color, 1 --> Random Color
+window.onload = function() {
+  loaded = true;
+  console.log("LOADED");
+}
 async function activateReliant() {
+  if (!loaded) {
+    return; // Prevents Reliant from being activated if the site is not done loading.
+  }
   console.log("activated reliant")
-  var first = true;
-  var colors = []; // Array holding paragraph colors in the form [original, random]
-  var even = 0; // 0 --> Original Color, 1 --> Random Color
   const url = new URL(await getURL());
   const userInfo = await getUserInfo();
   const hostname = url.hostname;
@@ -108,8 +116,9 @@ async function activateReliant() {
     console.log('UNSUPPORTED WEBSITE');
     return;
   }
-
-  createQuestionnaire(hostname);
+  if (first) {
+    createQuestionnaire(hostname);
+  }
 
   //Highlight everything
   even = (even + 1) % 2;
