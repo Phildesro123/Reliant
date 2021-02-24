@@ -1,16 +1,19 @@
 require('dotenv').config({ path: __dirname + '/../.env' });
 let Users = require('./models/users');
 const express = require('express');
+const bodyParser = require('body-parser');
 const router = express.Router();
-
+const cors = require('cors')
 const app = express();
+const userRouter = require('./routes/userRouter');
 
 const mongoose = require('mongoose');
-const cors = require('cors');
 const { isAssertionExpression } = require('typescript');
 const { db } = require('./models/users');
 const PORT = 4000;
-app.use(cors());
+
+var jsonParser = bodyParser.json()
+var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 mongoose.connect(
   process.env.MONGODB_URI,
@@ -19,52 +22,35 @@ mongoose.connect(
     console.log('MongoDB is connected');
   }
 );
-const user = new Users({
-  _id: '105172363394352571826',
-  email: 'test@gmail.com',
-  displayName: 'Display Name',
-});
-
-user.save((error) => {
-  if (error) {
-    console.log('Could not save:', error);
-  } else {
-    console.log('User successfully saved!');
-  }
-});
-
-Users.find({})
-  .then((data) => {
-    console.log('User Data:', data);
-  })
-  .catch((error) => {
-    console.log('Error in Find:', error);
-  });
-
+app.use(cors())
+app.use(jsonParser);
+app.use(urlencodedParser);
 app.use('/', router);
+app.use('/api/user', userRouter);
+
 
 // gets things that are already in database
 router.get('/', (req, res) => {
-  detail.find({}, function (err, result) {
-    if (err) {
-      res.send(err);
-    } else {
-      res.send(result);
-    }
+  Users.find({})
+  .then((data) => {
+    res.send(data);
+    console.log('User Data:', data);
+  })
+  .catch((error) => {
+    res.send('Error in Find:', error);
+    console.log('Error in Find:', error);
   });
 });
 
 router.route('/').post(function (req, res) {
-  const user = new Users({
-    _id: '105172363394352571826',
-    email: 'router@gmail.com',
-    displayName: "It's from a route",
-  });
+  console.log("Request:", req.body)
+  const user = new Users(req.body);
   user.save((error) => {
     if (error) {
-      console.log('Could not save:', error);
+      res.status(500).json({ msg: "Cound not save user: " + error})
+      console.log("Could not save:", error)
     } else {
-      console.log('User successfully saved!');
+      res.json({ msg: "User data has been saved!"})
     }
   });
 });

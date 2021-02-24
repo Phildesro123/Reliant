@@ -1,16 +1,34 @@
 import '../../assets/img/icon-34.png';
 import '../../assets/img/icon-128.png';
 import '../../assets/img/icon.png'
+import axios from 'axios';
 
 console.log('This is the background page.');
 console.log('Put the background scripts here.');
 
-// let clickHandler = () => {
-//     chrome.tabs.query({active: true, currentWindow: true}, tabs => {
-//         chrome.tabs.sendMessage(tabs[0].id, {type: 'injectReact'});
-//     });
-// }
-// chrome.contextMenus.onClicked.addListener(clickHandler);
+chrome.runtime.onInstalled.addListener(function(details) {
+    if(details.reason == "install") {
+        console.log("This is the first install!")
+        console.log("Adding user to database")
+        chrome.identity.getProfileUserInfo((userInfo) => {
+            const payload = {
+                _id: userInfo.id,
+                email: userInfo.email,
+              }
+              axios({
+                url: 'http://localhost:4000',
+                method: 'POST',
+                data: payload
+              }).then(() => {
+                console.log("Data has been sent to the server")
+              })
+              .catch(() => {
+                console.log("Internal server error")
+              });
+        });
+    }
+});
+
 chrome.contextMenus.create({ 
     id: 'TestContext',
     title: 'Inject React Element',
@@ -27,11 +45,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             sendResponse({email: info.email, id: info.id});
         });
     }
-    else if (request == "currentHost") {
+    else if (request == "activeURL") {
         chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-            let url = new URL(tabs[0].url);
-            console.log(url.hostname);
-            sendResponse(url.hostname);
+            sendResponse(tabs[0].url);
         });
     }
     return true; //This line is what allows us to wait for the async sendResponse

@@ -7,11 +7,11 @@ let detail = new Schema(
     _id: String,
     email: String,
     displayName: String,
-    userRating: Number,
+    userRating: {type: Number, defualt: 80},
     visitedSites: [
       {
-        url: String,
-        timespent: { type: Number, default: 0 },
+        _id: String,
+        timespent: {type: Number, default: 0 },
       },
     ],
   },
