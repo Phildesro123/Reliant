@@ -27,7 +27,22 @@ async function createQuestionnaire(hostname) {
     contentBody = document.getElementsByClassName("article main-content")[0];
   } else if (hostname == URLS.CNN) {
     console.log("We're on CNN")
-    contentBody = document.getElementsByClassName("")[0];
+    contentBody = document.getElementById("body-text");
+  } else if (hostname == URLS.VERGE) {
+    console.log("We're on Verge")
+    contentBody = document.getElementsByClassName("c-entry-content ")[0];
+  } else if (hostname == URLS.VOX) {
+    console.log("We're on Vox")
+    contentBody = document.getElementsByClassName("c-entry-content ")[0];
+  } else if (hostname == URLS.FOXNEWS) {
+    console.log("We're on Fox")
+    contentBody = document.getElementsByClassName("article-body")[0];
+  } else if (hostname == URLS.MEDIUM) {
+    console.log("We're on Medium")
+    contentBody = document.getElementsByClassName("meteredContent")[0];
+  } else if (hostname == URLS.NYTIMES) {
+    console.log("We're on NY Times")
+    contentBody = document.getElementsByClassName("bottom-of-article")[0];
   }
   const questionnaire = document.createElement('div');
   contentBody.appendChild(questionnaire);
