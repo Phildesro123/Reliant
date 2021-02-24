@@ -1,24 +1,29 @@
-import React from 'react';
+import React, {useEffect, useState } from 'react';
 import authorImage from '../../assets/img/escobar.jpg';
-import logo from '../../assets/img/logo.svg';
-import Greetings from '../../containers/Greetings/Greetings';
 import Image from 'react-bootstrap/Image';
-import Badge from 'react-bootstrap/Badge';
 import Container from 'react-bootstrap/Container';
-import Card from 'react-bootstrap/Card';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import message from './modules/messenger'
 import InputGroup from "react-bootstrap/InputGroup";
 import FormControl from "react-bootstrap/FormControl";
+import {getUserInfo} from "../Content/index"
 import './Popup.css';
 
 const getAuthor = () => {
   /* We must send a message to the content script and wait for response from it */
 }
 
+
+
+
 const Popup = () => {
+  const [userEmail, setUserEmail] = useState(null)
+  useEffect(() => {
+    getUserInfo().then(data => setUserEmail(data.email));
+  }, []);
+
   return (
           <Container style={{width: '400px', padding:"10px",  textAlign:"center"}}>
             <Row className='m-0'>
@@ -47,31 +52,9 @@ const Popup = () => {
                   </Col>
                 </Row>
               </Col>
-              <Row>
-                <InputGroup size="sm" className="mb-2" style={{paddingLeft:"14px", paddingTop:"10px", paddingRight:"14px"}}>
-                  <InputGroup.Prepend>
-                    <InputGroup.Text id="basic-addon1">Username</InputGroup.Text>
-                  </InputGroup.Prepend>
-                  <FormControl
-                    placeholder="Username"
-                    aria-label="Username"
-                    aria-describedby="basic-addon1"
-                  />
-                </InputGroup>
-                <InputGroup size="sm" className="mb-0" style={{paddingLeft:"14px", paddingRight:"14px"}}>
-                  <InputGroup.Prepend>
-                    <InputGroup.Text id="basic-addon1"> Password</InputGroup.Text>
-                  </InputGroup.Prepend>
-                  <FormControl
-                    placeholder="Password"
-                    aria-label="Password"
-                    aria-describedby="basic-addon1"
-                  />
-                </InputGroup>
-              </Row>
-              <Row className="pr-0" style={{paddingLeft:"185px", paddingRight: "5px", paddingTop:"5px"}}>
-                <Button variant="outline-success" size="sm" block>Login</Button>
-              </Row>
+              <div style={{paddingTop:"10px", width:"100%", textAlign:"center"}}>
+                <h6 style={{margin:"0px", fontSize:"10px"}}>Logged in as: {userEmail}</h6>
+              </div>
             </Row>
             </Container>
   );
