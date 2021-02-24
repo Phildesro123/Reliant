@@ -1,6 +1,8 @@
 import React from 'react';
 import { render } from 'react-dom';
 import StarRating from './modules/Questionnaire';
+import { URLS } from "../Background/workingUrls";
+
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
@@ -8,21 +10,37 @@ document.querySelector('div').addEventListener('selectionchange', () => {
   console.log('Selection updated');
 });
 
+async function getHostname() {
+  return new Promise(resolve => {
+    chrome.runtime.sendMessage("currentHost", (hostname) => {
+      resolve(hostname);
+    });
+  })
+}
+
+
+async function createQuestionnaire(hostname) {
+  console.log("Creating Questionare for", hostname)
+  var contentBody = null;
+  if (hostname == URLS.WIRED) {
+    console.log("We're on WIRED")
+    contentBody = document.getElementsByClassName("article main-content")[0];
+  } else if (hostname == URLS.CNN) {
+    console.log("We're on CNN")
+    contentBody = document.getElementsByClassName("")[0];
+  }
+  const questionnaire = document.createElement('div');
+  contentBody.appendChild(questionnaire);
+  render(<StarRating/>, questionnaire);
+}
 
 export async function getUserInfo() {
   return new Promise(resolve => {
-    chrome.runtime.sendMessage({}, (userInfo) => {
+    chrome.runtime.sendMessage("userInfo", (userInfo) => {
       resolve(userInfo)
     });
   });
 }
-
-export async function submitQuestionnaire(score) {
-  //Logic for submitting questionarre
-  const userInfo = await getUserInfo()
-  console.log("Email:", userInfo.email, "ID:", userInfo.id, "Questionnaire avg:", score)
-}
-
 
 function getRandomColor() {
   var letters = '0123456789ABCDEF';
@@ -32,40 +50,61 @@ function getRandomColor() {
   }
   return color;
 }
-var first = true;
-var colors = []; // Array holding paragraph colors in the form [original, random]
-var even = 0; // 0 --> Original Color, 1 --> Random Color
+
+async function activateReliant() {
+  var first = true;
+  var colors = []; // Array holding paragraph colors in the form [original, random]
+  var even = 0; // 0 --> Original Color, 1 --> Random Color
+  const hostname = await getHostname()
+  
+  //Check if hostname is in URLS
+  var foundURL = false
+  for (const key in URLS) {
+    if (hostname == URLS[key]) {
+      foundURL = true;
+      break;
+    }
+  }
+  if (!foundURL) {
+    console.log("UNSUPPORTED WEBSITE")
+    return
+  }
+
+  createQuestionnaire(hostname);
+
+  //Highlight everything
+  even = (even + 1) % 2;
+  let paragraphs = document.getElementsByTagName('p');
+  var i = 0;
+  for (const paragraph of paragraphs) {
+    //console.log(paragraph.textContent)
+    if (first) {
+      colors.push([paragraph.style['background-color'], getRandomColor()]);
+      paragraph.style['background-color'] = colors[i][1];
+    } else {
+      paragraph.style['background-color'] = colors[i][even];
+    }
+    i++;
+  }
+  first = false;
+}
+
+
+export async function submitQuestionnaire(score) {
+  //Logic for submitting questionarre
+  const userInfo = await getUserInfo()
+  console.log("Email:", userInfo.email, "ID:", userInfo.id, "Questionnaire avg:", score)
+}
+
+
+
+
 
 //Will clean this up later
 chrome.runtime.onMessage.addListener((req, send, sendResponse) => {
   if (req.type === 'injectReact') {
    //Do nt
   } else {
-    const contentBody = document.body;
-    const questionnaire = document.createElement('div');
-    contentBody.appendChild(questionnaire);
-    render(<StarRating/>, questionnaire);
-    console.log('I WILL INJECT THE REEACT');
-    even = (even + 1) % 2;
-    console.log(
-      send.tab ? 'from a content script:' + send.tab.url : 'from the extension'
-    );
-    let paragraphs = document.getElementsByTagName('p');
-    console.log(paragraphs);
-    var i = 0;
-    console.log(colors);
-    for (const paragraph of paragraphs) {
-      //console.log(paragraph.textContent)
-      if (first) {
-        colors.push([paragraph.style['background-color'], getRandomColor()]);
-        console.log(colors[i]);
-        paragraph.style['background-color'] = colors[i][1];
-      } else {
-        paragraph.style['background-color'] = colors[i][even];
-      }
-      i++;
-    }
-    first = false;
-    sendResponse({ message: 'ACK' });
+    activateReliant()
   }
 });

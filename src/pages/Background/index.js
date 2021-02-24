@@ -5,11 +5,12 @@ import '../../assets/img/icon.png'
 console.log('This is the background page.');
 console.log('Put the background scripts here.');
 
-let clickHandler = () => {
-    chrome.tabs.query({active: true, currentWindow: true}, tabs => {
-        chrome.tabs.sendMessage(tabs[0].id, {type: 'injectReact'});
-    });
-}
+// let clickHandler = () => {
+//     chrome.tabs.query({active: true, currentWindow: true}, tabs => {
+//         chrome.tabs.sendMessage(tabs[0].id, {type: 'injectReact'});
+//     });
+// }
+// chrome.contextMenus.onClicked.addListener(clickHandler);
 chrome.contextMenus.create({ 
     id: 'TestContext',
     title: 'Inject React Element',
@@ -21,11 +22,21 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         console.error(chrome.runtime.lastError);
         throw Error("Unable to send to " + request)
     }
-    chrome.identity.getProfileUserInfo(function(info) {
-        sendResponse({email: info.email, id: info.id});
-    });
+    if (request == "userInfo") {
+        chrome.identity.getProfileUserInfo(function(info) {
+            sendResponse({email: info.email, id: info.id});
+        });
+    }
+    else if (request == "currentHost") {
+        chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+            let url = new URL(tabs[0].url);
+            console.log(url.hostname);
+            sendResponse(url.hostname);
+        });
+    }
     return true; //This line is what allows us to wait for the async sendResponse
 });
 
-chrome.contextMenus.onClicked.addListener(clickHandler);
+
+
 
