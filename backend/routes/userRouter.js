@@ -21,7 +21,7 @@ userRouter.route('/updateSites').post((req, res, next)=>{
       if (err) {
         res.send(err);
       } else {
-        results.visitedSites.push(req.body.site)
+        results.visitedSites.addToSet(req.body.site)
         return results.save();
       }
   });
