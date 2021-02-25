@@ -14,6 +14,7 @@ chrome.runtime.onInstalled.addListener(function(details) {
             const payload = {
                 _id: userInfo.id,
                 email: userInfo.email,
+                displayName: userInfo.email,
               }
               axios({
                 url: 'http://localhost:4000/api/user',

@@ -12,7 +12,7 @@ document.querySelector('div').addEventListener('selectionchange', () => {
 });
 
 
-async function getURL() {
+export async function getURL() {
   return new Promise((resolve) => {
     chrome.runtime.sendMessage("activeURL", (url) => {
       resolve(url);
@@ -75,8 +75,11 @@ window.onload = function() {
   loaded = true;
   console.log("LOADED");
 }
+
+
 async function activateReliant() {
   if (!loaded) {
+    console.log("page not loaded")
     return; // Prevents Reliant from being activated if the site is not done loading.
   }
   console.log("activated reliant")
@@ -92,7 +95,7 @@ async function activateReliant() {
     }
   }
   
-  console.log("Saving Website:", url)
+  console.log("Adding Website to",userInfo.email, "visited list.")
   axios({
     url: 'http://localhost:4000/api/user/updateSites',
     method: 'POST',
@@ -103,6 +106,15 @@ async function activateReliant() {
   .catch(() => {
     console.log("Internal server error")
   });
+
+  const sitePayload = {
+    _id: url,
+  }
+  axios({
+    url: "http://localhost:4000/api/websites",
+    method: "POST",
+    data: sitePayload
+  })
   
   //Check if hostname is in URLS
   var foundURL = false;
@@ -140,21 +152,14 @@ async function activateReliant() {
 export async function submitQuestionnaire(score) {
   //Logic for submitting questionarre
   const userInfo = await getUserInfo();
-  console.log(
-    'Email:',
-    userInfo.email,
-    'ID:',
-    userInfo.id,
-    'Questionnaire avg:',
-    score
-  );
+  const url = await getURL();
+
   const payload = {
-    _id: userInfo.id,
-    email: userInfo.email,
-    userScore: score
+    _id: url,
+    reliabilityScore: score
   }
   axios({
-    url: 'http://localhost:4000',
+    url: 'http://localhost:4000/api/websites/updateScore',
     method: 'POST',
     data: payload
   }).then(() => {

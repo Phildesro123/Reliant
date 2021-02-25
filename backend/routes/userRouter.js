@@ -36,16 +36,16 @@ userRouter.route('/').post((req, res, next) => {
 /** Usage: Whenever the user accesses a new site or needs their site data updated
  * Payload: {
  *  "_id":"{user ID}",
- *  "website": "{website URL}"
+ *  "website": "{_id: URL, timespent: Number}"
  * POST: Add site to user's visited array or update it.
  */
 userRouter.route('/updateSites').post((req, res, next) => {
-  console.log('Updating visitedSites');
+  console.log('Updating visitedSites for:', req.body._id);
   Users.findById(req.body._id, (err, results) => {
     if (err || results == null) { // Don't want any null results put into the DB
       return res.status(400).send({message:"Error occured in finding user or user doesn't exist"});
     } else {
-      if (!results.visitedSites.some(sites => sites._id === req.body.website)) {
+      if (!results.visitedSites.some(sites => sites._id === req.body.website._id)) {
         results.visitedSites.push(req.body.website);
         return results.save();
       } else {

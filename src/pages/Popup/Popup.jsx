@@ -7,21 +7,25 @@ import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import message from './modules/messenger'
 import InputGroup from "react-bootstrap/InputGroup";
-import FormControl from "react-bootstrap/FormControl";
-import {getUserInfo} from "../Content/index"
+import {getUserInfo, getURL} from "../Content/index"
+import axios from "axios"
 import './Popup.css';
-
-const getAuthor = () => {
-  /* We must send a message to the content script and wait for response from it */
-}
-
-
-
 
 const Popup = () => {
   const [userEmail, setUserEmail] = useState(null)
+  const [reliabilityScore, setReliabilityScore] = useState(null)
   useEffect(() => {
     getUserInfo().then(data => setUserEmail(data.email));
+    getURL().then(url => {
+      console.log(url)
+      axios.post('http://localhost:4000/api/websites/getSiteData', {
+        _id: url
+      }).then((response) => {
+        setReliabilityScore(response.data.reliabilityScore)
+      }).catch((error) => {
+        setReliabilityScore("N/A")
+      })
+    })
   }, []);
 
   return (
@@ -40,7 +44,7 @@ const Popup = () => {
                     <span className="stat-header">Followers</span> <span className="stat">900</span>
                   </Col>
                   <Col xs={3} className="p-0">
-                    <span className="stat-header">Rating</span> <span className="stat">3.2</span>
+                    <span className="stat-header">Rating</span> <span className="stat">{reliabilityScore}</span>
                   </Col>
                 </Row>
                 <Row className="m-0" style={{paddingTop:"10px"}}>

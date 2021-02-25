@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 let detail = new Schema(
   {
-    url: String,
+    _id: String,
     reliabilityScore: Number,
     numberOfReviews: Number,
     authors: [
@@ -16,7 +16,7 @@ let detail = new Schema(
     ],
     highlights: [
       {
-        owner: mongoose.Types.ObjectId,
+        owner: String,
       },
     ],
   },
