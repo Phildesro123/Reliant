@@ -1,15 +1,14 @@
 require('dotenv').config({ path: __dirname + '/../.env' });
-let Users = require('./models/users');
 const express = require('express');
 const bodyParser = require('body-parser');
 const router = express.Router();
-const cors = require('cors')
+const cors = require('cors');
 const app = express();
 const userRouter = require('./routes/userRouter');
+const siteRouter = require('./routes/siteRouter');
 
 const mongoose = require('mongoose');
 const { isAssertionExpression } = require('typescript');
-const { db } = require('./models/users');
 const PORT = 4000;
 
 var jsonParser = bodyParser.json()
@@ -22,15 +21,16 @@ mongoose.connect(
     console.log('MongoDB is connected');
   }
 );
-app.use(cors())
+app.use(cors());
 app.use(jsonParser);
 app.use(urlencodedParser);
 app.use('/', router);
 app.use('/api/user', userRouter);
+app.use('/api/websites', siteRouter);
 
 
 // gets things that are already in database
-router.get('/', (req, res) => {
+/* router.get('/', (req, res) => {
   Users.find({})
   .then((data) => {
     res.send(data);
@@ -40,9 +40,9 @@ router.get('/', (req, res) => {
     res.send('Error in Find:', error);
     console.log('Error in Find:', error);
   });
-});
+}); */
 
-router.route('/').post(function (req, res) {
+/* router.route('/').post(function (req, res) {
   console.log("Request:", req.body)
   const user = new Users(req.body);
   user.save((error) => {
@@ -53,7 +53,7 @@ router.route('/').post(function (req, res) {
       res.json({ msg: "User data has been saved!"})
     }
   });
-});
+}); */
 
 app.listen(PORT, function () {
   console.log('Server is running on Port: ' + PORT);

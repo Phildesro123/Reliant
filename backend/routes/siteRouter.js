@@ -1,7 +1,7 @@
 let express = require('express');
-let Users = require('../models/users');
+let VisitedSites = require('../models/visitedSites');
 
-const userRouter = express.Router();
+const siteRouter = express.Router();
 
 /**
  * {
@@ -10,7 +10,7 @@ const userRouter = express.Router();
  * }
  * POST: Add site to visited array. Or update it??
  */
-userRouter.route('/updateSites').post((req, res, next)=>{
+siteRouter.route('/updateSites').post((req, res, next)=>{
   console.log("Updating visitedSites")
   Users.findById(req.body._id, (err, results) => {
     if (err) {
@@ -36,9 +36,9 @@ userRouter.route('/updateSites').post((req, res, next)=>{
  * {
  *  "_id":"{some ID}"
  * }
- * GET: Get information on the current user
+ * GET: Get information on the current site
  */
-userRouter.route('/').get((req, res, next) => {
+siteRouter.route('/').get((req, res, next) => {
   console.log("We will get information about the current user");
   Users.findById(req.body._id, (err, user)=>{
     console.log(user);
@@ -47,4 +47,4 @@ userRouter.route('/').get((req, res, next) => {
 });
 
 
- module.exports = userRouter;
+ module.exports = siteRouter;
