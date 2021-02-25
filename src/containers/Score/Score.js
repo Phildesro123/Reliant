@@ -1,6 +1,8 @@
+const readingTime = require('reading-time');
 const minTime = 10;
 const commentIncrease = 1.25;
 const defaultWeight = 1;
+const percentOfExpected = 0.4;
 //Used to see how long the user has been on the webpage
 export function durationCheck(timeOpened) {
     let now = new Date().getTime()
@@ -45,6 +47,18 @@ Can be updated to account for reading time (my guess is 80% for full weight)
 https://github.com/michael-lynch/reading-time
 https://github.com/ngryman/reading-time - could be used over all <p>
 */
-function timeAdjustment(userInfo) {
-  return Math.min(1, (1/60) * durationCheck(userInfo.timeOpened));
+export function timeAdjustment(userInfo, document) {
+    let paragraphs = document.getElementsByTagName('p');
+    var overall = '';
+    for (const paragraph of paragraphs) {
+        //Basic way to filter out title or unrelated content.
+        if (paragraph.textContent.length > 100) {
+            overall = overall + paragraph.textContent;
+        }
+      }
+    let expectedTime = readingTime(overall).minutes*60;
+    if (expectedTime == 0) {
+        return 1;
+    }
+    return Math.min(1, (1/(percentOfExpected* expectedTime)) * durationCheck(userInfo.timeOpened));
 }
