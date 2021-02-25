@@ -158,8 +158,21 @@ export async function submitQuestionnaire(score) {
     _id: url,
     reliabilityScore: score
   }
+  // //TODO: Implement the two push calls below which save the review to the reviews collection and update the reliability score
+  // axios.push("http://localhost:4000/api/reviews", {
+  //   _id: {userId: userInfo.id,
+  //         url: url},
+  //   reviews: [
+  //     questionId: questionId
+  //     score: score
+  //   ]
+  // }).then(() => {
+  //   axios.push("http://localhost:4000/api/websites/updateScore", {
+  //     // TODO: update score with score logic
+  //   })
+  // })
   axios({
-    url: 'http://localhost:4000/api/websites/updateScore',
+    url: '',
     method: 'POST',
     data: payload
   }).then(() => {
