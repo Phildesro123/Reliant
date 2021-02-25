@@ -2,49 +2,79 @@ let express = require('express');
 let Users = require('../models/users');
 
 const userRouter = express.Router();
-
 /**
- * {
- *  "_id":"{some ID}",
- *  "website": "{website we add to user}""
+ * Usage: Probably when the extension is installed.
+ * Payload: {
+ * _id":"{some ID}",
+ * "email":"{user's email}"
  * }
- * POST: Add site to visited array. Or update it??
+ * POST: Create new user if one doesn't already exist.
  */
-userRouter.route('/updateSites').post((req, res, next)=>{
-  console.log("Updating visitedSites")
-  Users.findById(req.body._id, (err, results) => {
-    if (err) {
-      res.status(400).json(err);
-    } else {
-      if(!results.visitedSites.some(site => site._id === req.body.website))  {
-        results.visitedSites.push(req.body.website)
-        return results.save();
-      } else {
-        console.log("Site already exists in array, so just update timespent")
-      }
+userRouter.route('/').post((req, res, next) => {
+  console.log("Creating new User if one doesn't already exist");
+  Users.exists({ _id: req.body._id }, (err, doc) => {
+    if (err || doc == null) {
+      return res.status(400).send({message: "Error occured finding user in DB"});
     }
-
+    if (!doc) {
+      console.log('Creating new user!');
+      const newUser = new Users(req.body);
+      return newUser.save((error) => {
+        if (error) {
+          return res.status(400).send({message: "Error occured in saving user"});
+        } else {
+          return res.status(200).send({ message: 'created new user' });
+        }
+      });
+    } else {
+      console.log('User already existed');
+      return res.send({ message: 'User already existed' });
+    }
   });
-  res.status(200).send({message: "Updated user's visitedSites"})
 });
 
+/** Usage: Whenever the user accesses a new site or needs their site data updated
+ * Payload: {
+ *  "_id":"{user ID}",
+ *  "website": "{website URL}"
+ * POST: Add site to user's visited array or update it.
+ */
+userRouter.route('/updateSites').post((req, res, next) => {
+  console.log('Updating visitedSites');
+  Users.findById(req.body._id, (err, results) => {
+    if (err || results == null) { // Don't want any null results put into the DB
+      return res.status(400).send({message:"Error occured in finding user or user doesn't exist"});
+    } else {
+      if (!results.visitedSites.some(sites => sites._id === req.body.website)) {
+        results.visitedSites.push(req.body.website);
+        return results.save();
+      } else {
+        console.log('Site already exists in array, so just update timespent');
+        //Cooper's implementation
+      }
+    }
+  });
+  res.status(200).send({ message: "Updated user's visitedSites" });
+});
 
 /**
- * Must receive an ID in order to get user info.
- * ex:
- * send with a payload that at least has 
+ * Usage: Get information about current user
+ * send with a payload that at least has
  * {
- *  "_id":"{some ID}"
+ *  "_id":"{user ID}"
  * }
  * GET: Get information on the current user
  */
 userRouter.route('/').get((req, res, next) => {
-  console.log("We will get information about the current user");
-  Users.findById(req.body._id, (err, user)=>{
+  console.log('We will get information about the current user');
+  Users.findById(req.body._id, (err, user) => {
+    if (err || user == null) {
+      console.log('error occured');
+      return res.status(400).send({ message: 'User not found.' });
+    }
     console.log(user);
-  })
-  res.status(200).json({message:"test"});
+    return res.status(200).send(JSON.stringify(user));
+  });
 });
 
-
- module.exports = userRouter;
+module.exports = userRouter;

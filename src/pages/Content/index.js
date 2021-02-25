@@ -86,7 +86,7 @@ async function activateReliant() {
 
   const payload = {
     _id: userInfo.id,
-    site: {
+    website: {
       _id: url,
       timespent: 5
     }

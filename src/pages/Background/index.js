@@ -16,7 +16,7 @@ chrome.runtime.onInstalled.addListener(function(details) {
                 email: userInfo.email,
               }
               axios({
-                url: 'http://localhost:4000',
+                url: 'http://localhost:4000/api/user',
                 method: 'POST',
                 data: payload
               }).then(() => {
@@ -29,11 +29,6 @@ chrome.runtime.onInstalled.addListener(function(details) {
     }
 });
 
-chrome.contextMenus.create({ 
-    id: 'TestContext',
-    title: 'Inject React Element',
-    contexts: ['all']
-  });
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if(chrome.runtime.lastError) {
