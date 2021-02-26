@@ -50,7 +50,6 @@ userRouter.route('/updateSites').post((req, res, next) => {
         return results.save();
       } else {
         console.log('Site already exists in array, so just update timespent');
-        //Cooper's implementation
       }
     }
   });

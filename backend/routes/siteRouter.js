@@ -43,7 +43,7 @@ siteRouter.route('/addSite').post((req, res, next) => {
  Payload: {
  * "_id":"{url [REQUIRED]}",
  * "reliablityScore":{score},
- * POST: Update website information
+ * POST: Update website score
  */
 siteRouter.route('/updateScore').post((req, res, next) => {
   console.log('POST: Updating website score for:', req.body);
@@ -65,6 +65,32 @@ siteRouter.route('/updateScore').post((req, res, next) => {
   });
 });
 
+/**
+ * Usage: After calculating score again, we can change the number of reviews
+ Payload: {
+ * "_id":"{url [REQUIRED]}",
+ * "numberOfReviews":number of reviews,
+ * POST: Update number of reviews
+ */
+siteRouter.route('/updateReviews').post((req, res, next) => {
+  console.log("POST: Updating website's number of reviews:", req.body);
+  VisitedSites.findOne({_id: req.body._id}, (err, results) => {
+    if (err || results == null) {
+      return res.status(400).send({message: "Error in finding website in DB"});
+    } else {
+        console.log("Previous # of reviews:", results.numberOfReviews);
+        results.numberOfReviews = req.body.numberOfReviews;
+        console.log("Updated score:", results.numberOfReviews);
+        results.save((error)=>{
+            if(error) {
+                return res.status(400).send({message: "Error occured in updating reviews"});
+            } else {
+                return res.status(200).send({ message: "Updated website's number of reviews" });
+            }
+        });
+    }
+  });
+});
 /**
  * Usage: Probably when the user begins the access a new page.
  * ex:
