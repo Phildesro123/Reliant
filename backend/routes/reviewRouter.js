@@ -65,7 +65,7 @@ reviewRouter.route('/getResults').get((req, res, next) => {
             return res.status(400).send(JSON.stringify(err));
         } else if (result) {
             console.log("Results found!");
-            return res.status(200).send(JSON.stringify(result.results));
+            return res.status(200).send(result.results);
         } else {
             console.log("Found no results");
             return res.status(400).send({message: "No results found"})
