@@ -1,6 +1,5 @@
 let express = require('express');
-const visitedSites = require('../models/visitedSites');
-let VisitedSites = require('../models/visitedSites');
+const VisitedSites = require('../models/visitedSites');
 const siteRouter = express.Router();
 /**
  * Usage: Probably done when the extension is loaded
@@ -18,13 +17,13 @@ const siteRouter = express.Router();
  */
 siteRouter.route('/addSite').post((req, res, next) => {
     console.log("siteRouter: Creating new website if one doesn't already exist", req.body);
-    visitedSites.exists({_id: req.body._id}, (err, doc) => {
+    VisitedSites.exists({_id: req.body._id}, (err, doc) => {
       if (err || doc == null) {
         return res.send(err);
       }
       if (!doc) {
         console.log('Adding new site to Websites collection');
-        const newSite = new visitedSites(req.body);
+        const newSite = new VisitedSites(req.body);
         return newSite.save((error) => {
           if (error) {
             return res.send(error);
