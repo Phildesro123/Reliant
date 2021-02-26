@@ -60,13 +60,18 @@ userRouter.route('/updateSites').post((req, res, next) => {
 /**
  * Usage: Get information about current user
  * send with a payload that at least has
+ * query params
  * {
  *  "_id":"{user ID}"
  * }
  * GET: Get information on the current user
  */
 userRouter.route('/').get((req, res, next) => {
-  console.log('We will get information about the current user');
+  if (req.query._id == null) {
+    console.log("ERROR: Null userID")
+    return res.status(400).send({message: "Null userID"});
+  }
+  console.log('GET: We will get information about the current user');
   Users.findById(req.body._id, (err, user) => {
     if (err || user == null) {
       console.log('error occured');

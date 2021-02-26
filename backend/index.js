@@ -8,6 +8,7 @@ const app = express();
 // Define routers
 const userRouter = require('./routes/userRouter');
 const siteRouter = require('./routes/siteRouter');
+const reviewRouter = require('./routes/reviewRouter');
 
 const mongoose = require('mongoose');
 const { isAssertionExpression } = require('typescript');
@@ -29,6 +30,7 @@ app.use(urlencodedParser);
 app.use('/', router);
 app.use('/api/user', userRouter);
 app.use('/api/websites', siteRouter);
+app.use('/api/review', reviewRouter);
 
 
 app.listen(PORT, function () {
