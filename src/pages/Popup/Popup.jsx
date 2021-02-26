@@ -7,23 +7,28 @@ import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import message from './modules/messenger'
 import InputGroup from "react-bootstrap/InputGroup";
-import FormControl from "react-bootstrap/FormControl";
-import {getUserInfo} from "../Content/index"
+import {getUserInfo, getURL} from "../Content/index"
+import starRating from './modules/StarRating'
+import axios from "axios"
 import './Popup.css';
-
-const getAuthor = () => {
-  /* We must send a message to the content script and wait for response from it */
-}
-
-
-
+import StarRating from './modules/StarRating';
 
 const Popup = () => {
   const [userEmail, setUserEmail] = useState(null)
+  const [reliabilityScore, setReliabilityScore] = useState(null)
   useEffect(() => {
     getUserInfo().then(data => setUserEmail(data.email));
+    getURL().then(url => {
+      console.log(url)
+      axios.post('http://localhost:4000/api/websites/getSiteData', {
+        _id: url
+      }).then((response) => {
+        setReliabilityScore(response.data.reliabilityScore)
+      }).catch((error) => {
+        setReliabilityScore(null)
+      })
+    })
   }, []);
-
   return (
           <Container style={{width: '400px', padding:"10px",  textAlign:"center"}}>
             <Row className='m-0'>
@@ -32,17 +37,13 @@ const Popup = () => {
               </Col>
               <Col xs className="pr-0" style={{paddingLeft:"10px", textAlign:"left"}}>
                 <h4 className="mb-0 mt-0">Pablo Escobar</h4><span>Senior Journalist</span>
-                <Row className="w-100 m-0 justify-content-between d-flex rounded" style={{backgroundColor:"#f2f5f8", paddingLeft:"10px"}}>
-                  <Col xs={3} className="p-0">
-                    <span className="stat-header">Articles</span> <span className="stat">35</span>
-                  </Col>
-                  <Col xs={3} className="p-0">
-                    <span className="stat-header">Followers</span> <span className="stat">900</span>
-                  </Col>
-                  <Col xs={3} className="p-0">
-                    <span className="stat-header">Rating</span> <span className="stat">3.2</span>
-                  </Col>
-                </Row>
+                  <div className="reliability-container">
+                  <h6>Reliability Score:</h6>
+                  <div className="star-reliability-container">
+                    <StarRating rating={reliabilityScore}/>
+                    <span className="rating">{reliabilityScore === null ? 0 : Math.round(reliabilityScore * 10) / 10}</span>
+                  </div>
+                  </div>
                 <Row className="m-0" style={{paddingTop:"10px"}}>
                   <Col className="pl-0" style={{paddingRight: "5px"}}>
                     <Button variant="outline-primary" block>Comment</Button>
