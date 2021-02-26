@@ -71,13 +71,13 @@ userRouter.route('/').get((req, res, next) => {
     return res.status(400).send({message: "Null userID"});
   }
   console.log('GET: We will get information about the current user');
-  Users.findById(req.body._id, (err, user) => {
+  Users.findById(req.query._id, (err, user) => {
     if (err || user == null) {
       console.log('error occured');
       return res.status(400).send({ message: 'User not found.' });
     }
     console.log(user);
-    return res.status(200).send(JSON.stringify(user));
+    return res.status(200).send(user);
   });
 });
 

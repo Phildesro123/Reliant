@@ -113,7 +113,7 @@ siteRouter.route('/getSiteData').get((req, res, next) => {
       return res.status(400).send({ message: 'Current site not found' });
     } else {
       console.log("Result:", result);
-      return res.send(JSON.stringify(result));
+      return res.send(result);
     }
   });
 });
