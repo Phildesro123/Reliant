@@ -3,7 +3,7 @@ import { render } from 'react-dom';
 import StarRating from './modules/Questionnaire';
 import { URLS } from '../Background/workingUrls';
 import axios from 'axios';
-
+import {calculateScore} from '../../containers/Score/Score';
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
@@ -75,7 +75,7 @@ window.onload = function() {
   loaded = true;
   console.log("LOADED");
 }
-
+var timeOpened = new Date().getTime()
 
 async function activateReliant() {
   if (!loaded) {
@@ -153,7 +153,6 @@ export async function submitQuestionnaire(score) {
   //Logic for submitting questionarre
   const userInfo = await getUserInfo();
   const url = await getURL();
-
   const payload = {
     _id: url,
     reliabilityScore: score
@@ -171,16 +170,7 @@ export async function submitQuestionnaire(score) {
   //     // TODO: update score with score logic
   //   })
   // })
-  axios({
-    url: '',
-    method: 'POST',
-    data: payload
-  }).then(() => {
-    console.log("Data has been sent to the server")
-  })
-  .catch(() => {
-    console.log("Internal server error")
-  });
+  calculateScore(score, url, userInfo, timeOpened, document);
 }
 
 //Runs when activate is pressed from Popup
