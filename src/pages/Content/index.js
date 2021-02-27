@@ -107,7 +107,6 @@ async function activateReliant() {
 
   const sitePayload = {
     _id: url,
-<<<<<<< HEAD
   }
   axios.post({
     url: "http://localhost:4000/api/websites/addSite",
@@ -120,15 +119,7 @@ async function activateReliant() {
   });
 
   
-=======
-  };
-  axios({
-    url: 'http://localhost:4000/api/websites/addSite',
-    method: 'POST',
-    data: sitePayload,
-  });
 
->>>>>>> dynamic-questionnaire
   //Check if hostname is in URLS
   var foundURL = false;
   for (const key in URLS) {
@@ -139,7 +130,6 @@ async function activateReliant() {
   }
   if (!foundURL) {
     console.log('UNSUPPORTED WEBSITE');
-    return;
   }
   if (first) {
     createQuestionnaire(hostname);
@@ -175,27 +165,21 @@ export async function submitQuestionnaire(score) {
   //   .push('http://localhost:4000/api/reviews', {
   //     _id: { userId: userInfo.id, url: url },
   //   })
-<<<<<<< HEAD
   // })
-  await calculateScore(url, score, userInfo, timeOpened, document);
-=======
-  //   .then(() => {
-  //     axios
-  //       .push('http://localhost:4000/api/websites/updateScore', {
-  //         // TODO: update score with score logic
-  //       })
-  //       .then((res) => {
-  //         console.log('SubmitQuestionnaire returned True');
-  //         return true;
-  //       })
-  //       .catch((err) => {
-  //         console.log('SubmitQuestionnaire Returned an error:', err);
-  //         return err;
-  //       });
-  //   });
-  // calculateScore(score, url, userInfo, timeOpened, document);
-  return true;
->>>>>>> dynamic-questionnaire
+  /* Necessary Inputs:
+  oldWebsiteScore = reliability score of url from the database (default 0)
+  oldWebsiteWeight = number of reviews of url (default 0 ) -- this accounts for review weights
+  oldUserScore = rating of review made by same user on same website earlier (0 if first time)
+  oldUserWeight = calculated weight made from previous review (0 if first time)
+  totalTimeOpened = number of seconds article has been read (stored time + current session time)
+  document = document of HTML, already good as-is
+  Outputs:
+  r[0] = new reliability score of url
+  r[1] = new total weight of url (number of reviews)
+  r[2] = userScore
+  r[3] = userWeight --> r[2], r[3] used to store in Reviews
+  */
+  calculateScore(oldWebsiteScore, oldWebsiteWeight, oldUserScore, oldUserWeight, totalTimeOpened, document);
 }
 
 //Runs when activate is pressed from Popup
