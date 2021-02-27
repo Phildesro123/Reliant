@@ -110,10 +110,9 @@ async function activateReliant() {
   const sitePayload = {
     _id: url,
   }
-  axios({
+  axios.post({
     url: "http://localhost:4000/api/websites/addSite",
-    method: "POST",
-    data: sitePayload
+  sitePayload
   })
   
   //Check if hostname is in URLS
