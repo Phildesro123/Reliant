@@ -16,6 +16,28 @@ const siteRouter = express.Router();
  * POST: Put website in DB with information
  */
 siteRouter.route('/addSite').post((req, res, next) => {
+<<<<<<< HEAD
+    console.log("siteRouter: Creating new website if one doesn't already exist", req.body);
+    VisitedSites.exists({_id: req.body._id}, (err, doc) => {
+      if (err || doc == null) {
+        return res.status(400).send({message: "Error occured in finding website"});
+      }
+      if (!doc) {
+        console.log('Adding new site to Websites collection');
+        const newSite = new VisitedSites(req.body);
+        return newSite.save((error) => {
+          if (error) {
+            return res.send(error);
+          } else {
+            return res.status(200).send({ message: 'Added website to Websites collection' });
+          }
+        });
+      } else {
+        console.log('Site is already in Websites collection');
+        return res.send({ message: 'Website is already in Websites collection' });
+      }
+    });
+=======
   console.log(
     "siteRouter: Creating new website if one doesn't already exist",
     req.body
@@ -40,6 +62,7 @@ siteRouter.route('/addSite').post((req, res, next) => {
       console.log('Site is already in Websites collection');
       return res.send({ message: 'Website is already in Websites collection' });
     }
+>>>>>>> dynamic-questionnaire
   });
 });
 
