@@ -19,7 +19,7 @@ siteRouter.route('/addSite').post((req, res, next) => {
     console.log("siteRouter: Creating new website if one doesn't already exist", req.body);
     VisitedSites.exists({_id: req.body._id}, (err, doc) => {
       if (err || doc == null) {
-        return res.send(err);
+        return res.status(400).send({message: "Error occured in finding website"});
       }
       if (!doc) {
         console.log('Adding new site to Websites collection');
