@@ -18,7 +18,7 @@ const Popup = () => {
     getUserInfo().then(data => setUserEmail(data.email));
     getURL().then(url => {
       console.log(url)
-      axios.post('http://localhost:4000/api/websites/getSiteData', {
+      axios.get('http://localhost:4000/api/websites/getSiteData', {
         _id: url
       }).then((response) => {
         setReliabilityScore(response.data.reliabilityScore)
