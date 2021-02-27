@@ -111,7 +111,7 @@ async function activateReliant() {
     _id: url,
   }
   axios({
-    url: "http://localhost:4000/api/websites",
+    url: "http://localhost:4000/api/websites/addSite",
     method: "POST",
     data: sitePayload
   })
