@@ -113,7 +113,13 @@ async function activateReliant() {
   axios.post({
     url: "http://localhost:4000/api/websites/addSite",
   sitePayload
+  }).then((response) => {
+    console.log(response)
   })
+  .catch(() => {
+    console.log("Internal server error")
+  });
+
   
   //Check if hostname is in URLS
   var foundURL = false;
