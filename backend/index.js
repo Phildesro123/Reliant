@@ -8,6 +8,8 @@ const app = express();
 // Define routers
 const userRouter = require('./routes/userRouter');
 const siteRouter = require('./routes/siteRouter');
+const reviewRouter = require('./routes/reviewRouter');
+const questionRouter = require('./routes/questionsRouter');
 
 const mongoose = require('mongoose');
 const { isAssertionExpression } = require('typescript');
@@ -27,9 +29,12 @@ app.use(cors());
 app.use(jsonParser);
 app.use(urlencodedParser);
 app.use('/', router);
+
+//Specify endpoints for router
 app.use('/api/user', userRouter);
 app.use('/api/websites', siteRouter);
-
+app.use('/api/review', reviewRouter);
+app.use('/api/question', questionRouter);
 
 app.listen(PORT, function () {
   console.log('Server is running on Port: ' + PORT);

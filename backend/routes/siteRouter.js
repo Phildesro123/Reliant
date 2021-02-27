@@ -1,6 +1,5 @@
 let express = require('express');
-const visitedSites = require('../models/visitedSites');
-let VisitedSites = require('../models/visitedSites');
+const VisitedSites = require('../models/visitedSites');
 const siteRouter = express.Router();
 /**
  * Usage: Probably done when the extension is loaded
@@ -16,15 +15,15 @@ const siteRouter = express.Router();
  * }
  * POST: Put website in DB with information
  */
-siteRouter.route('/').post((req, res, next) => {
+siteRouter.route('/addSite').post((req, res, next) => {
     console.log("siteRouter: Creating new website if one doesn't already exist", req.body);
-    visitedSites.exists({_id: req.body._id}, (err, doc) => {
+    VisitedSites.exists({_id: req.body._id}, (err, doc) => {
       if (err || doc == null) {
         return res.send(err);
       }
       if (!doc) {
         console.log('Adding new site to Websites collection');
-        const newSite = new visitedSites(req.body);
+        const newSite = new VisitedSites(req.body);
         return newSite.save((error) => {
           if (error) {
             return res.send(error);
@@ -40,13 +39,14 @@ siteRouter.route('/').post((req, res, next) => {
   });
 
 /**
+ * Usage: After calculating score again, we can change the reliabilityScore
  Payload: {
  * "_id":"{url [REQUIRED]}",
  * "reliablityScore":{score},
- * POST: Update website information
+ * POST: Update website score
  */
 siteRouter.route('/updateScore').post((req, res, next) => {
-  console.log('Updating website score for:', req.body);
+  console.log('POST: Updating website score for:', req.body);
   VisitedSites.findOne({_id: req.body._id}, (err, results) => {
     if (err || results == null) {
       return res.status(400).send({message: "Error in finding website in DB"});
@@ -66,46 +66,54 @@ siteRouter.route('/updateScore').post((req, res, next) => {
 });
 
 /**
- * Usage: Probably when the user begins the access a new page.
- * ex:
- * send with a payload that at least has
- * {
- *  "_id":"{currentURL from user}"
- * }
- * GET: Get stored information on current site.
+ * Usage: After calculating score again, we can change the number of reviews
+ Payload: {
+ * "_id":"{url [REQUIRED]}",
+ * "numberOfReviews":number of reviews,
+ * POST: Update number of reviews
  */
-siteRouter.route('/').get((req, res) => {
-  console.log('GET: Information about current site:', req.body);
-  VisitedSites.findOne({ _id: req.body._id }, (err, result) => {
-    if (err || result == null) {
-      console.log(err);
-      return res.status(400).send({ message: 'Current site not found' });
+siteRouter.route('/updateReviews').post((req, res, next) => {
+  console.log("POST: Updating website's number of reviews:", req.body);
+  VisitedSites.findOne({_id: req.body._id}, (err, results) => {
+    if (err || results == null) {
+      return res.status(400).send({message: "Error in finding website in DB"});
     } else {
-      console.log(result);
-      return res.send(JSON.stringify(result));
+        console.log("Previous # of reviews:", results.numberOfReviews);
+        results.numberOfReviews = req.body.numberOfReviews;
+        console.log("Updated score:", results.numberOfReviews);
+        results.save((error)=>{
+            if(error) {
+                return res.status(400).send({message: "Error occured in updating reviews"});
+            } else {
+                return res.status(200).send({ message: "Updated website's number of reviews" });
+            }
+        });
     }
   });
 });
-
 /**
  * Usage: Probably when the user begins the access a new page.
  * ex:
  * send with a payload that at least has
- * {
+ * 
+ * Query params
  *  "_id":"{currentURL from user}"
- * }
- * POST: Get stored information on current site.
+ * GET: Get stored information [from DB] on current site.
  */
-siteRouter.route('/getSiteData').post((req, res, next) => {
-  console.log('POST: Information about current site:', req.body._id);
-  VisitedSites.findOne({ _id: req.body._id }, (err, result) => {
+siteRouter.route('/getSiteData').get((req, res, next) => {
+  if (req.query._id == null) {
+     console.log("ERROR: Null query received")
+    return res.status(400).send({message: "Need a valid site URL"});
+  }
+  console.log('GET: Information about current site:', req.query._id);
+  VisitedSites.findOne({ _id: req.query._id }, (err, result) => {
     if (err || result == null) {
       console.log(result);
       console.log("Error:", err);
       return res.status(400).send({ message: 'Current site not found' });
     } else {
       console.log("Result:", result);
-      return res.send(JSON.stringify(result));
+      return res.send(result);
     }
   });
 });
