@@ -170,7 +170,7 @@ export async function submitQuestionnaire(score) {
   //     // TODO: update score with score logic
   //   })
   // })
-  calculateScore(score, url, userInfo, timeOpened, document);
+  calculateScore(url, score, userInfo, timeOpened, document);
 }
 
 //Runs when activate is pressed from Popup

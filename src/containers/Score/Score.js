@@ -33,16 +33,15 @@ function weightCalculation(userInfo, timeOpened, documentObj) {
 */
 export function calculateScore(url, questionAnswers, userInfo, timeOpened, documentObj) {
   console.log(documentObj);
-  const payload = {
-    _id : url
-  }
   var score = 0;
   var totalWeight = 0;
   var failed = false;
   var reviews;
   var website;
   //The goal of this request is to get the Website object the reviews into the variable reviews
-  axios.get('localhost:4000/getSiteData', payload).then((response) => {
+  axios.get('http://localhost:4000/api/websites/getSiteData', {params: {
+    _id: url
+  }}).then((response) => {
     website = response;
     reviews = response.reviews;
     console.log("got review data from " + url);
