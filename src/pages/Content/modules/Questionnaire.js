@@ -6,31 +6,16 @@ import axios from 'axios';
 
 const Questionnaire = () => {
   const genre = 'Tech';
-  async function submitClicked() {
-    //start loading animation here (waiting for response)
-    //response is shows whether or not saving the data succeeded
-    return new Promise((resolve) => setTimeout(resolve, 2000));
-    const response = await submitQuestionnaire((score1 + score2 + score3) / 3);
-    console.log(response);
-    //stop loading animation
-    //if response is true show green checkmark
-    //if response if false show error
-  }
   const SUBMIT = 'Submit';
   const SUBMITTING = 'Submitting...';
   const SUBMITTED = 'Questionnaire submitted';
+  const FAILED = 'Failed to submit questionnaire please try again later.';
+
   const [scores, setScores] = useState({});
-  0;
-  //   {questionId: 5,
-  //   questionId: 3}
   const [questions, setQuestions] = useState([]);
   const [submitState, setSubmitState] = useState(SUBMIT);
 
-  //realgenre is only one genre
-
-  //useEffect to get a list of questions and for each question create the html for it
-  //create an dictionary of scores associated with the questions and connect these to the stars
-  //send dictionary to submitQuestionnaire
+  // fetches the questions once the questionnaire is made
   useEffect(() => {
     console.log('Getting Questions');
     axios
@@ -47,13 +32,21 @@ const Questionnaire = () => {
         console.log(err);
       });
   }, []);
+
+  // handles the submit button state
   useEffect(() => {
     console.log('Is Loading called');
     if (submitState === SUBMITTING) {
-      submitClicked().then(() => {
-        //handle success or faliure
-        setSubmitState(SUBMITTED);
-      });
+      console.log('Submitting questionnaire with scores:', scores);
+      submitQuestionnaire(scores)
+        .then(() => {
+          //handle success or faliure
+          setSubmitState(SUBMITTED);
+        })
+        .catch((err) => {
+          console.log('Questionnaire Error:', err);
+          setSubmitState(FAILED);
+        });
     }
   }, [submitState]);
 
@@ -66,11 +59,16 @@ const Questionnaire = () => {
         {questions.map((question, i) => {
           const ratingValue = i + 1;
           return (
-            <label key={question._id}>
+            //
+            <label className="question-label" key={question._id}>
               <h4 className="question">{question.questionText}</h4>
               <span className="spacing"></span>
-              {/* when star rating set scores dictionary value {question._id: score} to new score */}
-              {/* <StarRating score={setScores(question)} /> */}
+              <StarRating
+                scores={scores}
+                questionID={question._id}
+                questionWeight={question.questionWeight}
+                scoreCallback={setScores}
+              />
             </label>
           );
         })}
@@ -78,14 +76,8 @@ const Questionnaire = () => {
       <div>
         <Button
           variant="primary"
-          disabled={submitState === SUBMITTING}
+          disabled={submitState !== SUBMIT}
           onClick={submitState === SUBMIT ? handleClick : null}
-          //   as="input"
-          //   type="submit"
-          //   value="Submit"
-          //   onClick={() => {
-          //     submitClicked();
-          //   }}
         >
           {submitState}
         </Button>
