@@ -172,6 +172,7 @@ export async function submitQuestionnaire(score) {
   oldUserScore = rating of review made by same user on same website earlier (0 if first time)
   oldUserWeight = calculated weight made from previous review (0 if first time)
   totalTimeOpened = number of seconds article has been read (stored time + current session time)
+  newUserScore = the score given by the user by the current questionnaire
   document = document of HTML, already good as-is
   Outputs:
   r[0] = new reliability score of url
@@ -179,7 +180,7 @@ export async function submitQuestionnaire(score) {
   r[2] = userScore
   r[3] = userWeight --> r[2], r[3] used to store in Reviews
   */
-  calculateScore(oldWebsiteScore, oldWebsiteWeight, oldUserScore, oldUserWeight, totalTimeOpened, document);
+ calculateScore(oldWebsiteScore, oldWebsiteWeight, oldUserScore, oldUserWeight, totalTimeOpened, newUserScore, documentObj)
 }
 
 //Runs when activate is pressed from Popup

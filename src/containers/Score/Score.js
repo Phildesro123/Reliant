@@ -41,14 +41,14 @@ function weightCalculation(totalTimeOpened, documentObj) {
 5. ReliabilityScore = score / weight
 6. post all updated values to database
 */
-export function calculateScore(oldWebsiteScore, oldWebsiteWeight, oldUserScore, oldUserWeight, totalTimeOpened, documentObj) {
+export function calculateScore(oldWebsiteScore, oldWebsiteWeight, oldUserScore, oldUserWeight, totalTimeOpened, newUserScore, documentObj) {
   console.log(documentObj);
   var newUserWeight = weightCalculation(totalTimeOpened, documentObj);
   var newWebsiteScore = oldWebsiteScore*oldWebsiteWeight;
   newWebsiteScore = newWebsiteScore + (newUserScore*newUserWeight - oldUserScore*oldUserWeight);
   var newWebsiteWeight = oldWebsiteWeight + (newUserWeight - oldUserWeight);
   var newReliabilityScore = newWebsiteScore/newWebsiteWeight;
-  return newReliabilityScore;
+  return [newReliabilityScore, newWebsiteWeight, newUserScore, newUserWeight];
   /*
   //The goal of this request is to get the Website object the reviews into the variable reviews
   await axios.get('http://localhost:4000/api/websites/getSiteData', {params: {
