@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import StarRating from './StarRating';
-import { Button } from 'react-bootstrap';
 import { submitQuestionnaire } from '..';
 import axios from 'axios';
 
@@ -14,6 +13,16 @@ const Questionnaire = () => {
   const [scores, setScores] = useState({});
   const [questions, setQuestions] = useState([]);
   const [submitState, setSubmitState] = useState(SUBMIT);
+  const [completedForm, setCompletedForm] = useState(false);
+
+  function checkFormCompletion() {
+    if (Object.keys(scores).length === questions.length) {      
+      setCompletedForm(true)
+    }
+    if (submitState !== SUBMIT) {
+      setSubmitState(SUBMIT)
+    }
+  }
 
   // fetches the questions once the questionnaire is made
   useEffect(() => {
@@ -33,6 +42,7 @@ const Questionnaire = () => {
       });
   }, []);
 
+
   // handles the submit button state
   useEffect(() => {
     console.log('Is Loading called');
@@ -51,6 +61,7 @@ const Questionnaire = () => {
   }, [submitState]);
 
   const handleClick = () => setSubmitState(SUBMITTING);
+  
 
   return (
     <div className="questionnaire">
@@ -68,19 +79,20 @@ const Questionnaire = () => {
                 questionID={question._id}
                 questionWeight={question.questionWeight}
                 scoreCallback={setScores}
+                checkFormCallback={checkFormCompletion}
               />
             </label>
           );
         })}
       </div>
       <div>
-        <Button
-          variant="primary"
-          disabled={submitState !== SUBMIT}
+        <button
+          className="submit-btn"
+          disabled={submitState !== SUBMIT || !completedForm}
           onClick={submitState === SUBMIT ? handleClick : null}
         >
           {submitState}
-        </Button>
+        </button>
       </div>
     </div>
   );

@@ -159,7 +159,7 @@ export async function submitQuestionnaire(score) {
   }
   overallScore /= Object.keys(score).length
 
-  axios.post('http://localhost:4000/api/reviews/addReview', {
+  await axios.post('http://localhost:4000/api/reviews/addReview', {
     _id: {
       userId: userInfo.id,
       url: url,
@@ -167,12 +167,11 @@ export async function submitQuestionnaire(score) {
     results: results,
     overallScore: overallScore 
   }).then((res) => {
-    console.log("Response from addReview:",res)
+    console.log("Successfully saved review")
   }).catch((err) => {
     console.log("Error from addReview:", err)
     throw err;
   });
-
   //TODO: Implement the two push calls below which save the review to the reviews collection and update the reliability score
   // axios
   //   .push('http://localhost:4000/api/reviews', {
