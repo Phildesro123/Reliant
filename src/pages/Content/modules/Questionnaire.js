@@ -1,38 +1,89 @@
 import React, { useEffect, useState } from 'react';
 import StarRating from './StarRating';
 import { Button } from 'react-bootstrap';
-import { submitQuestionnaire }  from '..';
+import { submitQuestionnaire } from '..';
+import axios from 'axios';
 
 const Questionnaire = () => {
-    const [score1, setScore1] = useState(0);
-    const [score2, setScore2] = useState(0);
-    const [score3, setScore3] = useState(0);
+  const genre = 'Tech';
+  const SUBMIT = 'Submit';
+  const SUBMITTING = 'Submitting...';
+  const SUBMITTED = 'Questionnaire submitted';
+  const FAILED = 'Failed to submit questionnaire please try again later.';
 
+  const [scores, setScores] = useState({});
+  const [questions, setQuestions] = useState([]);
+  const [submitState, setSubmitState] = useState(SUBMIT);
 
+  // fetches the questions once the questionnaire is made
+  useEffect(() => {
+    console.log('Getting Questions');
+    axios
+      .get('http://localhost:4000/api/question/getQuestions', {
+        params: {
+          genre: genre,
+        },
+      })
+      .then((response) => {
+        console.log(response.data);
+        setQuestions(response.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
-    return (
-        <div className="questionnaire">
-            <h1>Questionnaire</h1>
-            <div className="question-container">
-                <h4 className="question">How reliable did you think the article was?</h4>
-                <span className="spacing"></span>
-                <StarRating updateScore={setScore1}/>
-            </div>
-            <div className="question-container">
-                <h4 className="question">How biased was the author?</h4>
-                <span className="spacing"></span>
-                <StarRating updateScore ={setScore2}/>
-            </div>
-            <div className="question-container">
-                <h4 className="question">What is your overall rating?</h4>
-                <span className="spacing"></span>
-                <StarRating updateScore={setScore3}/>
-            </div>
-            <div>
-                <Button as="input" type="submit" value="Submit" onClick={() => submitQuestionnaire((score1 + score2+ score3)/3)}/>
-            </div>
-        </div>
-    );
-}
+  // handles the submit button state
+  useEffect(() => {
+    console.log('Is Loading called');
+    if (submitState === SUBMITTING) {
+      console.log('Submitting questionnaire with scores:', scores);
+      submitQuestionnaire(scores)
+        .then(() => {
+          //handle success or faliure
+          setSubmitState(SUBMITTED);
+        })
+        .catch((err) => {
+          console.log('Questionnaire Error:', err);
+          setSubmitState(FAILED);
+        });
+    }
+  }, [submitState]);
 
-export default Questionnaire
+  const handleClick = () => setSubmitState(SUBMITTING);
+
+  return (
+    <div className="questionnaire">
+      <h1>Questionnaire</h1>
+      <div className="question-container">
+        {questions.map((question, i) => {
+          const ratingValue = i + 1;
+          return (
+            //
+            <label className="question-label" key={question._id}>
+              <h4 className="question">{question.questionText}</h4>
+              <span className="spacing"></span>
+              <StarRating
+                scores={scores}
+                questionID={question._id}
+                questionWeight={question.questionWeight}
+                scoreCallback={setScores}
+              />
+            </label>
+          );
+        })}
+      </div>
+      <div>
+        <Button
+          variant="primary"
+          disabled={submitState !== SUBMIT}
+          onClick={submitState === SUBMIT ? handleClick : null}
+        >
+          {submitState}
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export default Questionnaire;

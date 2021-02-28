@@ -3,7 +3,7 @@ import { render } from 'react-dom';
 import StarRating from './modules/Questionnaire';
 import { URLS } from '../Background/workingUrls';
 import axios from 'axios';
-
+import { calculateScore } from '../../containers/Score/Score';
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
@@ -11,10 +11,9 @@ document.querySelector('div').addEventListener('selectionchange', () => {
   console.log('Selection updated');
 });
 
-
 export async function getURL() {
   return new Promise((resolve) => {
-    chrome.runtime.sendMessage("activeURL", (url) => {
+    chrome.runtime.sendMessage('activeURL', (url) => {
       resolve(url);
     });
   });
@@ -71,18 +70,18 @@ var first = true; //Used to ensure the questionnaire can only be injected once.
 var loaded = false;
 var colors = []; // Array holding paragraph colors in the form [original, random]
 var even = 0; // 0 --> Original Color, 1 --> Random Color
-window.onload = function() {
+window.onload = function () {
   loaded = true;
-  console.log("LOADED");
-}
-
+  console.log('LOADED');
+};
+var timeOpened = new Date().getTime();
 
 async function activateReliant() {
   if (!loaded) {
-    console.log("page not loaded")
+    console.log('page not loaded');
     return; // Prevents Reliant from being activated if the site is not done loading.
   }
-  console.log("activated reliant")
+  console.log('activated reliant');
   const url = new URL(await getURL());
   const userInfo = await getUserInfo();
   const hostname = url.hostname;
@@ -91,31 +90,36 @@ async function activateReliant() {
     _id: userInfo.id,
     website: {
       _id: url,
-      timespent: 5
-    }
-  }
-  
-  console.log("Adding Website to",userInfo.email, "visited list.")
+      timespent: 5,
+    },
+  };
   axios({
     url: 'http://localhost:4000/api/user/updateSites',
     method: 'POST',
-    data: payload
-  }).then(() => {
-    console.log("Data has been sent to the server")
+    data: payload,
   })
-  .catch(() => {
-    console.log("Internal server error")
-  });
+    .then(() => {
+      console.log('Data has been sent to the server');
+    })
+    .catch(() => {
+      console.log('Internal server error');
+    });
 
   const sitePayload = {
     _id: url,
-  }
-  axios({
-    url: "http://localhost:4000/api/websites",
-    method: "POST",
-    data: sitePayload
-  })
-  
+  };
+  axios
+    .post({
+      url: 'http://localhost:4000/api/websites/addSite',
+      sitePayload,
+    })
+    .then((response) => {
+      console.log(response);
+    })
+    .catch(() => {
+      console.log('Internal server error');
+    });
+
   //Check if hostname is in URLS
   var foundURL = false;
   for (const key in URLS) {
@@ -126,7 +130,6 @@ async function activateReliant() {
   }
   if (!foundURL) {
     console.log('UNSUPPORTED WEBSITE');
-    return;
   }
   if (first) {
     createQuestionnaire(hostname);
@@ -153,41 +156,68 @@ export async function submitQuestionnaire(score) {
   //Logic for submitting questionarre
   const userInfo = await getUserInfo();
   const url = await getURL();
-
-  const payload = {
-    _id: url,
-    reliabilityScore: score
+  //create/update review
+  var results = [];
+  var overallScore = 0
+  for (const s in score) {
+    overallScore += score[s].score;
+    results.push({
+      _id: s,
+      response: score[s].score,
+    });
   }
-  // //TODO: Implement the two push calls below which save the review to the reviews collection and update the reliability score
-  // axios.push("http://localhost:4000/api/reviews", {
-  //   _id: {userId: userInfo.id,
-  //         url: url},
-  //   reviews: [
-  //     questionId: questionId
-  //     score: score
-  //   ]
-  // }).then(() => {
-  //   axios.push("http://localhost:4000/api/websites/updateScore", {
-  //     // TODO: update score with score logic
+  overallScore /= Object.keys(score).length
+
+  axios.post('http://localhost:4000/api/reviews/addReview', {
+    _id: {
+      userId: userInfo.id,
+      url: url,
+    },
+    results: results,
+    overallScore: overallScore 
+  }).then((res) => {
+    console.log("Response from addReview:",res)
+  }).catch((err) => {
+    console.log("Error from addReview:", err)
+  });
+
+  //TODO: Implement the two push calls below which save the review to the reviews collection and update the reliability score
+  // axios
+  //   .push('http://localhost:4000/api/reviews', {
+  //     _id: { userId: userInfo.id, url: url },
   //   })
   // })
-  axios({
-    url: '',
-    method: 'POST',
-    data: payload
-  }).then(() => {
-    console.log("Data has been sent to the server")
-  })
-  .catch(() => {
-    console.log("Internal server error")
-  });
+  /* Necessary Inputs:
+  oldWebsiteScore = reliability score of url from the database (default 0)
+  oldWebsiteWeight = number of reviews of url (default 0 ) -- this accounts for review weights
+  oldUserScore = rating of review made by same user on same website earlier (0 if first time)
+  oldUserWeight = calculated weight made from previous review (0 if first time)
+  totalTimeOpened = number of seconds article has been read (stored time + current session time)
+  newUserScore = the score given by the user by the current questionnaire
+  document = document of HTML, already good as-is
+  Outputs:
+  r[0] = new reliability score of url
+  r[1] = new total weight of url (number of reviews)
+  r[2] = userScore
+  r[3] = userWeight --> r[2], r[3] used to store in Reviews
+  */
+  // calculateScore(
+  //   oldWebsiteScore,
+  //   oldWebsiteWeight,
+  //   oldUserScore,
+  //   oldUserWeight,
+  //   totalTimeOpened,
+  //   newUserScore,
+  //   documentObj
+  // );
+  return true;
 }
 
 //Runs when activate is pressed from Popup
 chrome.runtime.onMessage.addListener((req, send, sendResponse) => {
   if (req.type === 'injectReact') {
     //Do nt
-  } else if(req.type === 'activate') {
+  } else if (req.type === 'activate') {
     activateReliant();
   }
 });

@@ -13,7 +13,6 @@ input[type='radio'] {
   border-width: 15px;
   border-color: darksalmon;
   border-radius: 25px;
-  width: 60%;
   max-width: 800px;
   height: auto;
   margin: auto;
@@ -23,15 +22,23 @@ input[type='radio'] {
 }
 
 .question-container {
-  display: inline-flex;
+  display: block;
   align-items: center;
   width: 100%;
 }
 
 .star-container {
+  display: inline;
+  white-space: nowrap;
   margin: 10px;
 }
 
 .spacing {
   flex-grow: 1;
+}
+.question-label {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-around;
 }

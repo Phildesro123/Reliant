@@ -8,15 +8,15 @@ const app = express();
 // Define routers
 const userRouter = require('./routes/userRouter');
 const siteRouter = require('./routes/siteRouter');
-const reviewRouter = require('./routes/reviewRouter');
+const reviewsRouter = require('./routes/reviewsRouter');
 const questionRouter = require('./routes/questionsRouter');
 
 const mongoose = require('mongoose');
 const { isAssertionExpression } = require('typescript');
 const PORT = 4000;
 
-var jsonParser = bodyParser.json()
-var urlencodedParser = bodyParser.urlencoded({ extended: false })
+var jsonParser = bodyParser.json();
+var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 mongoose.connect(
   process.env.MONGODB_URI,
@@ -33,7 +33,7 @@ app.use('/', router);
 //Specify endpoints for router
 app.use('/api/user', userRouter);
 app.use('/api/websites', siteRouter);
-app.use('/api/review', reviewRouter);
+app.use('/api/reviews', reviewsRouter);
 app.use('/api/question', questionRouter);
 
 app.listen(PORT, function () {
