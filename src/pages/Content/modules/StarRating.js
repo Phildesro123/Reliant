@@ -15,6 +15,19 @@ const StarRating = (props) => {
     props.checkFormCallback();
     setRating(ratingValue);
   };
+  useEffect(() => {
+    const value = props.initialValue
+    if (value !== 0) {
+      setRating(value)
+      var scores = props.scores;
+      scores[props.questionID] = {
+        score: value,
+        questionWeight: props.questionWeight,
+      };
+      props.scoreCallback(scores);
+    }    
+  }, [])
+
   return (
     <div className="star-container">
       {[...Array(5)].map((star, i) => {

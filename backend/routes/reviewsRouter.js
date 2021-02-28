@@ -90,7 +90,7 @@ reviewsRouter.route('/getResults').get((req, res, next) => {
         return res.status(200).send(result.results);
       } else {
         console.log('Found no results');
-        return res.status(400).send({ message: 'No results found' });
+        return res.status(200).send({ message: 'No results found' });
       }
     }
   );
