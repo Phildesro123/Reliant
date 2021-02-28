@@ -202,7 +202,6 @@ export async function submitQuestionnaire(score) {
   //   newUserScore,
   //   documentObj
   // );
-  return true;
 }
 
 //Runs when activate is pressed from Popup
