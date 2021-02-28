@@ -27,7 +27,6 @@ const Popup = () => {
           },
         })
         .then((response) => {
-          console.log("THIS IS WHERE WE ARE")
           if ("reliabilityScore" in response.data) {
             setReliabilityScore(response.data.reliabilityScore);
           } else {
