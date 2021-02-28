@@ -86,17 +86,13 @@ async function activateReliant() {
   const userInfo = await getUserInfo();
   const hostname = url.hostname;
 
-  const payload = {
+
+  axios.post('http://localhost:4000/api/user/updateSites',{
     _id: userInfo.id,
     website: {
       _id: url,
-      timespent: 5,
-    },
-  };
-  axios({
-    url: 'http://localhost:4000/api/user/updateSites',
-    method: 'POST',
-    data: payload,
+      timespent: 5
+    }
   })
     .then(() => {
       console.log('Data has been sent to the server');
@@ -105,13 +101,8 @@ async function activateReliant() {
       console.log('Internal server error');
     });
 
-  const sitePayload = {
-    _id: url,
-  };
-  axios
-    .post({
-      url: 'http://localhost:4000/api/websites/addSite',
-      sitePayload,
+  axios.post("http://localhost:4000/api/websites/addSite",{
+    _id: url
     })
     .then((response) => {
       console.log(response);
@@ -179,6 +170,7 @@ export async function submitQuestionnaire(score) {
     console.log("Response from addReview:",res)
   }).catch((err) => {
     console.log("Error from addReview:", err)
+    throw err;
   });
 
   //TODO: Implement the two push calls below which save the review to the reviews collection and update the reliability score
@@ -210,7 +202,6 @@ export async function submitQuestionnaire(score) {
   //   newUserScore,
   //   documentObj
   // );
-  return true;
 }
 
 //Runs when activate is pressed from Popup

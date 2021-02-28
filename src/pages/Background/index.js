@@ -11,15 +11,10 @@ chrome.runtime.onInstalled.addListener(function(details) {
         console.log("This is the first install!")
         console.log("Adding user to database")
         chrome.identity.getProfileUserInfo((userInfo) => {
-            const payload = {
+              axios.post('http://localhost:4000/api/user',{
                 _id: userInfo.id,
                 email: userInfo.email,
-                displayName: userInfo.email,
-              }
-              axios({
-                url: 'http://localhost:4000/api/user',
-                method: 'POST',
-                data: payload
+                displayName: userInfo.email
               }).then(() => {
                 console.log("Data has been sent to the server")
               })
