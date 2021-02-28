@@ -4,9 +4,17 @@ const Schema = mongoose.Schema;
 
 let detail = new Schema(
   {
-    _id: Object,
-    results:[Object],
-    weightedScore: Number
+    _id: {
+      userId: String,
+      url: String,
+    },
+    results: [
+      {
+        _id: String,
+        response: Number,
+      },
+    ],
+    overallScore: Number,
   },
   { collection: 'reviews' }
 );

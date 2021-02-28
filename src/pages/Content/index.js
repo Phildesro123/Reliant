@@ -107,18 +107,18 @@ async function activateReliant() {
 
   const sitePayload = {
     _id: url,
-  }
-  axios.post({
-    url: "http://localhost:4000/api/websites/addSite",
-  sitePayload
-  }).then((response) => {
-    console.log(response)
-  })
-  .catch(() => {
-    console.log("Internal server error")
-  });
-
-  
+  };
+  axios
+    .post({
+      url: 'http://localhost:4000/api/websites/addSite',
+      sitePayload,
+    })
+    .then((response) => {
+      console.log(response);
+    })
+    .catch(() => {
+      console.log('Internal server error');
+    });
 
   //Check if hostname is in URLS
   var foundURL = false;
@@ -156,10 +156,31 @@ export async function submitQuestionnaire(score) {
   //Logic for submitting questionarre
   const userInfo = await getUserInfo();
   const url = await getURL();
-  const payload = {
-    _id: url,
-    reliabilityScore: score,
-  };
+  //create/update review
+  var results = [];
+  var overallScore = 0
+  for (const s in score) {
+    overallScore += score[s].score;
+    results.push({
+      _id: s,
+      response: score[s].score,
+    });
+  }
+  overallScore /= Object.keys(score).length
+
+  axios.post('http://localhost:4000/api/reviews/addReview', {
+    _id: {
+      userId: userInfo.id,
+      url: url,
+    },
+    results: results,
+    overallScore: overallScore 
+  }).then((res) => {
+    console.log("Response from addReview:",res)
+  }).catch((err) => {
+    console.log("Error from addReview:", err)
+  });
+
   //TODO: Implement the two push calls below which save the review to the reviews collection and update the reliability score
   // axios
   //   .push('http://localhost:4000/api/reviews', {
@@ -180,7 +201,16 @@ export async function submitQuestionnaire(score) {
   r[2] = userScore
   r[3] = userWeight --> r[2], r[3] used to store in Reviews
   */
- calculateScore(oldWebsiteScore, oldWebsiteWeight, oldUserScore, oldUserWeight, totalTimeOpened, newUserScore, documentObj)
+  // calculateScore(
+  //   oldWebsiteScore,
+  //   oldWebsiteWeight,
+  //   oldUserScore,
+  //   oldUserWeight,
+  //   totalTimeOpened,
+  //   newUserScore,
+  //   documentObj
+  // );
+  return true;
 }
 
 //Runs when activate is pressed from Popup

@@ -6,13 +6,12 @@ const percentOfExpected = 0.4;
 import axios from 'axios';
 import { TabPane } from 'react-bootstrap';
 
-
 //Used to see how long the user has been on the webpage
 //Input = date.time that the webpage was opened (does not work for current schema)
 function durationCheck(timeOpened) {
-    let now = new Date().getTime()
-    //ADD PREVIOUS TIME SPENT USING USERINFO
-    return (now - timeOpened)/1000;
+  let now = new Date().getTime();
+  //ADD PREVIOUS TIME SPENT USING USERINFO
+  return (now - timeOpened) / 1000;
 }
 //may need to send messages to index
 function weightCalculation(totalTimeOpened, documentObj) {
@@ -23,16 +22,16 @@ function weightCalculation(totalTimeOpened, documentObj) {
   }
   let weight = defaultWeight;
   weight = timeAdjustment(totalTimeOpened, documentObj) * weight;
-  if (/*user.commented*/true) {
+  if (/*user.commented*/ true) {
     weight = commentIncrease * weight;
   }
   return weight;
 }
 
 /* actual implementation depends on how it's stored
-*/
+ */
 /* STEPS
-1. get website data
+1. get website data 
 2. check if user reviewed website already
 3. calculate old website score and weight (weight in database, score = realiabilityScore * weight)
 4. calculate new website score and weight
@@ -41,13 +40,35 @@ function weightCalculation(totalTimeOpened, documentObj) {
 5. ReliabilityScore = score / weight
 6. post all updated values to database
 */
-export function calculateScore(oldWebsiteScore, oldWebsiteWeight, oldUserScore, oldUserWeight, totalTimeOpened, newUserScore, documentObj) {
+
+/*
+ows: 3.2
+odw: #of reviews 49
+--
+--
+userWeight: 8.9
+tto: 00:13:12
+score: 4.2
+*/
+
+
+export function calculateScore(
+  oldWebsiteScore,
+  oldWebsiteWeight,
+  oldUserScore,
+  oldUserWeight,
+  totalTimeOpened,
+  newUserScore,
+  documentObj
+) {
   console.log(documentObj);
   var newUserWeight = weightCalculation(totalTimeOpened, documentObj);
-  var newWebsiteScore = oldWebsiteScore*oldWebsiteWeight;
-  newWebsiteScore = newWebsiteScore + (newUserScore*newUserWeight - oldUserScore*oldUserWeight);
+  var newWebsiteScore = oldWebsiteScore * oldWebsiteWeight;
+  newWebsiteScore =
+    newWebsiteScore +
+    (newUserScore * newUserWeight - oldUserScore * oldUserWeight);
   var newWebsiteWeight = oldWebsiteWeight + (newUserWeight - oldUserWeight);
-  var newReliabilityScore = newWebsiteScore/newWebsiteWeight;
+  var newReliabilityScore = newWebsiteScore / newWebsiteWeight;
   return [newReliabilityScore, newWebsiteWeight, newUserScore, newUserWeight];
   /*
   //The goal of this request is to get the Website object the reviews into the variable reviews
@@ -68,7 +89,7 @@ export function calculateScore(oldWebsiteScore, oldWebsiteWeight, oldUserScore, 
     return;
   }
   */
- /*TEST DATA
+  /*TEST DATA
   questionAnswers = {score: 1}
   userInfo = {id: '666'};
   timeOpened = new Date().getTime();
@@ -85,10 +106,9 @@ export function calculateScore(oldWebsiteScore, oldWebsiteWeight, oldUserScore, 
     console.log("Could not update reviews")
   });
   */
-  console.log((score/totalWeight));
+  console.log(score / totalWeight);
   return 0;
 }
-
 
 //https://moinism.medium.com/page-scroll-progress-with-javascript-34f5a5073722
 function progressAnalysis(progress) {
@@ -102,24 +122,24 @@ https://github.com/michael-lynch/reading-time
 https://github.com/ngryman/reading-time - could be used over all <p>
 */
 function timeAdjustment(totalTimeOpened, documentObj) {
-    if (typeof(documentObj) == 'undefined') {
-      console.log("bad document");
-      return 1;
+  if (typeof documentObj == 'undefined') {
+    console.log('bad document');
+    return 1;
+  }
+  let paragraphs = documentObj.getElementsByTagName('p');
+  var overall = '';
+  for (const paragraph of paragraphs) {
+    //Basic way to filter out title or unrelated content.
+    if (paragraph.textContent.length > 100) {
+      overall = overall + paragraph.textContent;
     }
-    let paragraphs = documentObj.getElementsByTagName('p');
-    var overall = '';
-    for (const paragraph of paragraphs) {
-        //Basic way to filter out title or unrelated content.
-        if (paragraph.textContent.length > 100) {
-            overall = overall + paragraph.textContent;
-        }
-      }
-    let expectedTime = readingTime(overall).minutes*60;
-    console.log("Expected Reading Time : " + expectedTime);
-    if (expectedTime == 0) {
-        return 1;
-    }
-    let actualTime = totalTimeOpened;
-    console.log("Time read: " + actualTime);
-    return Math.min(1, (1/(percentOfExpected* expectedTime)) * actualTime);
+  }
+  let expectedTime = readingTime(overall).minutes * 60;
+  console.log('Expected Reading Time : ' + expectedTime);
+  if (expectedTime == 0) {
+    return 1;
+  }
+  let actualTime = totalTimeOpened;
+  console.log('Time read: ' + actualTime);
+  return Math.min(1, (1 / (percentOfExpected * expectedTime)) * actualTime);
 }
