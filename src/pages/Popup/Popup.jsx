@@ -27,9 +27,14 @@ const Popup = () => {
           },
         })
         .then((response) => {
-          setReliabilityScore(response.data.reliabilityScore);
+          if ("reliabilityScore" in response.data) {
+            setReliabilityScore(response.data.reliabilityScore);
+          } else {
+            setReliabilityScore(null);
+          }
         })
         .catch((error) => {
+          console.log("WE ARE IN ERROR")
           setReliabilityScore(null);
         });
     });

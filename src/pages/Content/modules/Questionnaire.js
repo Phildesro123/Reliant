@@ -3,8 +3,7 @@ import StarRating from './StarRating';
 import { submitQuestionnaire } from '..';
 import axios from 'axios';
 
-const Questionnaire = () => {
-  const genre = 'Tech';
+function Questionnaire(props) {
   const SUBMIT = 'Submit';
   const SUBMITTING = 'Submitting...';
   const SUBMITTED = 'Questionnaire submitted';
@@ -14,7 +13,7 @@ const Questionnaire = () => {
   const [questions, setQuestions] = useState([]);
   const [submitState, setSubmitState] = useState(SUBMIT);
   const [completedForm, setCompletedForm] = useState(false);
-
+  const [results, setResults] = useState([])
   function checkFormCompletion() {
     if (Object.keys(scores).length === questions.length) {      
       setCompletedForm(true)
@@ -30,12 +29,15 @@ const Questionnaire = () => {
     axios
       .get('http://localhost:4000/api/question/getQuestions', {
         params: {
-          genre: genre,
+          genre: props.genre,
         },
       })
       .then((response) => {
         console.log(response.data);
-        setQuestions(response.data);
+        axios.get("http://localhost:4000/api/reviews/getResults", {params: {userId: props.userId, url: props.url}}).then((res) => {
+          setResults(res.data);
+          setQuestions(response.data);
+        }).catch((err) => console.log(err))
       })
       .catch((err) => {
         console.log(err);
@@ -67,7 +69,18 @@ const Questionnaire = () => {
     <div className="questionnaire">
       <h1>Questionnaire</h1>
       <div className="question-container">
-        {questions.map((question, i) => {
+        {questions.map((question, i) => {0
+          var value = 0;
+          if (results.length > 0) {
+            const temp = results.filter(result =>{
+            return result._id === question._id;
+            })
+            if (temp.length > 0) {
+              value = temp[0].response
+            }
+          }
+
+          console.log(value)
           const ratingValue = i + 1;
           return (
             //
@@ -80,6 +93,7 @@ const Questionnaire = () => {
                 questionWeight={question.questionWeight}
                 scoreCallback={setScores}
                 checkFormCallback={checkFormCompletion}
+                initialValue={value}
               />
             </label>
           );
