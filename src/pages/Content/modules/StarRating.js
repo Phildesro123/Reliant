@@ -12,6 +12,7 @@ const StarRating = (props) => {
       questionWeight: props.questionWeight,
     };
     props.scoreCallback(scores);
+    props.checkFormCallback();
     setRating(ratingValue);
   };
   return (
