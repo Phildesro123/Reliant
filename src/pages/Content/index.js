@@ -1,6 +1,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import Questionnaire from './modules/Questionnaire';
+import Highlight from './modules/HighlightScript';
 import { URLS } from '../Background/workingUrls';
 import axios from 'axios';
 import { calculateScore } from '../../containers/Score/Score';
@@ -140,16 +141,34 @@ async function activateReliant() {
 
   //Highlight everything
   even = (even + 1) % 2;
-  let paragraphs = document.getElementsByTagName('p');
+
+  
+  var createReactClass = require('create-react-class');
+  let paragraphs = document.getElementsByTagName('p')
+  render(<Highlight children={paragraphs}/>, paragraphs);
+
+  var newComp = createReactClass({
+    map1 = paragraphs.map(x=>x)
+    render: function() {
+      return (
+        map1
+      );
+    }
+
+  });
+  
+  console.log("before highlightpop", paragraphs[2]);
   var i = 0;
   for (const paragraph of paragraphs) {
-    //console.log(paragraph.textContent)
-    if (first) {
-      colors.push([paragraph.style['background-color'], getRandomColor()]);
-      paragraph.style['background-color'] = colors[i][1];
-    } else {
-      paragraph.style['background-color'] = colors[i][even];
-    }
+    // console.log(paragraph.textContent)
+    // if (first) {
+    //   colors.push([paragraph.style['background-color'], getRandomColor()]);
+    //   paragraph.style['background-color'] = colors[i][1];
+    // } else {
+    //   paragraph.style['background-color'] = colors[i][even];
+    // }
+    console.log(paragraph);
+    // render(<HighlightPop onHighlightPop={()=>console.log("Highlighting")}>paragraph</HighlightPop>);
     i++;
   }
   first = false;

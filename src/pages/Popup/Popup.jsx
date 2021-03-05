@@ -9,6 +9,7 @@ import message from './modules/messenger';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { getUserInfo, getURL } from '../Content/index';
 import starRating from './modules/StarRating';
+import HighlightPop from 'react-highlight-pop';
 import axios from 'axios';
 import './Popup.css';
 import StarRating from './modules/StarRating';
@@ -80,11 +81,13 @@ const Popup = () => {
             </Col>
           </Row>
         </Col>
+        <HighlightPop>
         <div style={{ paddingTop: '10px', width: '100%', textAlign: 'center' }}>
           <h6 style={{ margin: '0px', fontSize: '10px' }}>
             Logged in as: {userEmail}
           </h6>
         </div>
+        </HighlightPop>
       </Row>
     </Container>
   );
