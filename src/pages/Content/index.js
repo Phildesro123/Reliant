@@ -5,6 +5,7 @@ import Highlight from './modules/HighlightScript';
 import { URLS } from '../Background/workingUrls';
 import axios from 'axios';
 import { calculateScore } from '../../containers/Score/Score';
+import HighlightPop from 'react-highlight-pop';
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
@@ -23,41 +24,44 @@ export async function getURL() {
 async function createQuestionnaire(userId, url, hostname) {
   console.log('Creating Questionare for', hostname);
   var contentBody = null;
-  var genre = ""
+  var genre = '';
   if (hostname.includes(URLS.WIRED)) {
     console.log("We're on WIRED");
     contentBody = document.getElementsByClassName('article main-content')[0];
-    genre = "Tech"
+    genre = 'Tech';
   } else if (hostname.includes(URLS.CNN)) {
     console.log("We're on CNN");
     contentBody = document.getElementById('body-text');
-    genre = "Political"
+    genre = 'Political';
   } else if (hostname.includes(URLS.VERGE)) {
     console.log("We're on Verge");
     contentBody = document.getElementsByClassName('c-entry-content ')[0];
-    genre = "Tech"
+    genre = 'Tech';
   } else if (hostname.includes(URLS.VOX)) {
     console.log("We're on Vox");
     contentBody = document.getElementsByClassName('c-entry-content ')[0];
-    genre = "Political"
+    genre = 'Political';
   } else if (hostname.includes(URLS.FOXNEWS)) {
     console.log("We're on Fox");
     contentBody = document.getElementsByClassName('article-body')[0];
   } else if (hostname.includes(URLS.MEDIUM)) {
     console.log("We're on Medium");
-    contentBody = document.getElementsByTagName("article")[0];
-    genre = "Education"
+    contentBody = document.getElementsByTagName('article')[0];
+    genre = 'Education';
   } else if (hostname.includes(URLS.NYTIMES)) {
     console.log("We're on NY Times");
     contentBody = document.getElementsByClassName('bottom-of-article')[0];
-    genre = "Political"
+    genre = 'Political';
   }
   if (contentBody == undefined) {
     contentBody = document.body;
   }
   const questionnaire = document.createElement('div');
   contentBody.appendChild(questionnaire);
-  render(<Questionnaire userId={userId} url={url} genre={genre} />, questionnaire);
+  render(
+    <Questionnaire userId={userId} url={url} genre={genre} />,
+    questionnaire
+  );
 }
 
 export async function getUserInfo() {
@@ -110,13 +114,14 @@ async function activateReliant() {
     return;
   }
 
-  axios.post('http://localhost:4000/api/user/updateSites',{
-    _id: userInfo.id,
-    website: {
-      _id: url,
-      timespent: 5
-    }
-  })
+  axios
+    .post('http://localhost:4000/api/user/updateSites', {
+      _id: userInfo.id,
+      website: {
+        _id: url,
+        timespent: 5,
+      },
+    })
     .then(() => {
       console.log('Data has been sent to the server');
     })
@@ -124,8 +129,9 @@ async function activateReliant() {
       console.log('Internal server error');
     });
 
-  axios.post("http://localhost:4000/api/websites/addSite",{
-    _id: url
+  axios
+    .post('http://localhost:4000/api/websites/addSite', {
+      _id: url,
     })
     .then((response) => {
       console.log(response);
@@ -134,7 +140,6 @@ async function activateReliant() {
       console.log('Internal server error');
     });
 
-
   if (first) {
     createQuestionnaire(userInfo.id, url, hostname);
   }
@@ -142,23 +147,12 @@ async function activateReliant() {
   //Highlight everything
   even = (even + 1) % 2;
 
-  
   var createReactClass = require('create-react-class');
-  let paragraphs = document.getElementsByTagName('p')
-  render(<Highlight children={paragraphs}/>, paragraphs);
+  let paragraphs = document.getElementsByTagName('p');
+  // render(<Highlight children={paragraphs}/>, paragraphs);
 
-  var newComp = createReactClass({
-    map1 = paragraphs.map(x=>x)
-    render: function() {
-      return (
-        map1
-      );
-    }
+  console.log('before highlightpop', paragraphs[2]);
 
-  });
-  
-  console.log("before highlightpop", paragraphs[2]);
-  var i = 0;
   for (const paragraph of paragraphs) {
     // console.log(paragraph.textContent)
     // if (first) {
@@ -167,9 +161,21 @@ async function activateReliant() {
     // } else {
     //   paragraph.style['background-color'] = colors[i][even];
     // }
-    console.log(paragraph);
-    // render(<HighlightPop onHighlightPop={()=>console.log("Highlighting")}>paragraph</HighlightPop>);
-    i++;
+    const highlightWrapper = document.createElement('div');
+
+    //console.log(paragraph);
+    //paragraph.parentNode.insertBefore(highlight, paragraph);
+    console.log(
+      '==== Highlight react component should be wrapped at this point ===='
+    );
+    paragraph.parentNode.replaceChild(highlightWrapper, paragraph);
+
+    highlightWrapper.appendChild(paragraph);
+
+    render(
+      <HighlightPop onHighlightPop={() => console.log('Highlighting')} />,
+      highlightWrapper
+    );
   }
   first = false;
 }
@@ -180,7 +186,7 @@ export async function submitQuestionnaire(score) {
   const url = await getURL();
   //create/update review
   var results = [];
-  var overallScore = 0
+  var overallScore = 0;
   for (const s in score) {
     overallScore += score[s].score;
     results.push({
@@ -188,21 +194,24 @@ export async function submitQuestionnaire(score) {
       response: score[s].score,
     });
   }
-  overallScore /= Object.keys(score).length
+  overallScore /= Object.keys(score).length;
 
-  await axios.post('http://localhost:4000/api/reviews/addReview', {
-    _id: {
-      userId: userInfo.id,
-      url: url,
-    },
-    results: results,
-    overallScore: overallScore 
-  }).then((res) => {
-    console.log("Successfully saved review")
-  }).catch((err) => {
-    console.log("Error from addReview:", err)
-    throw err;
-  });
+  await axios
+    .post('http://localhost:4000/api/reviews/addReview', {
+      _id: {
+        userId: userInfo.id,
+        url: url,
+      },
+      results: results,
+      overallScore: overallScore,
+    })
+    .then((res) => {
+      console.log('Successfully saved review');
+    })
+    .catch((err) => {
+      console.log('Error from addReview:', err);
+      throw err;
+    });
   //TODO: Implement the two push calls below which save the review to the reviews collection and update the reliability score
   // axios
   //   .push('http://localhost:4000/api/reviews', {
