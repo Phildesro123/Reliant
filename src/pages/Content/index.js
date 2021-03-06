@@ -149,35 +149,64 @@ async function activateReliant() {
 
   var createReactClass = require('create-react-class');
   let paragraphs = document.getElementsByTagName('p');
+  paragraphs = Array.from(paragraphs);
   // render(<Highlight children={paragraphs}/>, paragraphs);
+  console.log(paragraphs);
+  console.log('before highlightpop', paragraphs[0]);
+  // grab the 0th indx para
+  // grab teh last indx parag
 
-  console.log('before highlightpop', paragraphs[2]);
+  // div called big div
+  // bigdiv.appendBefore 0th index paragraph
+  // bigdiv.append lastindex pargarph
 
-  for (const paragraph of paragraphs) {
-    // console.log(paragraph.textContent)
-    // if (first) {
-    //   colors.push([paragraph.style['background-color'], getRandomColor()]);
-    //   paragraph.style['background-color'] = colors[i][1];
-    // } else {
-    //   paragraph.style['background-color'] = colors[i][even];
-    // }
-    const highlightWrapper = document.createElement('div');
+  let highlightWrapper = document.createElement('span');
+  highlightWrapper.id = 'highlight_tool';
 
-    //console.log(paragraph);
-    //paragraph.parentNode.insertBefore(highlight, paragraph);
-    console.log(
-      '==== Highlight react component should be wrapped at this point ===='
-    );
-    paragraph.parentNode.replaceChild(highlightWrapper, paragraph);
+  const firstParagarph = paragraphs[0];
+  const contentBody = document.getElementsByClassName('c-entry-content ')[0];
+  contentBody.appendChild(highlightWrapper);
+  highlightWrapper.appendChild(firstParagarph);
+  console.log(highlightWrapper);
 
-    highlightWrapper.appendChild(paragraph);
+  const last = paragraphs[paragraphs.length - 1];
+  console.log('before wrapping');
+  //firstParagarph.parentNode.replaceChild(highlightWrapper, firstParagarph);
 
-    render(
-      <HighlightPop onHighlightPop={() => console.log('Highlighting')} />,
-      highlightWrapper
-    );
-  }
-  first = false;
+  highlightWrapper.parentNode.appendChild(firstParagarph);
+
+  render(
+    <HighlightPop onHighlightPop={() => console.log('Highlighting')}>
+      <p>Hello, this is a testing tag</p>
+    </HighlightPop>,
+    highlightWrapper
+  );
+  console.log('after wrapping');
+  //   for (const paragraph of paragraphs) {
+  //     // console.log(paragraph.textContent)
+  //     // if (first) {
+  //     //   colors.push([paragraph.style['background-color'], getRandomColor()]);
+  //     //   paragraph.style['background-color'] = colors[i][1];
+  //     // } else {
+  //     //   paragraph.style['background-color'] = colors[i][even];
+  //     // }
+  //     const highlightWrapper = document.createElement('div');
+
+  //     //console.log(paragraph);
+  //     //paragraph.parentNode.insertBefore(highlight, paragraph);
+  //     console.log(
+  //       '==== Highlight react component should be wrapped at this point ===='
+  //     );
+  //     paragraph.parentNode.replaceChild(highlightWrapper, paragraph);
+
+  //     highlightWrapper.appendChild(paragraph);
+
+  //     render(
+  //       <HighlightPop onHighlightPop={() => console.log('Highlighting')} />,
+  //       highlightWrapper
+  //     );
+  //   }
+  //   first = false;
 }
 
 export async function submitQuestionnaire(score) {
