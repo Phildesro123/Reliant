@@ -5,7 +5,7 @@ import Highlight from './modules/HighlightScript';
 import { URLS } from '../Background/workingUrls';
 import axios from 'axios';
 import { calculateScore } from '../../containers/Score/Score';
-import HighlightPop from 'react-highlight-pop';
+import ToolComponent from './modules/Tooltip';
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
@@ -148,15 +148,20 @@ async function activateReliant() {
   even = (even + 1) % 2;
 
   var createReactClass = require('create-react-class');
-  let tooltip = document.createElement('div');
+  let tooltip = document.createElement('span');
   tooltip.className = 'tool_tip';
   document.body.appendChild(tooltip);
+  render(<ToolComponent>aa</ToolComponent>, tooltip);
+  // tooltip.style.visibility = 'hidden';
+  tooltip.style.display = 'none';
+
 
   const renderToolTip = (mouseX, mouseY, selection) => {
-    tooltip.innerHTML = "telllem";
     tooltip.style.top = mouseY + 'px';
     tooltip.style.left = mouseX + 'px';
     tooltip.style.visibility = 'visible';
+    tooltip.style.display = 'block';
+
   };
   // Show the tool tip
   let paragraphs = document.getElementsByTagName('p');
@@ -165,16 +170,22 @@ async function activateReliant() {
     if (selection.length > 0) {
       //Render the tooltip
       renderToolTip(e.clientX, e.clientY, selection)
-      console.log(selection)
     }
   })
 
+
+
   //Close the tool tip
-  document.addEventListener('mousedown', (e)=> {
+  document.addEventListener('mousedown', (e)=> {    
     //Make the tool tip invisible
-    tooltip.style.visibility = 'hidden'
-    console.log("We down")
-  })
+    //console.log(e);
+    if (e.target.parentNode.getAttribute('class') == 'tool_tip' || e.target.getAttribute('class') == "btn btn-primary") {
+      e.stopPropagation();
+    } else {
+    tooltip.style.display = 'hidden'
+    tooltip.style.display = 'none'
+  }
+})
   //paragraphs = Array.from(paragraphs);
   // render(<Highlight children={paragraphs}/>, paragraphs);
  // console.log(paragraphs);
