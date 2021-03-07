@@ -148,11 +148,37 @@ async function activateReliant() {
   even = (even + 1) % 2;
 
   var createReactClass = require('create-react-class');
+  let tooltip = document.createElement('div');
+  tooltip.className = 'tool_tip';
+  document.body.appendChild(tooltip);
+
+  const renderToolTip = (mouseX, mouseY, selection) => {
+    tooltip.innerHTML = "telllem";
+    tooltip.style.top = mouseY + 'px';
+    tooltip.style.left = mouseX + 'px';
+    tooltip.style.visibility = 'visible';
+  };
+  // Show the tool tip
   let paragraphs = document.getElementsByTagName('p');
-  paragraphs = Array.from(paragraphs);
+  document.addEventListener('mouseup', (e)=> {
+    let selection = window.getSelection().toString();
+    if (selection.length > 0) {
+      //Render the tooltip
+      renderToolTip(e.clientX, e.clientY, selection)
+      console.log(selection)
+    }
+  })
+
+  //Close the tool tip
+  document.addEventListener('mousedown', (e)=> {
+    //Make the tool tip invisible
+    tooltip.style.visibility = 'hidden'
+    console.log("We down")
+  })
+  //paragraphs = Array.from(paragraphs);
   // render(<Highlight children={paragraphs}/>, paragraphs);
-  console.log(paragraphs);
-  console.log('before highlightpop', paragraphs[0]);
+ // console.log(paragraphs);
+//  console.log('before highlightpop', paragraphs[0]);
   // grab the 0th indx para
   // grab teh last indx parag
 
@@ -160,7 +186,7 @@ async function activateReliant() {
   // bigdiv.appendBefore 0th index paragraph
   // bigdiv.append lastindex pargarph
 
-  let highlightWrapper = document.createElement('span');
+/*   let highlightWrapper = document.createElement('span');
   highlightWrapper.id = 'highlight_tool';
 
   const firstParagarph = paragraphs[0];
@@ -180,7 +206,7 @@ async function activateReliant() {
       <p>Hello, this is a testing tag</p>
     </HighlightPop>,
     highlightWrapper
-  );
+  ); */
   console.log('after wrapping');
   //   for (const paragraph of paragraphs) {
   //     // console.log(paragraph.textContent)
