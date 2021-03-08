@@ -154,7 +154,7 @@ async function activateReliant() {
   render(<ToolComponent>aa</ToolComponent>, tooltip);
   tooltip.style.position = 'absolute';
   tooltip.style.visibility = 'hidden';
-  // tooltip.style.display = 'none';
+  tooltip.style.display = 'none';
 
 
   const renderToolTip = (mouseX, mouseY, selection) => {
