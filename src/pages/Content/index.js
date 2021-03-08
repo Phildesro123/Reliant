@@ -159,7 +159,7 @@ async function activateReliant() {
 
   const renderToolTip = (mouseX, mouseY, selection) => {
     mouseX = mouseX - 50;
-    mouseY = mouseY - 25;
+    mouseY = mouseY - 40;
     tooltip.style.top = mouseY + 'px';
     tooltip.style.left = mouseX + 'px';
     tooltip.style.visibility = 'visible';
@@ -169,6 +169,8 @@ async function activateReliant() {
 
   var startX = 0;
   var endX = 0;
+  var startY = 0;
+  var endY = 0;
   //Close the tool tip
   document.addEventListener('mousedown', (e)=> {    
     //Make the tool tip invisible
@@ -178,6 +180,7 @@ async function activateReliant() {
       e.stopPropagation();
     } else {
       startX = e.pageX
+      startY = e.pageY
       
     tooltip.style.display = 'hidden'
     tooltip.style.display = 'none'
@@ -191,9 +194,10 @@ async function activateReliant() {
       //Render the tooltip
       
       endX = e.pageX
-      console.log("start x is ", startX)
-      console.log("end x is ", endX)
-      renderToolTip((endX - startX)/2 + startX, e.pageY, selection)
+      endY = e.pageY
+      console.log("start x is ", startY)
+      console.log("end x is ", endY)
+      renderToolTip((endX - startX)/2 + startX, startY - (endY - startY)/2, selection)
     }
   })
 

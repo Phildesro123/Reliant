@@ -16,8 +16,8 @@ import Popover from 'react-bootstrap/Popover';
 
 
 const popover = (
-    <Popover id="popover-basic">
-      <Popover.Title as="h3">Options</Popover.Title>
+    <Popover style={{backgroundColor: "red"}} id="popover-basic">
+      {/* <Popover.Title as="h3">Options</Popover.Title> */}
       <Popover.Content>
         {/* And here's some <strong>amazing</strong> content. It's very engaging.
         right? */}
@@ -35,8 +35,8 @@ const ToolTip = () => {
     return (
 
         
-    <OverlayTrigger trigger="hover" placement="top" overlay={popover}>
-    <Button variant="success">Options</Button>
+    <OverlayTrigger trigger="click" placement="top" overlay={popover}>
+    <Button style={{backgroundColor: "green"}} variant="success">Options</Button>
   </OverlayTrigger>
     );
     
