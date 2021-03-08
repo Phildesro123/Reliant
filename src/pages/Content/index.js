@@ -152,40 +152,55 @@ async function activateReliant() {
   tooltip.className = 'tool_tip';
   document.body.appendChild(tooltip);
   render(<ToolComponent>aa</ToolComponent>, tooltip);
-  // tooltip.style.visibility = 'hidden';
-  tooltip.style.display = 'none';
+  tooltip.style.position = 'absolute';
+  tooltip.style.visibility = 'hidden';
+  // tooltip.style.display = 'none';
 
 
   const renderToolTip = (mouseX, mouseY, selection) => {
+    mouseX = mouseX - 50;
+    mouseY = mouseY - 25;
     tooltip.style.top = mouseY + 'px';
     tooltip.style.left = mouseX + 'px';
     tooltip.style.visibility = 'visible';
     tooltip.style.display = 'block';
 
   };
+
+  var startX = 0;
+  var endX = 0;
+  //Close the tool tip
+  document.addEventListener('mousedown', (e)=> {    
+    //Make the tool tip invisible
+    //console.log(e);
+    if (e.target.parentNode.getAttribute('class') == 'tool_tip' || e.target.getAttribute('class') == "btn btn-primary") {
+      
+      e.stopPropagation();
+    } else {
+      startX = e.pageX
+      
+    tooltip.style.display = 'hidden'
+    tooltip.style.display = 'none'
+  }
+  })
   // Show the tool tip
   let paragraphs = document.getElementsByTagName('p');
   document.addEventListener('mouseup', (e)=> {
     let selection = window.getSelection().toString();
     if (selection.length > 0) {
       //Render the tooltip
-      renderToolTip(e.clientX, e.clientY, selection)
+      
+      endX = e.pageX
+      console.log("start x is ", startX)
+      console.log("end x is ", endX)
+      renderToolTip((endX - startX)/2 + startX, e.pageY, selection)
     }
   })
 
 
 
-  //Close the tool tip
-  document.addEventListener('mousedown', (e)=> {    
-    //Make the tool tip invisible
-    //console.log(e);
-    if (e.target.parentNode.getAttribute('class') == 'tool_tip' || e.target.getAttribute('class') == "btn btn-primary") {
-      e.stopPropagation();
-    } else {
-    tooltip.style.display = 'hidden'
-    tooltip.style.display = 'none'
-  }
-})
+
+  
   //paragraphs = Array.from(paragraphs);
   // render(<Highlight children={paragraphs}/>, paragraphs);
  // console.log(paragraphs);
