@@ -14,8 +14,8 @@ import StarRating from './modules/StarRating';
 const Popup = () => {
   const [userEmail, setUserEmail] = useState(null);
   const [reliabilityScore, setReliabilityScore] = useState(null);
-  const [activated, setActivated] = useState(false);
-  const [loaded, setLoaded] = useState(false);
+ // const [activated, setActivated] = useState(false);
+  //const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     console.log("Activated", getActivateState())
     setActivated(getActivateState());

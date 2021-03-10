@@ -72,7 +72,6 @@ async function createQuestionnaire(userId, url, hostname) {
   }
   contentBody.appendChild(questionnaire);
   contentBody.appendChild(comment);
-  console.log("Content Body" , contentBody)
   render(<Comment />, comment)
   render(<Questionnaire userId={userId} url={url} genre={genre} />, questionnaire);
 }
