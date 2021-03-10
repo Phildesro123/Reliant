@@ -22,32 +22,82 @@ export async function getURL() {
 async function createQuestionnaire(userId, url, hostname) {
   console.log('Creating Questionare for', hostname);
   var contentBody = null;
-  var genre = ""
+  var author = [];
+  var genre = "";
+  var removeText;
+  var spaceCount = 0;
   if (hostname.includes(URLS.WIRED)) {
     console.log("We're on WIRED");
+    author.push(document.getElementsByName("author")[0].content);
+    console.log(author);
     contentBody = document.getElementsByClassName('article main-content')[0];
     genre = "Tech"
   } else if (hostname.includes(URLS.CNN)) {
     console.log("We're on CNN");
+    removeText = document.getElementsByName("author")[0].content;
+    removeText = removeText.substr(0,removeText.length-5);
+    if (removeText.includes("and")) {
+      removeText = removeText.replace("and ", "");
+      for (let i in removeText) {
+        if (spaceCount == 2) {
+          author.push(removeText.substr(0,i-1));
+          author.push(removeText.substr(i));
+          spaceCount +=1;
+        }
+        if (removeText[i].includes(" ")) {
+          spaceCount += 1;
+        }
+      }
+    } else {
+      author.push(removeText);
+    }
+    console.log(author);
     contentBody = document.getElementById('body-text');
     genre = "Political"
   } else if (hostname.includes(URLS.VERGE)) {
     console.log("We're on Verge");
+    author.push(document.getElementsByTagName("meta")[5].content);
+    console.log(author);
     contentBody = document.getElementsByClassName('c-entry-content ')[0];
     genre = "Tech"
   } else if (hostname.includes(URLS.VOX)) {
     console.log("We're on Vox");
+    author.push(document.getElementsByTagName("meta")[5].content);
+    console.log(author);
     contentBody = document.getElementsByClassName('c-entry-content ')[0];
     genre = "Political"
   } else if (hostname.includes(URLS.FOXNEWS)) {
     console.log("We're on Fox");
+    author.push(document.getElementsByName("dc.creator")[0].content);
+    console.log(author);
     contentBody = document.getElementsByClassName('article-body')[0];
   } else if (hostname.includes(URLS.MEDIUM)) {
     console.log("We're on Medium");
+    author.push(document.getElementsByName("author")[0].content);
+    console.log(author);
     contentBody = document.getElementsByTagName("article")[0];
     genre = "Education"
   } else if (hostname.includes(URLS.NYTIMES)) {
     console.log("We're on NY Times");
+    removeText = document.getElementsByName("byl")[0].content;
+    removeText = removeText.replace("By ", "");
+    if (removeText.includes("and")) {
+      removeText = removeText.replace("and ", "");
+      for (let i in removeText) {
+        if (spaceCount == 2) {
+          author.push(removeText.substr(0,i-1));
+          author.push(removeText.substr(i));
+          spaceCount +=1;
+        }
+        if (removeText[i].includes(" ")) {
+          spaceCount += 1;
+        }
+      }
+    }
+    else {
+      author.push(removeText);
+    }
+    console.log(author);
     contentBody = document.getElementsByClassName('bottom-of-article')[0];
     genre = "Political"
   }
@@ -66,6 +116,26 @@ export async function getUserInfo() {
     });
   });
 }
+// export async function getAuthorName() {
+//   const hostname = new URL(url).hostname;
+//   //Check if hostname is in URLS
+//   var foundURL = false;
+//   var author = null;
+//   for (const key in URLS) {
+//     if (hostname.includes(URLS[key])) {
+//       foundURL = true;
+//       break;
+//     }
+//   }
+//   if (!foundURL) {
+//     console.log('UNSUPPORTED WEBSITE');
+//     return;
+//   }
+//   if(hostname.includes(URLS.WIRED)) {
+//     author = document.getElementsByName("author")[0].content;
+//     return author;
+//   }
+// }
 
 function getRandomColor() {
   var letters = '0123456789ABCDEF';
@@ -221,5 +291,7 @@ chrome.runtime.onMessage.addListener((req, send, sendResponse) => {
     //Do nt
   } else if (req.type === 'activate') {
     activateReliant();
+  } else if (req.type === "getAuthors") {
+    sendResponse(["Drew"]);
   }
 });

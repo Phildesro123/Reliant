@@ -16,7 +16,9 @@ import StarRating from './modules/StarRating';
 const Popup = () => {
   const [userEmail, setUserEmail] = useState(null);
   const [reliabilityScore, setReliabilityScore] = useState(null);
+  const [authors, setAuthors] = useState(null);
   useEffect(() => {
+    chrome.runtime.sendMessage("getAuthors")
     getUserInfo().then((data) => setUserEmail(data.email));
     getURL().then((url) => {
       console.log(url);
