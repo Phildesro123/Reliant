@@ -182,7 +182,7 @@ async function activateReliant() {
       startX = e.pageX
       startY = e.pageY
       
-    tooltip.style.display = 'hidden'
+    tooltip.style.visibility = 'hidden'
     tooltip.style.display = 'none'
   }
   })
@@ -197,6 +197,10 @@ async function activateReliant() {
       endY = e.pageY
       console.log("start x is ", startY)
       console.log("end x is ", endY)
+      startX = Math.min(startX, endX)
+      endX = Math.max(startX, endX)
+      startY = Math.min(startY, endY)
+      endY = Math.max(startY, endY)
       renderToolTip((endX - startX)/2 + startX, startY - (endY - startY)/2, selection)
     }
   })
