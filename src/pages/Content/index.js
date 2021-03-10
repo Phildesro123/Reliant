@@ -197,11 +197,14 @@ async function activateReliant() {
       endY = e.pageY
       console.log("start x is ", startY)
       console.log("end x is ", endY)
-      startX = Math.min(startX, endX)
-      endX = Math.max(startX, endX)
-      startY = Math.min(startY, endY)
-      endY = Math.max(startY, endY)
-      renderToolTip((endX - startX)/2 + startX, startY - (endY - startY)/2, selection)
+
+      const realStartX = Math.min(startX, endX)
+      const realendX = Math.max(startX, endX)
+
+      const realStartY = Math.min(startY, endY)
+      const realEndY = Math.max(startY, endY)
+
+      renderToolTip((realendX - realStartX)/2 + realStartX, realStartY - (realEndY - realStartY)/2, selection)
     }
   })
 
