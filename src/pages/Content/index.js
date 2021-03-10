@@ -120,7 +120,7 @@ async function activateReliant() {
     return; // Prevents Reliant from being activated if the site is not done loading.
   }
   ACTIVATED = true;
-  console.log('activated reliant');
+  console.log('activated reliant', getActivateState());
   const url = await getURL();
   const userInfo = await getUserInfo();
   const hostname = new URL(url).hostname;
