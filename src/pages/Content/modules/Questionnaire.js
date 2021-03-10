@@ -66,7 +66,7 @@ function Questionnaire(props) {
   
 
   return (
-    <div className="questionnaire">
+    <div className="bordered-container questionnaire-container">
       <h1>Questionnaire</h1>
       <div className="question-container">
         {questions.map((question, i) => {0

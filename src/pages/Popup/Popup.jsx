@@ -6,9 +6,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import message from './modules/messenger';
-import InputGroup from 'react-bootstrap/InputGroup';
-import { getUserInfo, getURL } from '../Content/index';
-import starRating from './modules/StarRating';
+import { getUserInfo, getURL, getActivateState, getLoadedState } from '../Content/index';
 import axios from 'axios';
 import './Popup.css';
 import StarRating from './modules/StarRating';
@@ -16,7 +14,11 @@ import StarRating from './modules/StarRating';
 const Popup = () => {
   const [userEmail, setUserEmail] = useState(null);
   const [reliabilityScore, setReliabilityScore] = useState(null);
+  const [activated, setActivated] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   useEffect(() => {
+    console.log("Activated", getActivateState())
+    setActivated(getActivateState());
     getUserInfo().then((data) => setUserEmail(data.email));
     getURL().then((url) => {
       console.log(url);
@@ -74,8 +76,16 @@ const Popup = () => {
               </Button>
             </Col>
             <Col className="pr-0" style={{ paddingLeft: '5px' }}>
-              <Button block onClick={message}>
-                Activate
+              <Button block 
+              onClick={() => {
+                if (activated) {
+                  message("deactivate")
+                  setActivated(false)
+                } else {
+                  message("activate")
+                  setActivated(true)
+                }}}>
+                {activated ? "Deactivate" : "Activate"} 
               </Button>
             </Col>
           </Row>
