@@ -1,15 +1,27 @@
 import React from 'react';
 import { render } from 'react-dom';
 import Questionnaire from './modules/Questionnaire';
+import Comment from './modules/Comment';
 import { URLS } from '../Background/workingUrls';
 import axios from 'axios';
 import { calculateScore } from '../../containers/Score/Score';
+import { get } from 'mongoose';
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
+
+const comment = document.createElement('div')
+const questionnaire = document.createElement('div')
+var ACTIVATED = false;
+var LOADED = false;
+var paragraphs = null;
+
 document.querySelector('div').addEventListener('selectionchange', () => {
   console.log('Selection updated');
 });
+
+export function getLoadedState() {return LOADED}
+export function getActivateState() {return ACTIVATED}
 
 export async function getURL() {
   return new Promise((resolve) => {
@@ -28,12 +40,65 @@ async function createQuestionnaire(userId, url, hostname) {
   var spaceCount = 0;
   if (hostname.includes(URLS.WIRED)) {
     console.log("We're on WIRED");
-    author.push(document.getElementsByName("author")[0].content);
-    console.log(author);
     contentBody = document.getElementsByClassName('article main-content')[0];
     genre = "Tech"
   } else if (hostname.includes(URLS.CNN)) {
     console.log("We're on CNN");
+    contentBody = document.getElementById('body-text');
+    genre = "Political"
+  } else if (hostname.includes(URLS.VERGE)) {
+    console.log("We're on Verge");
+    contentBody = document.getElementsByClassName('c-entry-content ')[0];
+    genre = "Tech"
+  } else if (hostname.includes(URLS.VOX)) {
+    console.log("We're on Vox");
+    contentBody = document.getElementsByClassName('c-entry-content ')[0];
+    genre = "Political"
+  } else if (hostname.includes(URLS.FOXNEWS)) {
+    console.log("We're on Fox");
+    contentBody = document.getElementsByClassName('article-body')[0];
+  } else if (hostname.includes(URLS.MEDIUM)) {
+    console.log("We're on Medium");
+    contentBody = document.getElementsByTagName("article")[0];
+    genre = "Education"
+  } else if (hostname.includes(URLS.NYTIMES)) {
+    console.log("We're on NY Times");
+    contentBody = document.getElementsByClassName('bottom-of-article')[0];
+    genre = "Political"
+  }
+  if (contentBody == undefined) {
+    const articles = document.getElementsByTagName('article');
+    if (articles.length > 0) {
+      contentBody = articles[articles.length -1]
+    } else {
+      contentBody = document.querySelector('body');
+    }
+  }
+  contentBody.appendChild(questionnaire);
+  contentBody.appendChild(comment);
+  console.log("Content Body" , contentBody)
+  render(<Comment />, comment)
+  render(<Questionnaire userId={userId} url={url} genre={genre} />, questionnaire);
+}
+
+export async function getUserInfo() {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage('userInfo', (userInfo) => {
+      resolve(userInfo);
+    });
+  });
+}
+async function getAuthorName() {
+  const url = await getURL();
+  const hostname = new URL(url).hostname;
+  var author = [];
+  var removeText;
+  var spaceCount = 0;
+  if (hostname.includes(URLS.WIRED)) {
+    author.push(document.getElementsByName("author")[0].content);
+    console.log(author);
+    return author;
+  } else if (hostname.includes(URLS.CNN)) {
     removeText = document.getElementsByName("author")[0].content;
     removeText = removeText.substr(0,removeText.length-5);
     if (removeText.includes("and")) {
@@ -52,33 +117,24 @@ async function createQuestionnaire(userId, url, hostname) {
       author.push(removeText);
     }
     console.log(author);
-    contentBody = document.getElementById('body-text');
-    genre = "Political"
+    return author;
   } else if (hostname.includes(URLS.VERGE)) {
-    console.log("We're on Verge");
     author.push(document.getElementsByTagName("meta")[5].content);
     console.log(author);
-    contentBody = document.getElementsByClassName('c-entry-content ')[0];
-    genre = "Tech"
+    return author;
   } else if (hostname.includes(URLS.VOX)) {
-    console.log("We're on Vox");
     author.push(document.getElementsByTagName("meta")[5].content);
     console.log(author);
-    contentBody = document.getElementsByClassName('c-entry-content ')[0];
-    genre = "Political"
+    return author;
   } else if (hostname.includes(URLS.FOXNEWS)) {
-    console.log("We're on Fox");
     author.push(document.getElementsByName("dc.creator")[0].content);
     console.log(author);
-    contentBody = document.getElementsByClassName('article-body')[0];
+    return author;
   } else if (hostname.includes(URLS.MEDIUM)) {
-    console.log("We're on Medium");
     author.push(document.getElementsByName("author")[0].content);
     console.log(author);
-    contentBody = document.getElementsByTagName("article")[0];
-    genre = "Education"
+    return author;
   } else if (hostname.includes(URLS.NYTIMES)) {
-    console.log("We're on NY Times");
     removeText = document.getElementsByName("byl")[0].content;
     removeText = removeText.replace("By ", "");
     if (removeText.includes("and")) {
@@ -98,44 +154,21 @@ async function createQuestionnaire(userId, url, hostname) {
       author.push(removeText);
     }
     console.log(author);
-    contentBody = document.getElementsByClassName('bottom-of-article')[0];
-    genre = "Political"
+  } else {
+    if (document.getElementsByName("author")[0].content != null) {
+      author.push(document.getElementsByName("author")[0].content);
+      return author;
+    } else if (document.getElementsByTagName("meta")[5].content != null) {
+      author.push(document.getElementsByTagName("meta")[5].content);
+      return author;
+    } else {
+      author.push("Sorry IDK")
+      return author;
+    }
   }
-  if (contentBody == undefined) {
-    contentBody = document.body;
-  }
-  const questionnaire = document.createElement('div');
-  contentBody.appendChild(questionnaire);
-  render(<Questionnaire userId={userId} url={url} genre={genre} />, questionnaire);
 }
 
-export async function getUserInfo() {
-  return new Promise((resolve) => {
-    chrome.runtime.sendMessage('userInfo', (userInfo) => {
-      resolve(userInfo);
-    });
-  });
-}
-// export async function getAuthorName() {
-//   const hostname = new URL(url).hostname;
-//   //Check if hostname is in URLS
-//   var foundURL = false;
-//   var author = null;
-//   for (const key in URLS) {
-//     if (hostname.includes(URLS[key])) {
-//       foundURL = true;
-//       break;
-//     }
-//   }
-//   if (!foundURL) {
-//     console.log('UNSUPPORTED WEBSITE');
-//     return;
-//   }
-//   if(hostname.includes(URLS.WIRED)) {
-//     author = document.getElementsByName("author")[0].content;
-//     return author;
-//   }
-// }
+
 
 function getRandomColor() {
   var letters = '0123456789ABCDEF';
@@ -147,37 +180,46 @@ function getRandomColor() {
 }
 
 var first = true; //Used to ensure the questionnaire can only be injected once.
-var loaded = false;
 var colors = []; // Array holding paragraph colors in the form [original, random]
 var even = 0; // 0 --> Original Color, 1 --> Random Color
-window.onload = function () {
-  loaded = true;
+window.onload = async function () {
+  LOADED = true;
   console.log('LOADED');
+  const hostname = new URL(await getURL()).hostname;
+  console.log(hostname)
+  for (const key in URLS) {
+    if (hostname.includes(URLS[key])) {
+      activateReliant();
+      break;
+    }
+  }
 };
 var timeOpened = new Date().getTime();
 
+
 async function activateReliant() {
-  if (!loaded) {
+  if (!LOADED) {
     console.log('page not loaded');
     return; // Prevents Reliant from being activated if the site is not done loading.
   }
-  console.log('activated reliant');
+  ACTIVATED = true;
+  console.log('activated reliant', getActivateState());
   const url = await getURL();
   const userInfo = await getUserInfo();
   const hostname = new URL(url).hostname;
 
   //Check if hostname is in URLS
-  var foundURL = false;
-  for (const key in URLS) {
-    if (hostname.includes(URLS[key])) {
-      foundURL = true;
-      break;
-    }
-  }
-  if (!foundURL) {
-    console.log('UNSUPPORTED WEBSITE');
-    return;
-  }
+  // var foundURL = false;
+  // for (const key in URLS) {
+  //   if (hostname.includes(URLS[key])) {
+  //     foundURL = true;
+  //     break;
+  //   }
+  // }
+  // if (!foundURL) {
+  //   console.log('UNSUPPORTED WEBSITE');
+  //   return;
+  // }
 
   axios.post('http://localhost:4000/api/user/updateSites',{
     _id: userInfo.id,
@@ -202,27 +244,32 @@ async function activateReliant() {
     .catch(() => {
       console.log('Internal server error');
     });
-
-
-  if (first) {
     createQuestionnaire(userInfo.id, url, hostname);
-  }
 
   //Highlight everything
-  even = (even + 1) % 2;
-  let paragraphs = document.getElementsByTagName('p');
-  var i = 0;
+  paragraphs = document.getElementsByTagName('p');
+  var i = 0
   for (const paragraph of paragraphs) {
     //console.log(paragraph.textContent)
     if (first) {
       colors.push([paragraph.style['background-color'], getRandomColor()]);
-      paragraph.style['background-color'] = colors[i][1];
-    } else {
-      paragraph.style['background-color'] = colors[i][even];
     }
+    paragraph.style['background-color'] = colors[i][1];
     i++;
   }
   first = false;
+}
+
+function deactivateReliant() {
+  ACTIVATED = false;
+  console.log("Deactivating Reliant")
+  comment.remove();
+  questionnaire.remove();
+  var i = 0
+  for (const paragraph of paragraphs) {
+    paragraph.style['background-color'] = colors[i][0];
+    i++;
+  }
 }
 
 export async function submitQuestionnaire(score) {
@@ -287,11 +334,14 @@ export async function submitQuestionnaire(score) {
 
 //Runs when activate is pressed from Popup
 chrome.runtime.onMessage.addListener((req, send, sendResponse) => {
-  if (req.type === 'injectReact') {
-    //Do nt
-  } else if (req.type === 'activate') {
+  if (req.type === 'activate') {
     activateReliant();
   } else if (req.type === "getAuthors") {
-    sendResponse(["Drew"]);
+    var authName = getAuthorName();    
+    console.log("authName",authName);
+    console.log(authName);
+    sendResponse(authName);
+  } else if (req.type === 'deactivate') {
+    deactivateReliant();
   }
 });

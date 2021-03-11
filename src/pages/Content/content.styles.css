@@ -7,18 +7,20 @@ input[type='radio'] {
   transition: color 200ms;
 }
 
-.questionnaire {
+.bordered-container {
   background: rgba(255, 255, 255, 0);
   border-style: solid;
   border-width: 15px;
   border-color: darksalmon;
   border-radius: 25px;
-  max-width: 800px;
   height: auto;
   margin: auto;
   margin-top: 20px;
   margin-bottom: 20px;
   padding: 15px;
+}
+.questionnaire-container {
+  max-width: 800px;
 }
 
 .question-container {
@@ -78,4 +80,43 @@ input[type='radio'] {
 .submit-btn.disabled,
 .submit-btn:disabled {
   opacity: 0.65;
+}
+
+.comment-container {
+  background-color: aliceblue;
+  width: 300px;
+  position: absolute;
+  right: 0;
+  top: 50%;
+}
+.comment-input-container {
+  background-color: blue;
+  height: 2rem;
+  position: relative;
+}
+.comment-btn {
+  background-color: red;
+  border-radius: 3px;
+  position: absolute;
+  margin: 0;
+  border: none;
+  vertical-align: middle;
+  height: 100%;
+  width: 2rem;
+  right: 0;
+  bottom: 0;
+}
+
+.comment-input {
+  vertical-align: middle;
+  position: absolute;
+  padding-left: 1rem;
+  padding-right: 3rem;
+  margin: 0;
+  border: none;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  white-space: pre;
+  word-break: break-word;
 }
