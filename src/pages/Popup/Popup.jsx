@@ -5,13 +5,6 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import message from './modules/messenger';
-<<<<<<< HEAD
-import InputGroup from 'react-bootstrap/InputGroup';
-import { getUserInfo, getURL } from '../Content/index';
-import starRating from './modules/StarRating';
-import HighlightPop from 'react-highlight-pop';
-=======
->>>>>>> main
 import axios from 'axios';
 import './Popup.css';
 import StarRating from './modules/StarRating';

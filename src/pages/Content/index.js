@@ -1,11 +1,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import Questionnaire from './modules/Questionnaire';
-<<<<<<< HEAD
-import Highlight from './modules/HighlightScript';
-=======
 import Comment from './modules/Comment';
->>>>>>> main
 import { URLS } from '../Background/workingUrls';
 import axios from 'axios';
 import { calculateScore } from '../../containers/Score/Score';
@@ -76,17 +72,10 @@ async function createQuestionnaire(userId, url, hostname) {
     }
   }
   contentBody.appendChild(questionnaire);
-<<<<<<< HEAD
-  render(
-    <Questionnaire userId={userId} url={url} genre={genre} />,
-    questionnaire
-  );
-=======
   contentBody.appendChild(comment);
   console.log("Content Body" , contentBody)
   render(<Comment />, comment)
   render(<Questionnaire userId={userId} url={url} genre={genre} />, questionnaire);
->>>>>>> main
 }
 
 export async function getUserInfo() {
@@ -175,15 +164,11 @@ async function activateReliant() {
     .catch(() => {
       console.log('Internal server error');
     });
-<<<<<<< HEAD
 
   if (first) {
-=======
->>>>>>> main
     createQuestionnaire(userInfo.id, url, hostname);
 
   //Highlight everything
-<<<<<<< HEAD
   even = (even + 1) % 2;
 
   var createReactClass = require('create-react-class');
@@ -223,17 +208,6 @@ async function activateReliant() {
       
     tooltip.style.visibility = 'hidden'
     tooltip.style.display = 'none'
-=======
-  paragraphs = document.getElementsByTagName('p');
-  var i = 0
-  for (const paragraph of paragraphs) {
-    //console.log(paragraph.textContent)
-    if (first) {
-      colors.push([paragraph.style['background-color'], getRandomColor()]);
-    }
-    paragraph.style['background-color'] = colors[i][1];
-    i++;
->>>>>>> main
   }
   })
   // Show the tool tip
@@ -321,6 +295,7 @@ async function activateReliant() {
   //   }
   //   first = false;
 }
+}
 
 function deactivateReliant() {
   ACTIVATED = false;
@@ -334,7 +309,7 @@ function deactivateReliant() {
   }
 }
 
-export async function submitQuestionnaire(score) {
+ export async function submitQuestionnaire(score) {
   //Logic for submitting questionarre
   const userInfo = await getUserInfo();
   const url = await getURL();
@@ -365,7 +340,8 @@ export async function submitQuestionnaire(score) {
     .catch((err) => {
       console.log('Error from addReview:', err);
       throw err;
-    });
+    })
+  };
   //TODO: Implement the two push calls below which save the review to the reviews collection and update the reliability score
   // axios
   //   .push('http://localhost:4000/api/reviews', {
@@ -395,7 +371,7 @@ export async function submitQuestionnaire(score) {
   //   newUserScore,
   //   documentObj
   // );
-}
+  
 
 //Runs when activate is pressed from Popup
 chrome.runtime.onMessage.addListener((req, send, sendResponse) => {
