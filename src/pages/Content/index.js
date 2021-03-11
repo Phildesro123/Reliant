@@ -1,7 +1,11 @@
 import React from 'react';
 import { render } from 'react-dom';
 import Questionnaire from './modules/Questionnaire';
+<<<<<<< HEAD
 import Highlight from './modules/HighlightScript';
+=======
+import Comment from './modules/Comment';
+>>>>>>> main
 import { URLS } from '../Background/workingUrls';
 import axios from 'axios';
 import { calculateScore } from '../../containers/Score/Score';
@@ -9,9 +13,19 @@ import ToolComponent from './modules/Tooltip';
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
+
+const comment = document.createElement('div')
+const questionnaire = document.createElement('div')
+var ACTIVATED = false;
+var LOADED = false;
+var paragraphs = null;
+
 document.querySelector('div').addEventListener('selectionchange', () => {
   console.log('Selection updated');
 });
+
+export function getLoadedState() {return LOADED}
+export function getActivateState() {return ACTIVATED}
 
 export async function getURL() {
   return new Promise((resolve) => {
@@ -54,14 +68,25 @@ async function createQuestionnaire(userId, url, hostname) {
     genre = 'Political';
   }
   if (contentBody == undefined) {
-    contentBody = document.body;
+    const articles = document.getElementsByTagName('article');
+    if (articles.length > 0) {
+      contentBody = articles[articles.length -1]
+    } else {
+      contentBody = document.querySelector('body');
+    }
   }
-  const questionnaire = document.createElement('div');
   contentBody.appendChild(questionnaire);
+<<<<<<< HEAD
   render(
     <Questionnaire userId={userId} url={url} genre={genre} />,
     questionnaire
   );
+=======
+  contentBody.appendChild(comment);
+  console.log("Content Body" , contentBody)
+  render(<Comment />, comment)
+  render(<Questionnaire userId={userId} url={url} genre={genre} />, questionnaire);
+>>>>>>> main
 }
 
 export async function getUserInfo() {
@@ -71,6 +96,8 @@ export async function getUserInfo() {
     });
   });
 }
+
+
 
 function getRandomColor() {
   var letters = '0123456789ABCDEF';
@@ -82,37 +109,46 @@ function getRandomColor() {
 }
 
 var first = true; //Used to ensure the questionnaire can only be injected once.
-var loaded = false;
 var colors = []; // Array holding paragraph colors in the form [original, random]
 var even = 0; // 0 --> Original Color, 1 --> Random Color
-window.onload = function () {
-  loaded = true;
+window.onload = async function () {
+  LOADED = true;
   console.log('LOADED');
+  const hostname = new URL(await getURL()).hostname;
+  console.log(hostname)
+  for (const key in URLS) {
+    if (hostname.includes(URLS[key])) {
+      activateReliant();
+      break;
+    }
+  }
 };
 var timeOpened = new Date().getTime();
 
+
 async function activateReliant() {
-  if (!loaded) {
+  if (!LOADED) {
     console.log('page not loaded');
     return; // Prevents Reliant from being activated if the site is not done loading.
   }
-  console.log('activated reliant');
+  ACTIVATED = true;
+  console.log('activated reliant', getActivateState());
   const url = await getURL();
   const userInfo = await getUserInfo();
   const hostname = new URL(url).hostname;
 
   //Check if hostname is in URLS
-  var foundURL = false;
-  for (const key in URLS) {
-    if (hostname.includes(URLS[key])) {
-      foundURL = true;
-      break;
-    }
-  }
-  if (!foundURL) {
-    console.log('UNSUPPORTED WEBSITE');
-    return;
-  }
+  // var foundURL = false;
+  // for (const key in URLS) {
+  //   if (hostname.includes(URLS[key])) {
+  //     foundURL = true;
+  //     break;
+  //   }
+  // }
+  // if (!foundURL) {
+  //   console.log('UNSUPPORTED WEBSITE');
+  //   return;
+  // }
 
   axios
     .post('http://localhost:4000/api/user/updateSites', {
@@ -139,12 +175,15 @@ async function activateReliant() {
     .catch(() => {
       console.log('Internal server error');
     });
+<<<<<<< HEAD
 
   if (first) {
+=======
+>>>>>>> main
     createQuestionnaire(userInfo.id, url, hostname);
-  }
 
   //Highlight everything
+<<<<<<< HEAD
   even = (even + 1) % 2;
 
   var createReactClass = require('create-react-class');
@@ -184,6 +223,17 @@ async function activateReliant() {
       
     tooltip.style.visibility = 'hidden'
     tooltip.style.display = 'none'
+=======
+  paragraphs = document.getElementsByTagName('p');
+  var i = 0
+  for (const paragraph of paragraphs) {
+    //console.log(paragraph.textContent)
+    if (first) {
+      colors.push([paragraph.style['background-color'], getRandomColor()]);
+    }
+    paragraph.style['background-color'] = colors[i][1];
+    i++;
+>>>>>>> main
   }
   })
   // Show the tool tip
@@ -272,6 +322,18 @@ async function activateReliant() {
   //   first = false;
 }
 
+function deactivateReliant() {
+  ACTIVATED = false;
+  console.log("Deactivating Reliant")
+  comment.remove();
+  questionnaire.remove();
+  var i = 0
+  for (const paragraph of paragraphs) {
+    paragraph.style['background-color'] = colors[i][0];
+    i++;
+  }
+}
+
 export async function submitQuestionnaire(score) {
   //Logic for submitting questionarre
   const userInfo = await getUserInfo();
@@ -337,9 +399,9 @@ export async function submitQuestionnaire(score) {
 
 //Runs when activate is pressed from Popup
 chrome.runtime.onMessage.addListener((req, send, sendResponse) => {
-  if (req.type === 'injectReact') {
-    //Do nt
-  } else if (req.type === 'activate') {
+  if (req.type === 'activate') {
     activateReliant();
+  } else if (req.type === 'deactivate') {
+    deactivateReliant();
   }
 });
