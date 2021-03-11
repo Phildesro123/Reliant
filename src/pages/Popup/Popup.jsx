@@ -88,13 +88,11 @@ const Popup = () => {
             </Col>
           </Row>
         </Col>
-        <HighlightPop>
         <div style={{ paddingTop: '10px', width: '100%', textAlign: 'center' }}>
           <h6 style={{ margin: '0px', fontSize: '10px' }}>
             Logged in as: {userEmail}
           </h6>
         </div>
-        </HighlightPop>
       </Row>
     </Container>
   );
