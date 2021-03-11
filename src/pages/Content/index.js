@@ -196,11 +196,14 @@ async function activateReliant() {
   var startY = 0;
   var endY = 0;
   //Close the tool tip
-  document.addEventListener('mousedown', (e)=> {    
+  document.addEventListener('mousedown', (e)=> {  
+    const parentClassName = e.target.parentNode.getAttribute('class');
+    const parentIdName = e.target.parentNode.getAttribute('id'); 
+    console.log("Parent Class:", parentClassName);
+    console.log("Parent ID:", parentIdName);
     //Make the tool tip invisible
-    //console.log(e);
-    if (e.target.parentNode.getAttribute('class') == 'tool_tip' || e.target.getAttribute('class') == "btn btn-primary") {
-      
+    if (parentClassName == 'tool_tip' || e.target.getAttribute('class') == "btn btn-primary"
+    ||  parentIdName == "highlight" || parentIdName == "comment"  ) {
       e.stopPropagation();
     } else {
       startX = e.pageX
