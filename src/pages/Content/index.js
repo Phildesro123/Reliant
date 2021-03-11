@@ -217,6 +217,7 @@ async function activateReliant() {
   let paragraphs = document.getElementsByTagName('p');
   document.addEventListener('mouseup', (e)=> {
     let selection = window.getSelection().toString();
+    console.log(selection)
     if (selection.length > 0) {
       //Render the tooltip
       
