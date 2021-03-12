@@ -1,0 +1,73 @@
+diff --git a/node_modules/wikibase-sdk/lib/queries/get_entities_from_sitelinks.js b/node_modules/wikibase-sdk/lib/queries/get_entities_from_sitelinks.js
+index 0295582..878da96 100644
+--- a/node_modules/wikibase-sdk/lib/queries/get_entities_from_sitelinks.js
++++ b/node_modules/wikibase-sdk/lib/queries/get_entities_from_sitelinks.js
+@@ -7,8 +7,8 @@ module.exports = buildUrl => (titles, sites, languages, props, format, redirects
+     const params = titles
+     titles = params.titles
+     sites = params.sites
+-    languages = params.languages
+-    props = params.props
++    //languages = params.languages
++    //props = params.props
+     format = params.format
+     redirects = params.redirects
+   }
+@@ -28,21 +28,22 @@ module.exports = buildUrl => (titles, sites, languages, props, format, redirects
+   props = forceArray(props)
+ 
+   const query = {
+-    action: 'wbgetentities',
+-    titles: titles.join('|'),
+-    sites: sites.join('|'),
+-    format
++    origin: "*",
++    action: 'query',
++    format,
++    prop: 'extracts&exintro',
++    titles: titles[0]
+   }
+ 
+   // Normalizing only works if there is only one site and title
+-  if (sites.length === 1 && titles.length === 1) {
+-    query.normalize = true
+-  }
+-
+-  if (languages) {
+-    languages = forceArray(languages).map(shortLang)
+-    query.languages = languages.join('|')
+-  }
++  // if (sites.length === 1 && titles.length === 1) {
++  //   query.normalize = true
++  // }
++
++  // if (languages) {
++  //   languages = forceArray(languages).map(shortLang)
++  //   query.languages = languages.join('|')
++  // }
+ 
+   if (props && props.length > 0) query.props = props.join('|')
+ 
+diff --git a/node_modules/wikibase-sdk/lib/utils/querystring_lite.js b/node_modules/wikibase-sdk/lib/utils/querystring_lite.js
+index 11bb10a..89fe760 100644
+--- a/node_modules/wikibase-sdk/lib/utils/querystring_lite.js
++++ b/node_modules/wikibase-sdk/lib/utils/querystring_lite.js
+@@ -2,8 +2,16 @@ module.exports = {
+   stringify: queryObj => {
+     let qstring = ''
+     for (const key in queryObj) {
+-      const value = queryObj[key]
+-      if (value) qstring += `&${key}=${value}`
++      console.log(key);
++      if (key == 'props') {
++        qstring += `&`;
++        qstring += key;
++        qstring += `=extracts&exintro&list=`
++      } else {
++        const value = queryObj[key]
++        if (value) qstring += `&${key}=${value}`
++      }
++      
+     }
+ 
+     qstring = qstring.slice(1)

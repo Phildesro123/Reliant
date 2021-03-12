@@ -12,12 +12,21 @@ import starRating from './modules/StarRating';
 import axios from 'axios';
 import './Popup.css';
 import StarRating from './modules/StarRating';
+import wiki from './modules/WikiReader';
+import parse from 'html-react-parser';
 
 const Popup = () => {
   const [userEmail, setUserEmail] = useState(null);
   const [reliabilityScore, setReliabilityScore] = useState(null);
+  
+  const [wikiInfo, setWikiInfo] = useState(null);
+
   useEffect(() => {
     getUserInfo().then((data) => setUserEmail(data.email));
+    console.log("WE IN USE EFFECT");
+    console.log(wiki("Pablo Escobar"));
+    setWikiInfo(wiki("Pablo Escobar"));
+
     getURL().then((url) => {
       console.log(url);
       axios
@@ -55,7 +64,7 @@ const Popup = () => {
           style={{ paddingLeft: '10px', textAlign: 'left' }}
         >
           <h4 className="mb-0 mt-0">Pablo Escobar</h4>
-          <span>Senior Journalist</span>
+          <span>{wikiInfo}</span>
           <div className="reliability-container">
             <h6>Reliability Score:</h6>
             <div className="star-reliability-container">
