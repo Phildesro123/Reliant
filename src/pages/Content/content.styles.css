@@ -43,6 +43,14 @@ input[type='radio'] {
   display: inline-flex;
   align-items: center;
   justify-content: space-around;
+  padding: 0;
+  margin: 0;
+}
+
+.question-label label {
+  display: inline;
+  padding: 0;
+  margin: 0;
 }
 
 .submit-btn {
