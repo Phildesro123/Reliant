@@ -5,7 +5,6 @@ import Comment from './modules/Comment';
 import { URLS } from '../Background/workingUrls';
 import axios from 'axios';
 import { calculateScore } from '../../containers/Score/Score';
-
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
 
@@ -194,7 +193,6 @@ async function activateReliant() {
   const url = await getURL();
   const userInfo = await getUserInfo();
   const hostname = new URL(url).hostname;
-
   //Check if hostname is in URLS
   // var foundURL = false;
   // for (const key in URLS) {
