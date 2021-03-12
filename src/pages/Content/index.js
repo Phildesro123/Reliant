@@ -1,14 +1,25 @@
 import React from 'react';
 import { render } from 'react-dom';
 import Questionnaire from './modules/Questionnaire';
+import Comment from './modules/Comment';
 import { URLS } from '../Background/workingUrls';
 import axios from 'axios';
 import { calculateScore } from '../../containers/Score/Score';
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
+
+const comment = document.createElement('div')
+const questionnaire = document.createElement('div')
+var ACTIVATED = false;
+var LOADED = false;
+var paragraphs = null;
+
 document.querySelector('div').addEventListener('selectionchange', () => {
   console.log('Selection updated');
 });
+
+export function getLoadedState() {return LOADED}
+export function getActivateState() {return ACTIVATED}
 
 export async function getURL() {
   return new Promise((resolve) => {
@@ -18,10 +29,10 @@ export async function getURL() {
   });
 }
 
-async function createQuestionnaire(userId, url, hostname) {
+function createQuestionnaire(userId, url, hostname) {
   console.log('Creating Questionare for', hostname);
   var contentBody = null;
-  var genre = ""
+  var genre = "";
   if (hostname.includes(URLS.WIRED)) {
     console.log("We're on WIRED");
     contentBody = document.getElementsByClassName('article main-content')[0];
@@ -51,20 +62,99 @@ async function createQuestionnaire(userId, url, hostname) {
     genre = "Political"
   }
   if (contentBody == undefined) {
-    contentBody = document.body;
+    const articles = document.getElementsByTagName('article');
+    if (articles.length > 0) {
+      contentBody = articles[articles.length -1]
+    } else {
+      contentBody = document.querySelector('body');
+    }
   }
-  const questionnaire = document.createElement('div');
   contentBody.appendChild(questionnaire);
+  contentBody.appendChild(comment);
+  console.log("Content Body" , contentBody)
+  render(<Comment />, comment)
   render(<Questionnaire userId={userId} url={url} genre={genre} />, questionnaire);
 }
 
-export async function getUserInfo() {
+async function getUserInfo() {
   return new Promise((resolve) => {
     chrome.runtime.sendMessage('userInfo', (userInfo) => {
       resolve(userInfo);
     });
   });
 }
+
+
+function authorName(hostname) {
+  var author = [];
+  var removeText;
+  var spaceCount = 0;
+  if (hostname.includes(URLS.WIRED)) {
+    author.push(document.getElementsByName("author")[0].content);
+    console.log(author);
+  } else if (hostname.includes(URLS.CNN)) {
+    removeText = document.getElementsByName("author")[0].content;
+    removeText = removeText.substr(0,removeText.length-5);
+    if (removeText.includes("and")) {
+      removeText = removeText.replace("and ", "");
+      for (let i in removeText) {
+        if (spaceCount == 2) {
+          author.push(removeText.substr(0,i-1));
+          author.push(removeText.substr(i));
+          spaceCount +=1;
+        }
+        if (removeText[i].includes(" ")) {
+          spaceCount += 1;
+        }
+      }
+    } else {
+      author.push(removeText);
+    }
+    console.log(author);
+  } else if (hostname.includes(URLS.VERGE)) {
+    author.push(document.getElementsByTagName("meta")[5].content);
+    console.log(author);
+  } else if (hostname.includes(URLS.VOX)) {
+    author.push(document.getElementsByTagName("meta")[5].content);
+    console.log(author);
+  } else if (hostname.includes(URLS.FOXNEWS)) {
+    author.push(document.getElementsByName("dc.creator")[0].content);
+    console.log(author);
+  } else if (hostname.includes(URLS.MEDIUM)) {
+    author.push(document.getElementsByName("author")[0].content);
+    console.log(author);
+  } else if (hostname.includes(URLS.NYTIMES)) {
+    removeText = document.getElementsByName("byl")[0].content;
+    removeText = removeText.replace("By ", "");
+    if (removeText.includes("and")) {
+      removeText = removeText.replace("and ", "");
+      for (let i in removeText) {
+        if (spaceCount == 2) {
+          author.push(removeText.substr(0,i-1));
+          author.push(removeText.substr(i));
+          spaceCount +=1;
+        }
+        if (removeText[i].includes(" ")) {
+          spaceCount += 1;
+        }
+      }
+    }
+    else {
+      author.push(removeText);
+    }
+    console.log(author);
+  } else {
+    if (document.getElementsByName("author")[0].content != null) {
+      author.push(document.getElementsByName("author")[0].content);
+    } else if (document.getElementsByTagName("meta")[5].content != null) {
+      author.push(document.getElementsByTagName("meta")[5].content);
+    } else {
+      author.push("Sorry IDK")
+    }
+  }
+  return author;
+}
+
 
 function getRandomColor() {
   var letters = '0123456789ABCDEF';
@@ -76,36 +166,45 @@ function getRandomColor() {
 }
 
 var first = true; //Used to ensure the questionnaire can only be injected once.
-var loaded = false;
 var colors = []; // Array holding paragraph colors in the form [original, random]
 var even = 0; // 0 --> Original Color, 1 --> Random Color
-window.onload = function () {
-  loaded = true;
+window.onload = async function () {
+  LOADED = true;
   console.log('LOADED');
+  const hostname = new URL(await getURL()).hostname;
+  console.log(hostname)
+  for (const key in URLS) {
+    if (hostname.includes(URLS[key])) {
+      activateReliant();
+      break;
+    }
+  }
 };
 var timeOpened = new Date().getTime();
 
+
 async function activateReliant() {
-  if (!loaded) {
+  if (!LOADED) {
     console.log('page not loaded');
     return; // Prevents Reliant from being activated if the site is not done loading.
   }
-  console.log('activated reliant');
+  ACTIVATED = true;
+  console.log('activated reliant', getActivateState());
   const url = await getURL();
   const userInfo = await getUserInfo();
   const hostname = new URL(url).hostname;
   //Check if hostname is in URLS
-  var foundURL = false;
-  for (const key in URLS) {
-    if (hostname.includes(URLS[key])) {
-      foundURL = true;
-      break;
-    }
-  }
-  if (!foundURL) {
-    console.log('UNSUPPORTED WEBSITE');
-    return;
-  }
+  // var foundURL = false;
+  // for (const key in URLS) {
+  //   if (hostname.includes(URLS[key])) {
+  //     foundURL = true;
+  //     break;
+  //   }
+  // }
+  // if (!foundURL) {
+  //   console.log('UNSUPPORTED WEBSITE');
+  //   return;
+  // }
 
   axios.post('http://localhost:4000/api/user/updateSites',{
     _id: userInfo.id,
@@ -130,27 +229,32 @@ async function activateReliant() {
     .catch(() => {
       console.log('Internal server error');
     });
-
-
-  if (first) {
     createQuestionnaire(userInfo.id, url, hostname);
-  }
 
   //Highlight everything
-  even = (even + 1) % 2;
-  let paragraphs = document.getElementsByTagName('p');
-  var i = 0;
+  paragraphs = document.getElementsByTagName('p');
+  var i = 0
   for (const paragraph of paragraphs) {
     //console.log(paragraph.textContent)
     if (first) {
       colors.push([paragraph.style['background-color'], getRandomColor()]);
-      paragraph.style['background-color'] = colors[i][1];
-    } else {
-      paragraph.style['background-color'] = colors[i][even];
     }
+    paragraph.style['background-color'] = colors[i][1];
     i++;
   }
   first = false;
+}
+
+function deactivateReliant() {
+  ACTIVATED = false;
+  console.log("Deactivating Reliant")
+  comment.remove();
+  questionnaire.remove();
+  var i = 0
+  for (const paragraph of paragraphs) {
+    paragraph.style['background-color'] = colors[i][0];
+    i++;
+  }
 }
 
 export async function submitQuestionnaire(score) {
@@ -215,9 +319,14 @@ export async function submitQuestionnaire(score) {
 
 //Runs when activate is pressed from Popup
 chrome.runtime.onMessage.addListener((req, send, sendResponse) => {
-  if (req.type === 'injectReact') {
-    //Do nt
-  } else if (req.type === 'activate') {
+  if (req.type === 'activate') {
     activateReliant();
+  } else if (req.type === "getAuthors") {
+    getURL().then((url) => {
+      sendResponse(authorName(new URL(url).hostname))
+    })
+  } else if (req.type === 'deactivate') {
+    deactivateReliant();
   }
+  return true;
 });
