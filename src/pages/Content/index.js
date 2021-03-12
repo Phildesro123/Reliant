@@ -5,7 +5,6 @@ import Comment from './modules/Comment';
 import { URLS } from '../Background/workingUrls';
 import axios from 'axios';
 import { calculateScore } from '../../containers/Score/Score';
-import { get } from 'mongoose';
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
