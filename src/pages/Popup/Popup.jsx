@@ -12,7 +12,7 @@ import StarRating from './modules/StarRating';
 const Popup = () => {
   const [userEmail, setUserEmail] = useState(null);
   const [reliabilityScore, setReliabilityScore] = useState(null);
-  const [authors, setAuthors] = useState(null);
+  const [authors, setAuthors] = useState([]);
   const [activated, setActivated] = useState(false);
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
@@ -59,7 +59,7 @@ const Popup = () => {
           style={{ paddingLeft: '10px', textAlign: 'left' }}
         >
           <h4 className="mb-0 mt-0">{authors ? authors[0]: "Author Name"}</h4>
-          <span>Senior Journalist</span>
+          <span>{authors.length > 1 ? authors[1]: ""}</span>
           <div className="reliability-container">
             <h6>Reliability Score:</h6>
             <div className="star-reliability-container">
