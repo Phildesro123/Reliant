@@ -19,32 +19,32 @@ function getResult(response) {
 }
 
  async function readURL(name) {
-    let test = correctApiUrl(name);
-    console.log(test);
-    let dummy;
-    let promise = await axios.get(test).then(response => {
-      dummy = response.data.query.pages;
+    let wikipediaURL = correctApiUrl(name);
+    console.log(wikipediaURL);
+    let extractedHTMLData;
+    let promise = await axios.get(wikipediaURL).then(response => {
+      extractedHTMLData = response.data.query.pages;
       var id = 0;
-      for (const key in dummy) {
+      for (const key in extractedHTMLData) {
         id = key;
       }
-      dummy = dummy[id].extract;
+      extractedHTMLData = extractedHTMLData[id].extract;
       return response;
     }).catch(error => {
       console.log(error);
     });
-    console.log("DUMMY");
-    console.log(dummy);
-    console.log(typeof(dummy));
-    console.log(dummy instanceof Promise);
-    return dummy;
+    //console.log("DUMMY");
+    //console.log(extractedHTMLData);
+    //console.log(typeof(extractedHTMLData));
+    //console.log(extractedHTMLData instanceof Promise);
+    return extractedHTMLData;
 }
 
 function correctApiUrl(authorName) {
   let string = 'https://en.wikipedia.org/w/api.php?';
   string += 'action=query&format=json&prop=extracts&exintro&titles=';
   string += authorName;
-  string += '&exsentences=2';
+  string += '&exsentences=1';
   string += '&origin=*';
   string = string.replace(' ', '%20');
   return string

@@ -15,18 +15,24 @@ import StarRating from './modules/StarRating';
 import wiki from './modules/WikiReader';
 import parse from 'html-react-parser';
 
-const Popup = () => {
+  const Popup = () => {
   const [userEmail, setUserEmail] = useState(null);
   const [reliabilityScore, setReliabilityScore] = useState(null);
-  
+  function stripHtml(html){
+    // Create a new div element
+    var temporalDivElement = document.createElement("div");
+    // Set the HTML content with the providen
+    temporalDivElement.innerHTML = html;
+    // Retrieve the text property of the element (cross-browser support)
+    return temporalDivElement.textContent || temporalDivElement.innerText || "";
+}
   const [wikiInfo, setWikiInfo] = useState(null);
-
+  //wiki("Pablo Escobar").then(response => setWikiInfo(response.data));
   useEffect(() => {
     getUserInfo().then((data) => setUserEmail(data.email));
     console.log("WE IN USE EFFECT");
-    console.log(wiki("Pablo Escobar"));
-    setWikiInfo(wiki("Pablo Escobar"));
-
+    wiki("Pablo Escobar").then(response => setWikiInfo(response));
+    console.log("WIKI INFO IS ", wikiInfo);
     getURL().then((url) => {
       console.log(url);
       axios
@@ -64,7 +70,7 @@ const Popup = () => {
           style={{ paddingLeft: '10px', textAlign: 'left' }}
         >
           <h4 className="mb-0 mt-0">Pablo Escobar</h4>
-          <span>{wikiInfo}</span>
+          <span>{stripHtml(wikiInfo)}</span>
           <div className="reliability-container">
             <h6>Reliability Score:</h6>
             <div className="star-reliability-container">
