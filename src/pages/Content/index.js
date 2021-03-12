@@ -175,6 +175,7 @@ async function activateReliant() {
   let tooltip = document.createElement('span');
   tooltip.className = 'tool_tip';
   document.body.appendChild(tooltip);
+  tooltip.attachShadow({mode: 'open'})
   render(<ToolComponent>aa</ToolComponent>, tooltip);
   tooltip.style.position = 'absolute';
   tooltip.style.visibility = 'hidden';
