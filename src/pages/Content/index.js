@@ -174,8 +174,13 @@ async function activateReliant() {
   var createReactClass = require('create-react-class');
   let tooltip = document.createElement('span');
   tooltip.className = 'tool_tip';
-  document.body.appendChild(tooltip);
-  tooltip.attachShadow({mode: 'open'})
+
+
+
+ document.body.appendChild(tooltip);
+
+  
+
   render(<ToolComponent>aa</ToolComponent>, tooltip);
   tooltip.style.position = 'absolute';
   tooltip.style.visibility = 'hidden';
