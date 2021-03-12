@@ -30,10 +30,10 @@ export async function getURL() {
   });
 }
 
-async function createQuestionnaire(userId, url, hostname) {
+function createQuestionnaire(userId, url, hostname) {
   console.log('Creating Questionare for', hostname);
   var contentBody = null;
-  var genre = ""
+  var genre = "";
   if (hostname.includes(URLS.WIRED)) {
     console.log("We're on WIRED");
     contentBody = document.getElementsByClassName('article main-content')[0];
@@ -77,7 +77,7 @@ async function createQuestionnaire(userId, url, hostname) {
   render(<Questionnaire userId={userId} url={url} genre={genre} />, questionnaire);
 }
 
-export async function getUserInfo() {
+async function getUserInfo() {
   return new Promise((resolve) => {
     chrome.runtime.sendMessage('userInfo', (userInfo) => {
       resolve(userInfo);
@@ -85,6 +85,76 @@ export async function getUserInfo() {
   });
 }
 
+
+function authorName(hostname) {
+  var author = [];
+  var removeText;
+  var spaceCount = 0;
+  if (hostname.includes(URLS.WIRED)) {
+    author.push(document.getElementsByName("author")[0].content);
+    console.log(author);
+  } else if (hostname.includes(URLS.CNN)) {
+    removeText = document.getElementsByName("author")[0].content;
+    removeText = removeText.substr(0,removeText.length-5);
+    if (removeText.includes("and")) {
+      removeText = removeText.replace("and ", "");
+      for (let i in removeText) {
+        if (spaceCount == 2) {
+          author.push(removeText.substr(0,i-1));
+          author.push(removeText.substr(i));
+          spaceCount +=1;
+        }
+        if (removeText[i].includes(" ")) {
+          spaceCount += 1;
+        }
+      }
+    } else {
+      author.push(removeText);
+    }
+    console.log(author);
+  } else if (hostname.includes(URLS.VERGE)) {
+    author.push(document.getElementsByTagName("meta")[5].content);
+    console.log(author);
+  } else if (hostname.includes(URLS.VOX)) {
+    author.push(document.getElementsByTagName("meta")[5].content);
+    console.log(author);
+  } else if (hostname.includes(URLS.FOXNEWS)) {
+    author.push(document.getElementsByName("dc.creator")[0].content);
+    console.log(author);
+  } else if (hostname.includes(URLS.MEDIUM)) {
+    author.push(document.getElementsByName("author")[0].content);
+    console.log(author);
+  } else if (hostname.includes(URLS.NYTIMES)) {
+    removeText = document.getElementsByName("byl")[0].content;
+    removeText = removeText.replace("By ", "");
+    if (removeText.includes("and")) {
+      removeText = removeText.replace("and ", "");
+      for (let i in removeText) {
+        if (spaceCount == 2) {
+          author.push(removeText.substr(0,i-1));
+          author.push(removeText.substr(i));
+          spaceCount +=1;
+        }
+        if (removeText[i].includes(" ")) {
+          spaceCount += 1;
+        }
+      }
+    }
+    else {
+      author.push(removeText);
+    }
+    console.log(author);
+  } else {
+    if (document.getElementsByName("author")[0].content != null) {
+      author.push(document.getElementsByName("author")[0].content);
+    } else if (document.getElementsByTagName("meta")[5].content != null) {
+      author.push(document.getElementsByTagName("meta")[5].content);
+    } else {
+      author.push("Sorry IDK")
+    }
+  }
+  return author;
+}
 
 
 function getRandomColor() {
@@ -253,7 +323,12 @@ export async function submitQuestionnaire(score) {
 chrome.runtime.onMessage.addListener((req, send, sendResponse) => {
   if (req.type === 'activate') {
     activateReliant();
+  } else if (req.type === "getAuthors") {
+    getURL().then((url) => {
+      sendResponse(authorName(new URL(url).hostname))
+    })
   } else if (req.type === 'deactivate') {
     deactivateReliant();
   }
+  return true;
 });
