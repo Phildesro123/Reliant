@@ -8,18 +8,42 @@ import message from './modules/messenger';
 import axios from 'axios';
 import './Popup.css';
 import StarRating from './modules/StarRating';
+import wiki from './modules/WikiReader';
+import parse from 'html-react-parser';
 
-const Popup = () => {
+  const Popup = () => {
   const [userEmail, setUserEmail] = useState(null);
   const [reliabilityScore, setReliabilityScore] = useState(null);
+  function stripHtml(html){
+    // Create a new div element
+    var temporalDivElement = document.createElement("div");
+    // Set the HTML content with the providen
+    temporalDivElement.innerHTML = html;
+    // Retrieve the text property of the element (cross-browser support)
+    return temporalDivElement.textContent || temporalDivElement.innerText || "";
+  }
+  const [wikiInfo, setWikiInfo] = useState(null);
+  //wiki("Pablo Escobar").then(response => setWikiInfo(response.data));
+  const [authors, setAuthors] = useState([]);
   const [activated, setActivated] = useState(false);
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
+    message("getAuthors").then((authors) => {
+      setAuthors(authors);
+      wiki(authors[0]).then(response => {
+        if (response === null) {
+          return setWikiInfo('');
+        }
+        else {
+          return setWikiInfo(response);
+        }});
+      console.log("From popup", authors);
+    })
+    console.log("WIKI INFO IS ", wikiInfo);
     chrome.runtime.sendMessage('userInfo', (userInfo) => {
       setUserEmail(userInfo.email)
     });
     chrome.runtime.sendMessage('activeURL', (url) => {
-      console.log(url);
       axios
         .get('http://localhost:4000/api/websites/getSiteData', {
           params: {
@@ -54,8 +78,8 @@ const Popup = () => {
           className="pr-0"
           style={{ paddingLeft: '10px', textAlign: 'left' }}
         >
-          <h4 className="mb-0 mt-0">Author Name</h4>
-          <span>Senior Journalist</span>
+          <h4 className="mb-0 mt-0">{authors[0]}</h4>
+          <span>{stripHtml(wikiInfo) === null ? '' : stripHtml(wikiInfo)}</span>
           <div className="reliability-container">
             <h6>Reliability Score:</h6>
             <div className="star-reliability-container">
