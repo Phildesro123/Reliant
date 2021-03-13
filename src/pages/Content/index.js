@@ -240,7 +240,6 @@ async function activateReliant() {
   //Highlight everything
   even = (even + 1) % 2;
 
-  var createReactClass = require('create-react-class');
   let tooltip = document.createElement('span');
   tooltip.className = 'tool_tip';
 
@@ -248,7 +247,8 @@ async function activateReliant() {
 
  document.body.appendChild(tooltip);
 
-  
+let isToolTipVisible = false;
+let lastSelection = null;
 
   render(<ToolComponent>aa</ToolComponent>, tooltip);
   tooltip.style.position = 'absolute';
@@ -263,13 +263,14 @@ async function activateReliant() {
     tooltip.style.left = mouseX + 'px';
     tooltip.style.visibility = 'visible';
     tooltip.style.display = 'block';
-
+    isToolTipVisible = true;
   };
 
   var startX = 0;
   var endX = 0;
   var startY = 0;
   var endY = 0;
+
   //Close the tool tip
   document.addEventListener('mousedown', (e)=> {  
     const parentClassName = e.target.parentNode.getAttribute('class');
@@ -277,25 +278,29 @@ async function activateReliant() {
     console.log("Parent Class:", parentClassName);
     console.log("Parent ID:", parentIdName);
     //Make the tool tip invisible
-    if (parentClassName == 'tool_tip' || e.target.getAttribute('class') == "btn btn-primary"
-    ||  parentIdName == "highlight" || parentIdName == "comment"  ) {
+    if (isToolTipVisible)  {
       e.stopPropagation();
+      return false;
     } else {
       startX = e.pageX
       startY = e.pageY
       
     tooltip.style.visibility = 'hidden'
     tooltip.style.display = 'none'
+    isToolTipVisible= false;
   }
   })
   // Show the tool tip
   let paragraphs = document.getElementsByTagName('p');
   document.addEventListener('mouseup', (e)=> {
     let selection = window.getSelection().toString();
-    console.log(selection)
-    if (selection.length > 0) {
+    console.log("Current selection", selection);
+    console.log("Last selection", lastSelection);
+    if (selection == lastSelection && isToolTipVisible) {
+      e.stopPropagation();
+      return false;
+    } else if (selection.length > 0) {
       //Render the tooltip
-      
       endX = e.pageX
       endY = e.pageY
       console.log("start x is ", startY)
@@ -306,8 +311,12 @@ async function activateReliant() {
 
       const realStartY = Math.min(startY, endY)
       const realEndY = Math.max(startY, endY)
-
+      lastSelection = selection;
       renderToolTip((realendX - realStartX)/2 + realStartX, realStartY - (realEndY - realStartY)/2, selection)
+    } else {
+      tooltip.style.visibility = 'hidden'
+      tooltip.style.display = 'none'
+      isToolTipVisible= false;
     }
   })
 

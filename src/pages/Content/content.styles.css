@@ -121,6 +121,9 @@ input[type='radio'] {
   word-break: break-word;
 }
 
+svg.icon {
+  pointer-events: none;
+}
 .btn-group,
 .btn-group-vertical {
   position: relative;
