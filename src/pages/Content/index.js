@@ -249,6 +249,7 @@ async function activateReliant() {
 
 let isToolTipVisible = false;
 let lastSelection = null;
+let lastSelectionObj = null;
 
   render(<ToolComponent>aa</ToolComponent>, tooltip);
   tooltip.style.position = 'absolute';
@@ -293,6 +294,7 @@ let lastSelection = null;
   // Show the tool tip
   let paragraphs = document.getElementsByTagName('p');
   document.addEventListener('mouseup', (e)=> {
+    console.log(window.getSelection());
     let selection = window.getSelection().toString();
     console.log("Current selection", selection);
     console.log("Last selection", lastSelection);
@@ -312,6 +314,7 @@ let lastSelection = null;
       const realStartY = Math.min(startY, endY)
       const realEndY = Math.max(startY, endY)
       lastSelection = selection;
+      lastSelectionObj = window.getSelection();
       renderToolTip((realendX - realStartX)/2 + realStartX, realStartY - (realEndY - realStartY)/2, selection)
     } else {
       tooltip.style.visibility = 'hidden'
@@ -321,8 +324,33 @@ let lastSelection = null;
   })
 
 
+  //Highlight options
+  document.addEventListener('click', (e)=> {
+    const parentIdName = e.target.parentNode.getAttribute('id'); 
+    const currentID = e.target.getAttribute('id')
 
+    if (parentIdName == 'highlight' || currentID == 'highlight') {
+      highlightText('#ffc107')
+    } else if (parentIdName == 'smile' || currentID == 'smile') {
+      highlightText('#28a745')
+    } else if (parentIdName == 'frown' || currentID == 'frown') {
+      highlightText('#dc3545')
+    } else if (parentIdName == 'comment' || currentID == 'commment') {
+      //Youssef's comment
+    } else if (parentIdName == 'note' || currentID == 'note') {
+      // Implement note
+    }
+  })
 
+  const highlightText = (color) =>{
+    const mark = document.createElement('mark');
+    mark.style.backgroundColor = color;
+    mark.textContent = lastSelection
+    const range = lastSelectionObj.getRangeAt(0);
+    range.deleteContents();
+    range.insertNode(mark);
+  };
+  
   
   //paragraphs = Array.from(paragraphs);
   // render(<Highlight children={paragraphs}/>, paragraphs);
