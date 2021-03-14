@@ -16,10 +16,6 @@ var ACTIVATED = false;
 var LOADED = false;
 var paragraphs = null;
 
-document.querySelector('div').addEventListener('selectionchange', () => {
-  console.log('Selection updated');
-});
-
 export function getLoadedState() {return LOADED}
 export function getActivateState() {return ACTIVATED}
 
@@ -195,18 +191,6 @@ async function activateReliant() {
   const url = await getURL();
   const userInfo = await getUserInfo();
   const hostname = new URL(url).hostname;
-  //Check if hostname is in URLS
-  // var foundURL = false;
-  // for (const key in URLS) {
-  //   if (hostname.includes(URLS[key])) {
-  //     foundURL = true;
-  //     break;
-  //   }
-  // }
-  // if (!foundURL) {
-  //   console.log('UNSUPPORTED WEBSITE');
-  //   return;
-  // }
 
   axios
     .post('http://localhost:4000/api/user/updateSites', {
@@ -342,74 +326,16 @@ let lastSelectionObj = null;
     }
   })
 
+ //Fix this, WE SHOULD ONLY MANIPULATE P TAGS
+
   const highlightText = (color) =>{
     const mark = document.createElement('mark');
     mark.style.backgroundColor = color;
     mark.textContent = lastSelection
+    mark.style.textDecoration = "none";
     const range = lastSelectionObj.getRangeAt(0);
     range.deleteContents();
-    range.insertNode(mark);
   };
-  
-  
-  //paragraphs = Array.from(paragraphs);
-  // render(<Highlight children={paragraphs}/>, paragraphs);
- // console.log(paragraphs);
-//  console.log('before highlightpop', paragraphs[0]);
-  // grab the 0th indx para
-  // grab teh last indx parag
-
-  // div called big div
-  // bigdiv.appendBefore 0th index paragraph
-  // bigdiv.append lastindex pargarph
-
-/*   let highlightWrapper = document.createElement('span');
-  highlightWrapper.id = 'highlight_tool';
-
-  const firstParagarph = paragraphs[0];
-  const contentBody = document.getElementsByClassName('c-entry-content ')[0];
-  contentBody.appendChild(highlightWrapper);
-  highlightWrapper.appendChild(firstParagarph);
-  console.log(highlightWrapper);
-
-  const last = paragraphs[paragraphs.length - 1];
-  console.log('before wrapping');
-  //firstParagarph.parentNode.replaceChild(highlightWrapper, firstParagarph);
-
-  highlightWrapper.parentNode.appendChild(firstParagarph);
-
-  render(
-    <HighlightPop onHighlightPop={() => console.log('Highlighting')}>
-      <p>Hello, this is a testing tag</p>
-    </HighlightPop>,
-    highlightWrapper
-  ); */
-  console.log('after wrapping');
-  //   for (const paragraph of paragraphs) {
-  //     // console.log(paragraph.textContent)
-  //     // if (first) {
-  //     //   colors.push([paragraph.style['background-color'], getRandomColor()]);
-  //     //   paragraph.style['background-color'] = colors[i][1];
-  //     // } else {
-  //     //   paragraph.style['background-color'] = colors[i][even];
-  //     // }
-  //     const highlightWrapper = document.createElement('div');
-
-  //     //console.log(paragraph);
-  //     //paragraph.parentNode.insertBefore(highlight, paragraph);
-  //     console.log(
-  //       '==== Highlight react component should be wrapped at this point ===='
-  //     );
-  //     paragraph.parentNode.replaceChild(highlightWrapper, paragraph);
-
-  //     highlightWrapper.appendChild(paragraph);
-
-  //     render(
-  //       <HighlightPop onHighlightPop={() => console.log('Highlighting')} />,
-  //       highlightWrapper
-  //     );
-  //   }
-  //   first = false;
 }
 }
 
