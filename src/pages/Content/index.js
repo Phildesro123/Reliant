@@ -6,6 +6,7 @@ import { URLS } from '../Background/workingUrls';
 import axios from 'axios';
 import { calculateScore } from '../../containers/Score/Score';
 import ToolComponent from './modules/Tooltip';
+import { convertCompilerOptionsFromJson } from 'typescript';
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
@@ -250,6 +251,7 @@ async function activateReliant() {
 let isToolTipVisible = false;
 let lastSelection = null;
 let lastSelectionObj = null;
+var markerEl = null;
 
   render(<ToolComponent>aa</ToolComponent>, tooltip);
   tooltip.style.position = 'absolute';
@@ -258,8 +260,12 @@ let lastSelectionObj = null;
 
 
   const renderToolTip = (mouseX, mouseY, selection) => {
+
     mouseX = mouseX - 50;
     mouseY = mouseY - 40;
+    if (selection.length < 60){
+      mouseX = mouseX - 20;
+    }
     tooltip.style.top = mouseY + 'px';
     tooltip.style.left = mouseX + 'px';
     tooltip.style.visibility = 'visible';
@@ -289,7 +295,11 @@ let lastSelectionObj = null;
     tooltip.style.visibility = 'hidden'
     tooltip.style.display = 'none'
     isToolTipVisible= false;
+
+    
   }
+
+    
   })
   // Show the tool tip
   let paragraphs = document.getElementsByTagName('p');
@@ -297,17 +307,23 @@ let lastSelectionObj = null;
     console.log(window.getSelection());
     let selection = window.getSelection().toString();
     console.log("Current selection", selection);
+    console.log("THIS SELECTION WAS THIS LONG: ", selection.length);
     console.log("Last selection", lastSelection);
+    
     if (selection == lastSelection && isToolTipVisible) {
+      
       e.stopPropagation();
       return false;
     } else if (selection.length > 0) {
+
+      
+      
       //Render the tooltip
       endX = e.pageX
       endY = e.pageY
       console.log("start x is ", startY)
       console.log("end x is ", endY)
-
+      
       const realStartX = Math.min(startX, endX)
       const realendX = Math.max(startX, endX)
 
@@ -315,6 +331,8 @@ let lastSelectionObj = null;
       const realEndY = Math.max(startY, endY)
       lastSelection = selection;
       lastSelectionObj = window.getSelection();
+
+      
       renderToolTip((realendX - realStartX)/2 + realStartX, realStartY - (realEndY - realStartY)/2, selection)
     } else {
       tooltip.style.visibility = 'hidden'
