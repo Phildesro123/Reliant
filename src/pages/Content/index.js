@@ -349,9 +349,11 @@ async function activateReliant() {
         highlightText('#dc3545');
         closeToolTip();
       } else if (parentIdName == 'comment' || currentID == 'commment') {
+        highlightText('#dc3545', true);
         //Youssef's comment
         closeToolTip();
       } else if (parentIdName == 'note' || currentID == 'note') {
+        highlightText('blue', true);
         // Implement note
         closeToolTip();
       }
@@ -359,11 +361,20 @@ async function activateReliant() {
 
     //Fix this, WE SHOULD ONLY MANIPULATE P TAGS
 
-    const highlightText = (color) => {
-      const mark = document.createElement('mark');
-      mark.style.backgroundColor = color;
+    const highlightText = (color, underline=false) => {
+      var mark = document.createElement('mark')
+      if (underline) {
+        console.log("UNDERLINING")
+        mark = document.createElement('u');
+        mark.style.textDecoration = "underline";
+        mark.style.textDecorationColor = color;
+        mark.style.textDecorationThickness = ".2rem";
+        mark.style.textDecorationSkipInk = "none"
+      } else {
+        mark.style.backgroundColor = color;
+        mark.style.textDecoration = 'none';
+      }
       mark.textContent = lastSelection;
-      mark.style.textDecoration = 'none';
       const range = lastSelectionObj.getRangeAt(0);
       range.deleteContents();
       range.insertNode(mark);
