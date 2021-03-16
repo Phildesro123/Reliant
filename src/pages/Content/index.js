@@ -259,7 +259,13 @@ async function activateReliant() {
       tooltip.style.visibility = 'hidden';
       tooltip.style.display = 'none';
       isToolTipVisible = false;
+      clearSelection();
     };
+
+    function clearSelection() {
+      if (window.getSelection) {window.getSelection().removeAllRanges();}
+      else if (document.selection) {document.selection.empty();}
+    }
 
     var startX = 0;
     var endX = 0;
