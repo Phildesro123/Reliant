@@ -6,13 +6,7 @@ import {FaComment} from 'react-icons/fa';
 import {FaStickyNote} from 'react-icons/fa';
 
 const ToolTip = () => {
-    return (
-      // <Popover style={{backgroundColor: "red"}} id="popover-basic">
-      // {/* <Popover.Title as="h3">Options</Popover.Title> */}
-      // <Popover.Content>
-        //{/* And here's some <strong>amazing</strong> content. It's very engaging.
-        //right? */}
-        
+    return (        
         <>
         <div className = "btn-group btn-group-sm"> 
          <button type="button" className="btn btn-success" id='smile' title="Green Highlight" onClick={()=>console.log("smile")}> <FaRegSmile id = "smile"/></button>
@@ -22,12 +16,6 @@ const ToolTip = () => {
           <button type="button" className="btn btn-dark" id='note' title="Personal Note" onClick={()=>console.log("note")}> <FaStickyNote id ="note"/></button>
         </div>
 </>
-    // </Popover>
-        
-  //   <OverlayTrigger trigger="click" placement="top" overlay={popover}>
-  //   {/* <Button style={{backgroundColor: "green"}} variant="success">Options</Button> */}
-    
-  // </OverlayTrigger>
     );
     
 }
