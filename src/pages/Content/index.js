@@ -1,84 +1,36 @@
 import React from 'react';
 import { render } from 'react-dom';
-import Questionnaire from './modules/Questionnaire';
-import Comment from './modules/Comment';
 import { URLS } from '../Background/workingUrls';
 import axios from 'axios';
 import { calculateScore } from '../../containers/Score/Score';
-import ToolComponent from './modules/Tooltip';
+import ToolComponent from './modules/Tooltip-Component';
+import {createQuestionnaire, removeQuestionnaire}  from './Questionnaire'
+import {authorName} from './authorName'
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
 
-const comment = document.createElement('div');
-const questionnaire = document.createElement('div');
+
 var ACTIVATED = false;
 var LOADED = false;
 var paragraphs = null;
+var currentURL = null;
+var currentHostname = null;
+var currentUserInfo = null;
 
-export function getLoadedState() {
+function getLoadedState() {
   return LOADED;
 }
-export function getActivateState() {
+function getActivateState() {
   return ACTIVATED;
 }
 
-export async function getURL() {
+async function getURL() {
   return new Promise((resolve) => {
     chrome.runtime.sendMessage('activeURL', (url) => {
       resolve(url);
     });
   });
-}
-
-function createQuestionnaire(userId, url, hostname) {
-  console.log('Creating Questionare for', hostname);
-  var contentBody = null;
-  var genre = '';
-  if (hostname.includes(URLS.WIRED)) {
-    console.log("We're on WIRED");
-    contentBody = document.getElementsByClassName('article main-content')[0];
-    genre = 'Tech';
-  } else if (hostname.includes(URLS.CNN)) {
-    console.log("We're on CNN");
-    contentBody = document.getElementById('body-text');
-    genre = 'Political';
-  } else if (hostname.includes(URLS.VERGE)) {
-    console.log("We're on Verge");
-    contentBody = document.getElementsByClassName('c-entry-content ')[0];
-    genre = 'Tech';
-  } else if (hostname.includes(URLS.VOX)) {
-    console.log("We're on Vox");
-    contentBody = document.getElementsByClassName('c-entry-content ')[0];
-    genre = 'Political';
-  } else if (hostname.includes(URLS.FOXNEWS)) {
-    console.log("We're on Fox");
-    contentBody = document.getElementsByClassName('article-body')[0];
-  } else if (hostname.includes(URLS.MEDIUM)) {
-    console.log("We're on Medium");
-    contentBody = document.getElementsByTagName('article')[0];
-    genre = 'Education';
-  } else if (hostname.includes(URLS.NYTIMES)) {
-    console.log("We're on NY Times");
-    contentBody = document.getElementsByClassName('bottom-of-article')[0];
-    genre = 'Political';
-  }
-  if (contentBody == undefined) {
-    const articles = document.getElementsByTagName('article');
-    if (articles.length > 0) {
-      contentBody = articles[articles.length - 1];
-    } else {
-      contentBody = document.querySelector('body');
-    }
-  }
-  contentBody.appendChild(questionnaire);
-  contentBody.appendChild(comment);
-  console.log('Content Body', contentBody);
-  render(<Comment />, comment);
-  render(
-    <Questionnaire userId={userId} url={url} genre={genre} />,
-    questionnaire
-  );
 }
 
 async function getUserInfo() {
@@ -89,94 +41,16 @@ async function getUserInfo() {
   });
 }
 
-function authorName(hostname) {
-  var author = [];
-  var removeText;
-  var spaceCount = 0;
-  if (hostname.includes(URLS.WIRED)) {
-    author.push(document.getElementsByName('author')[0].content);
-    console.log(author);
-  } else if (hostname.includes(URLS.CNN)) {
-    removeText = document.getElementsByName('author')[0].content;
-    removeText = removeText.substr(0, removeText.length - 5);
-    if (removeText.includes('and')) {
-      removeText = removeText.replace('and ', '');
-      for (let i in removeText) {
-        if (spaceCount == 2) {
-          author.push(removeText.substr(0, i - 1));
-          author.push(removeText.substr(i));
-          spaceCount += 1;
-        }
-        if (removeText[i].includes(' ')) {
-          spaceCount += 1;
-        }
-      }
-    } else {
-      author.push(removeText);
-    }
-    console.log(author);
-  } else if (hostname.includes(URLS.VERGE)) {
-    author.push(document.getElementsByTagName('meta')[5].content);
-    console.log(author);
-  } else if (hostname.includes(URLS.VOX)) {
-    author.push(document.getElementsByTagName('meta')[5].content);
-    console.log(author);
-  } else if (hostname.includes(URLS.FOXNEWS)) {
-    author.push(document.getElementsByName('dc.creator')[0].content);
-    console.log(author);
-  } else if (hostname.includes(URLS.MEDIUM)) {
-    author.push(document.getElementsByName('author')[0].content);
-    console.log(author);
-  } else if (hostname.includes(URLS.NYTIMES)) {
-    removeText = document.getElementsByName('byl')[0].content;
-    removeText = removeText.replace('By ', '');
-    if (removeText.includes('and')) {
-      removeText = removeText.replace('and ', '');
-      for (let i in removeText) {
-        if (spaceCount == 2) {
-          author.push(removeText.substr(0, i - 1));
-          author.push(removeText.substr(i));
-          spaceCount += 1;
-        }
-        if (removeText[i].includes(' ')) {
-          spaceCount += 1;
-        }
-      }
-    } else {
-      author.push(removeText);
-    }
-    console.log(author);
-  } else {
-    if (document.getElementsByName('author')[0].content != null) {
-      author.push(document.getElementsByName('author')[0].content);
-    } else if (document.getElementsByTagName('meta')[5].content != null) {
-      author.push(document.getElementsByTagName('meta')[5].content);
-    } else {
-      author.push('Sorry IDK');
-    }
-  }
-  return author;
-}
-
-function getRandomColor() {
-  var letters = '0123456789ABCDEF';
-  var color = '#';
-  for (var i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
-  }
-  return color;
-}
-
 var first = true; //Used to ensure the questionnaire can only be injected once.
 var colors = []; // Array holding paragraph colors in the form [original, random]
 var even = 0; // 0 --> Original Color, 1 --> Random Color
 window.onload = async function () {
   LOADED = true;
   console.log('LOADED');
-  const hostname = new URL(await getURL()).hostname;
-  console.log(hostname);
+  currentHostname = new URL(await getURL()).hostname;
+  console.log(currentHostname);
   for (const key in URLS) {
-    if (hostname.includes(URLS[key])) {
+    if (currentHostname.includes(URLS[key])) {
       activateReliant();
       break;
     }
@@ -191,38 +65,50 @@ async function activateReliant() {
   }
   ACTIVATED = true;
   console.log('activated reliant', getActivateState());
-  const url = await getURL();
-  const userInfo = await getUserInfo();
-  const hostname = new URL(url).hostname;
+  currentURL = await getURL();
+  currentUserInfo = await getUserInfo();
+  currentHostname = new URL(currentURL).hostname;
 
   axios
     .post('http://localhost:4000/api/user/updateSites', {
-      _id: userInfo.id,
+      _id: currentUserInfo.id,
       website: {
-        _id: url,
+        _id: currentURL,
         timespent: 5,
       },
     })
     .then(() => {
       console.log('Data has been sent to the server');
     })
-    .catch(() => {
-      console.log('Internal server error');
+    .catch((err) => {
+      console.log('Internal server error in updateSites:', err);
     });
 
   axios
     .post('http://localhost:4000/api/websites/addSite', {
-      _id: url,
+      _id: currentURL,
     })
     .then((response) => {
       console.log(response);
     })
-    .catch(() => {
-      console.log('Internal server error');
+    .catch((err) => {
+      console.log('Internal server error in addSite:', err);
     });
 
+  axios.get("http://localhost:4000/api/websites/getUserHighlights", {params: {
+    url: currentURL,
+    userID: currentUserInfo.id
+  }}).then((res) => {
+    for(highlightObj in res) {
+      console.log("Highlight from DB:", highlightObj.highlightSelection)
+      highlightText('#ffc107', highlightObj.highlightSelection);
+    }
+  }).catch((err) => {
+    console.log('Internal server error in getUserHighlights:', err);
+  });
+
   if (first) {
-    createQuestionnaire(userInfo.id, url, hostname);
+    createQuestionnaire(currentUserInfo.id, currentURL, currentHostname);
 
     //Highlight everything
     even = (even + 1) % 2;
@@ -289,7 +175,6 @@ async function activateReliant() {
       }
     });
     // Show the tool tip
-    let paragraphs = document.getElementsByTagName('p');
     document.addEventListener('mouseup', (e) => {
       console.log(window.getSelection());
       let temp = window.getSelection();
@@ -310,6 +195,7 @@ async function activateReliant() {
         e.stopPropagation();
         return false;
       } else if (selection.length > 0) {
+        console.log("Rendering the tooltip")
         //Render the tooltip
         endX = e.pageX;
         endY = e.pageY;
@@ -338,22 +224,34 @@ async function activateReliant() {
     document.addEventListener('click', (e) => {
       const parentIdName = e.target.parentNode.getAttribute('id');
       const currentID = e.target.getAttribute('id');
-
+      console.log("type of widow.getSelection():", typeof(window.getSelection()))
+      const payload = {
+        url: currentURL,
+        userID: currentUserInfo.id,
+        highlightSelection: window.getSelection()
+      }
+      console.log("type of payload.hightlightSelection:", typeof(payload.highlightSelection))
+      console.log("Payload", payload)
+      console.log("SelectionObj.toString()", payload.highlightSelection.toString())
       if (parentIdName == 'highlight' || currentID == 'highlight') {
-        highlightText('#ffc107');
+        axios.post('http://localhost:4000/api/websites/addHighlights', payload).then((res) => {
+          console.log(res);
+          console.log(lastSelectionObj.getRangeAt(0))
+          highlightText('#ffc107', lastSelectionObj);
+        })
         closeToolTip();
       } else if (parentIdName == 'smile' || currentID == 'smile') {
-        highlightText('#28a745');
+        highlightText('#28a745', window.getSelection());
         closeToolTip();
       } else if (parentIdName == 'frown' || currentID == 'frown') {
-        highlightText('#dc3545');
+        highlightText('#dc3545', window.getSelection());
         closeToolTip();
       } else if (parentIdName == 'comment' || currentID == 'commment') {
-        highlightText('#dc3545', true);
+        highlightText('#dc3545', window.getSelection(), true);
         //Youssef's comment
         closeToolTip();
       } else if (parentIdName == 'note' || currentID == 'note') {
-        highlightText('blue', true);
+        highlightText('blue', window.getSelection(), true);
         // Implement note
         closeToolTip();
       }
@@ -361,7 +259,7 @@ async function activateReliant() {
 
     //Fix this, WE SHOULD ONLY MANIPULATE P TAGS
 
-    const highlightText = (color, underline=false) => {
+    const highlightText = (color, selectionObj, underline=false) => {
       var mark = document.createElement('mark')
       if (underline) {
         console.log("UNDERLINING")
@@ -374,8 +272,8 @@ async function activateReliant() {
         mark.style.backgroundColor = color;
         mark.style.textDecoration = 'none';
       }
-      mark.textContent = lastSelection;
-      const range = lastSelectionObj.getRangeAt(0);
+      mark.textContent = selectionObj.toString();
+      const range = selectionObj.getRangeAt(0);
       range.deleteContents();
       range.insertNode(mark);
     };
@@ -385,8 +283,7 @@ async function activateReliant() {
 function deactivateReliant() {
   ACTIVATED = false;
   console.log('Deactivating Reliant');
-  comment.remove();
-  questionnaire.remove();
+  removeQuestionnaire();
   var i = 0;
   for (const paragraph of paragraphs) {
     paragraph.style['background-color'] = colors[i][0];
@@ -394,68 +291,6 @@ function deactivateReliant() {
   }
 }
 
-export async function submitQuestionnaire(score) {
-  //Logic for submitting questionarre
-  const userInfo = await getUserInfo();
-  const url = await getURL();
-  //create/update review
-  var results = [];
-  var overallScore = 0;
-  for (const s in score) {
-    overallScore += score[s].score;
-    results.push({
-      _id: s,
-      response: score[s].score,
-    });
-  }
-  overallScore /= Object.keys(score).length;
-
-  await axios
-    .post('http://localhost:4000/api/reviews/addReview', {
-      _id: {
-        userId: userInfo.id,
-        url: url,
-      },
-      results: results,
-      overallScore: overallScore,
-    })
-    .then((res) => {
-      console.log('Successfully saved review');
-    })
-    .catch((err) => {
-      console.log('Error from addReview:', err);
-      throw err;
-    });
-}
-//TODO: Implement the two push calls below which save the review to the reviews collection and update the reliability score
-// axios
-//   .push('http://localhost:4000/api/reviews', {
-//     _id: { userId: userInfo.id, url: url },
-//   })
-// })
-/* Necessary Inputs:
-  oldWebsiteScore = reliability score of url from the database (default 0)
-  oldWebsiteWeight = number of reviews of url (default 0 ) -- this accounts for review weights
-  oldUserScore = rating of review made by same user on same website earlier (0 if first time)
-  oldUserWeight = calculated weight made from previous review (0 if first time)
-  totalTimeOpened = number of seconds article has been read (stored time + current session time)
-  newUserScore = the score given by the user by the current questionnaire
-  document = document of HTML, already good as-is
-  Outputs:
-  r[0] = new reliability score of url
-  r[1] = new total weight of url (number of reviews)
-  r[2] = userScore
-  r[3] = userWeight --> r[2], r[3] used to store in Reviews
-  */
-// calculateScore(
-//   oldWebsiteScore,
-//   oldWebsiteWeight,
-//   oldUserScore,
-//   oldUserWeight,
-//   totalTimeOpened,
-//   newUserScore,
-//   documentObj
-// );
 
 //Runs when activate is pressed from Popup
 chrome.runtime.onMessage.addListener((req, send, sendResponse) => {
