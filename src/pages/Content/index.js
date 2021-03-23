@@ -187,10 +187,10 @@ async function activateReliant() {
         'CHECKING SELECTION PARENTS:',
         temp.baseNode.parentNode == temp.focusNode.parentNode
       );
-      let comp =
+       let comp =
         temp.baseNode == temp.focusNode ||
-        temp.baseNode.parentNode == temp.focusNode.parentNode;
-      if (comp == false || (selection == lastSelection && isToolTipVisible)) {
+       temp.baseNode.parentNode == temp.focusNode.parentNode;
+      if ((selection == lastSelection && isToolTipVisible)) {
         console.log('I dont want to render at all');
         e.stopPropagation();
         return false;
@@ -222,36 +222,41 @@ async function activateReliant() {
 
     //Highlight options
     document.addEventListener('click', (e) => {
+      const parser = new DOMParser();
       const parentIdName = e.target.parentNode.getAttribute('id');
       const currentID = e.target.getAttribute('id');
+      const range = lastSelectionObj.getRangeAt(0)
+      console.log("RANGE:", range)
+      console.log("Range to string:", range.toString())
       console.log("type of widow.getSelection():", typeof(window.getSelection()))
       const payload = {
         url: currentURL,
         userID: currentUserInfo.id,
-        highlightSelection: window.getSelection()
+        highlightSelection: range
       }
       console.log("type of payload.hightlightSelection:", typeof(payload.highlightSelection))
       console.log("Payload", payload)
+      console.log("Payload type:", typeof(payload))
       console.log("SelectionObj.toString()", payload.highlightSelection.toString())
       if (parentIdName == 'highlight' || currentID == 'highlight') {
         axios.post('http://localhost:4000/api/websites/addHighlights', payload).then((res) => {
           console.log(res);
-          console.log(lastSelectionObj.getRangeAt(0))
-          highlightText('#ffc107', lastSelectionObj);
+          highlightText('#ffc107', range);
         })
         closeToolTip();
       } else if (parentIdName == 'smile' || currentID == 'smile') {
-        highlightText('#28a745', window.getSelection());
+
+        highlightText('#28a745', range);
         closeToolTip();
       } else if (parentIdName == 'frown' || currentID == 'frown') {
-        highlightText('#dc3545', window.getSelection());
+        highlightText('#dc3545', range);
         closeToolTip();
       } else if (parentIdName == 'comment' || currentID == 'commment') {
-        highlightText('#dc3545', window.getSelection(), true);
+        highlightText('#dc3545', range, true);
         //Youssef's comment
         closeToolTip();
       } else if (parentIdName == 'note' || currentID == 'note') {
-        highlightText('blue', window.getSelection(), true);
+        highlightText('blue', range, true);
         // Implement note
         closeToolTip();
       }
@@ -259,7 +264,7 @@ async function activateReliant() {
 
     //Fix this, WE SHOULD ONLY MANIPULATE P TAGS
 
-    const highlightText = (color, selectionObj, underline=false) => {
+    const highlightText = (color, range, underline=false) => {
       var mark = document.createElement('mark')
       if (underline) {
         console.log("UNDERLINING")
@@ -272,8 +277,7 @@ async function activateReliant() {
         mark.style.backgroundColor = color;
         mark.style.textDecoration = 'none';
       }
-      mark.textContent = selectionObj.toString();
-      const range = selectionObj.getRangeAt(0);
+      mark.textContent = range.toString();
       range.deleteContents();
       range.insertNode(mark);
     };

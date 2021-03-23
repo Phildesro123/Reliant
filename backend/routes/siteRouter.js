@@ -148,8 +148,9 @@ siteRouter.route('/getSiteData').get((req, res, next) => {
  * POST: Add highlight to website
  */
   siteRouter.route('/addHighlights').post((req, res, next) => {
+    console.log("Request:", req)
     console.log("POST: Updating website's number of reviews:", req.body);
-    console.log("Hightlight Selection type:", typeof(req.body.highlightSelection))
+    console.log("Hightlight Selection:", JSON.stringify(req.body.highlightSelection))
     VisitedSites.findOne({ _id: req.body.url}, (err, results) => {
       if (err || results == null) {
         return res
