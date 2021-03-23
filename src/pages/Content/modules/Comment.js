@@ -1,10 +1,35 @@
 import React, {useEffect, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {FaRegThumbsUp, FaAngleRight} from 'react-icons/fa';
+ 
+/**
+ * Comment-Container 
+ *    Title
+ *    List of comments
+ *    Add new Comment text_area_ref
+ *    Submit/Cancle Buttons
+ *    
+ * 
+ * Comment
+ *    author
+ *    content
+ *    upvote/downvote
+ *    elipses(delete/resolve)
+ *    time of comment
+ *    list of replies
+ *    reply (optional : set true for main comment but not sub replies)
+ */
+
+
+
+
+
+
+
 
 function Comment() {
-  const minRows = 2;
-  const maxRows = 7;
+  const minRows = 1;
+  const maxRows = 5;
   const [comment, setComment] = useState('')
   const [rows, setRows] = useState(minRows)
   const [textAreaText, setTextAreaText] = useState('')
@@ -37,7 +62,6 @@ function Comment() {
   return (
     <div className="bordered-container comment-container">
       <div className="voting-container">
-        
       </div>
       <h1>This is the comment title</h1>
       <p>{comment}</p>
