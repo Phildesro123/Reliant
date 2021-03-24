@@ -66,7 +66,7 @@ function Questionnaire(props) {
     <div className="bordered-container questionnaire-container">
       <h1>Questionnaire</h1>
       <div className="question-container">
-        {questions.map((question, i) => {0
+        {questions.map((question, i) => {
           var value = 0;
           if (results.length > 0) {
             const temp = results.filter(result =>{

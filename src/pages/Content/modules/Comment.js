@@ -1,7 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {FaRegThumbsUp, FaAngleRight} from 'react-icons/fa';
- 
 /**
  * Comment-Container 
  *    Title
@@ -18,65 +17,40 @@ import {FaRegThumbsUp, FaAngleRight} from 'react-icons/fa';
  *    time of comment
  *    list of replies
  *    reply (optional : set true for main comment but not sub replies)
+ * 
+ * 
+ * props. :
+ * displayName: String
+ * upVote/downVote: int
+ * commentContent: String
+ * canReply: boolean
  */
 
 
-
-
-
-
-
-
-function Comment() {
-  const minRows = 1;
-  const maxRows = 5;
+function Comment(props) {
+  
   const [comment, setComment] = useState('')
-  const [rows, setRows] = useState(minRows)
-  const [textAreaText, setTextAreaText] = useState('')
-  const textAreaRef = useRef(null);
+  const [name, setName] = useState('')
+  const [upVote, setUpVote] = useState('')
+  const [downVote, setDownVote] = useState('')
+  const [reply, setReply] = useState('')
+  
+  useEffect(() => {
+      setComment(props.commentContent)
+      setName(props.displayName)
+      setUpVote(props.upVote)
+      setDownVote(props.downVote)
+      setReply(props.canReply)
 
-  const handleChange = (event) => {
-    const textAreaLineHeight = parseInt(window.getComputedStyle(ReactDOM.findDOMNode(textAreaRef.current)).getPropertyValue('line-height'), 10);
-
-    const previousRows = event.target.rows;
-    event.target.rows = minRows
-    const currentRows = ~~(event.target.scrollHeight / textAreaLineHeight);
-
-    if (currentRows === previousRows) {
-      event.target.rows = currentRows
-    }
-
-    if (currentRows >= maxRows) {
-      event.target.rows = maxRows;
-      event.target.scrollTop = event.target.scrollHeight;
-    } 
-    setRows(currentRows < maxRows ? currentRows : maxRows)
-    setTextAreaText(event.target.value)
-  }
-
-  const commentClicked= () => {
-    setComment(textAreaText)
-    setTextAreaText('')
-  }
+  }, [])
 
   return (
-    <div className="bordered-container comment-container">
-      <div className="voting-container">
-      </div>
-      <h1>This is the comment title</h1>
-      <p>{comment}</p>
-      <textarea
-        ref={textAreaRef}
-        className="comment-input"
-        type="text" 
-        placeholder="Comment"
-        rows={rows}
-        value={textAreaText}
-        onChange={handleChange}
-      />
-      <button className="comment-btn" onClick={commentClicked}>
-        Comment <FaAngleRight></FaAngleRight>
-      </button>
+    <div>
+        <p>{comment}</p>
+        <p>{name}</p>
+        <p>{upVote}</p>
+        <p>{downVote}</p>
+        <p>{reply}</p>
       <FaRegThumbsUp></FaRegThumbsUp>
     </div>
   );

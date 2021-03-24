@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import Questionnaire from './modules/Questionnaire';
-import Comment from './modules/Comment';
+import Comment from './modules/Comment-Container';
 import { URLS } from '../Background/workingUrls';
 import axios from 'axios';
 import { calculateScore } from '../../containers/Score/Score';
