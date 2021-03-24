@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import StarRating from './StarRating';
-import { submitQuestionnaire } from '..';
+import StarRating from './StarRating-Component';
+import { submitQuestionnaire } from '../Questionnaire';
 import axios from 'axios';
 
 function Questionnaire(props) {

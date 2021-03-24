@@ -17,6 +17,7 @@ let detail = new Schema(
     highlights: [
       {
         owner: String,
+        selection: Object
       },
     ],
   },
