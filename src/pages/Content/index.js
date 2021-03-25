@@ -1,5 +1,6 @@
 import React from 'react';
 import { render } from 'react-dom';
+import rangySerializer from 'rangy/lib/rangy-serializer';
 import { URLS } from '../Background/workingUrls';
 import axios from 'axios';
 import { calculateScore } from '../../containers/Score/Score';
@@ -190,7 +191,7 @@ async function activateReliant() {
        let comp =
         temp.baseNode == temp.focusNode ||
        temp.baseNode.parentNode == temp.focusNode.parentNode;
-      if ((selection == lastSelection && isToolTipVisible)) {
+      if (!comp || (selection == lastSelection && isToolTipVisible)) {
         console.log('I dont want to render at all');
         e.stopPropagation();
         return false;
@@ -222,22 +223,16 @@ async function activateReliant() {
 
     //Highlight options
     document.addEventListener('click', (e) => {
-      const parser = new DOMParser();
       const parentIdName = e.target.parentNode.getAttribute('id');
       const currentID = e.target.getAttribute('id');
-      const range = lastSelectionObj.getRangeAt(0)
-      console.log("RANGE:", range)
-      console.log("Range to string:", range.toString())
-      console.log("type of widow.getSelection():", typeof(window.getSelection()))
+      const range = lastSelectionObj != null ? lastSelectionObj.getRangeAt(0) : null;
+   
       const payload = {
         url: currentURL,
         userID: currentUserInfo.id,
-        highlightSelection: range
+        highlightSelection: rangySerializer.serializeRange(range)
       }
-      console.log("type of payload.hightlightSelection:", typeof(payload.highlightSelection))
-      console.log("Payload", payload)
-      console.log("Payload type:", typeof(payload))
-      console.log("SelectionObj.toString()", payload.highlightSelection.toString())
+
       if (parentIdName == 'highlight' || currentID == 'highlight') {
         axios.post('http://localhost:4000/api/websites/addHighlights', payload).then((res) => {
           console.log(res);
@@ -277,9 +272,13 @@ async function activateReliant() {
         mark.style.backgroundColor = color;
         mark.style.textDecoration = 'none';
       }
+
+      /*
+        Need a check for this
+      */
       mark.textContent = range.toString();
-      range.deleteContents();
-      range.insertNode(mark);
+      //range.deleteContents(); Removed to maintain links
+      range.surroundContents(mark);
     };
   }
 }
