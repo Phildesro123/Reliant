@@ -165,6 +165,14 @@ async function activateReliant() {
       const parentIdName = e.target.parentNode.getAttribute('id');
       console.log('Parent Class:', parentClassName);
       console.log('Parent ID:', parentIdName);
+      /*
+        ISSUE 1: Need more testing on more pages to see if the tooltip properly disappears
+        You can double click to "remove" a selection, but the tooltip is still visible need to workout cases
+        
+        Albeit this one may be a very simple fix
+        Share findings if anyone can.
+      */
+
       //Make the tool tip invisible
       if (isToolTipVisible) {
         e.stopPropagation();
@@ -184,13 +192,27 @@ async function activateReliant() {
       console.log('THIS SELECTION WAS THIS LONG: ', selection.length);
       console.log('Selection baseNode:', temp.baseNode);
       console.log('Selection focusNode:', temp.focusNode);
-      console.log(
-        'CHECKING SELECTION PARENTS:',
-        temp.baseNode.parentNode == temp.focusNode.parentNode
-      );
+      
+      /*
+      ISSUE 2:
+      The comp variable is made as one of the checks for NOT displaying the toolbar.
+
+      In short,
+        1. If the baseNode and focusNode of the selection are equal then we can display toolbar
+        2. If the baseNode's parentNode is equal to the focusNode's parentNode then we can display the toolbar
+        3. If the focusNode's grandparent (if existing) is the the baseNode's parentNode then we can display the toolbar
+
+        I added #3 to allow links to be highlighted, but it doesn't always work for nested highlights (refer to ISSUE 4)
+
+        For more reference checkout: https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model
+      */
        let comp =
         temp.baseNode == temp.focusNode ||
-       temp.baseNode.parentNode == temp.focusNode.parentNode;
+       temp.baseNode.parentNode == temp.focusNode.parentNode ||
+       temp.baseNode.parentNode == temp.focusNode.parentNode.parentElement;
+       
+       console.log("Can tooltip render for selection:", comp)
+       
       if (!comp || (selection == lastSelection && isToolTipVisible)) {
         console.log('I dont want to render at all');
         e.stopPropagation();
@@ -226,14 +248,22 @@ async function activateReliant() {
       const parentIdName = e.target.parentNode.getAttribute('id');
       const currentID = e.target.getAttribute('id');
       const range = lastSelectionObj != null ? lastSelectionObj.getRangeAt(0) : null;
-   
+      console.log("Range object:", range)
       const payload = {
         url: currentURL,
         userID: currentUserInfo.id,
-        highlightSelection: rangySerializer.serializeRange(range)
+        highlightSelection: rangySerializer.serializeRange(range) // Serializes the range into a string to store in DB
       }
 
       if (parentIdName == 'highlight' || currentID == 'highlight') {
+
+        /*
+        ISSUE 3: 
+        May need to update the method of update to the DB because someone may just KEEP pushing highlights
+        We need a check before making an API call
+        
+        Might need to check this out: https://github.com/Phildesro123/Reliant#secrets
+        */
         axios.post('http://localhost:4000/api/websites/addHighlights', payload).then((res) => {
           console.log(res);
           highlightText('#ffc107', range);
@@ -257,7 +287,6 @@ async function activateReliant() {
       }
     });
 
-    //Fix this, WE SHOULD ONLY MANIPULATE P TAGS
 
     const highlightText = (color, range, underline=false) => {
       var mark = document.createElement('mark')
@@ -274,11 +303,25 @@ async function activateReliant() {
       }
 
       /*
-        Need a check for this
+      ISSUE 4:
+        Need a check if the common ancestor of the range is a mark.
+        Ideally, we should "overwrite" the existing highlight with the newer one
+        
+
+        Need checks for nested highlights
+        As of now, if you "update" (highlight a highlight) a highlight - the mark doesn't get update but instead a new mark tag gets nested in it
+
+        RIght now, im suspecting the extractContents as the culprit because it's extract the contents of the range
+        If the range has a mark it'll just add the mark to the newly created mark
+
+        For more reference of the Range API checkout: https://developer.mozilla.org/en-US/docs/Web/API/Range
       */
-      mark.textContent = range.toString();
-      //range.deleteContents(); Removed to maintain links
-      range.surroundContents(mark);
+   
+      mark.appendChild(range.extractContents()); //Append the contents of the selection's range to our mark tag
+      console.log("Mark element:", mark)
+      range.deleteContents(); // Not sure if this is necessary, but just in case I'm removing the rangeContents to make sure no extra elements
+      range.insertNode(mark) // Insert mark into the range
+      console.log("Range after highlight:", range)
     };
   }
 }
@@ -287,6 +330,7 @@ function deactivateReliant() {
   ACTIVATED = false;
   console.log('Deactivating Reliant');
   removeQuestionnaire();
+  // Implement removing highlight
   var i = 0;
   for (const paragraph of paragraphs) {
     paragraph.style['background-color'] = colors[i][0];
