@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {FaAngleRight} from 'react-icons/fa';
-import Comment from './Comment';
+import Comment from './Comment-Component';
 /**
  * Comment-Container 
  *    Title
@@ -20,8 +20,8 @@ import Comment from './Comment';
  *    reply (optional : set true for main comment but not sub replies)
  */
 
-
-function CommentContainer() {
+var tempKey = 0
+function CommentContainer(props) {
   const minRows = 1;
   const maxRows = 5;
   const [commentList, setCommentList] = useState([])
@@ -51,22 +51,23 @@ function CommentContainer() {
 
   const commentClicked = (commentContent) => {
     setCommentList(commentList => [...commentList, 
-      <Comment displayName="User Name" commentContent={commentContent}
+      <Comment key={"comment_key_" + tempKey} displayName="User Name" commentContent={commentContent}
       upVote={50} downVote={1} canReply={false}></Comment>
       ]
+
     )
-    console.log("CommentList", commentList)
+    tempKey += 1
     setTextAreaText('')
   }
 
   return (
-    <div className="bordered-container comment-container">
+    <div className="bordered-container comment-container" style={{top: props.startY + "px"}}>
       <div className="voting-container">
       </div>
-      <h1>This is the comment title</h1>
+      <div className="truncate-container">
+          <h6 className="truncate-overflow">{props.selectionText}</h6>
+      </div>
       {commentList.map((comment, i) => {
-        console.log("Comment:", comment)
-        console.log("Index:", i)
         return (
           comment
         )
@@ -80,7 +81,7 @@ function CommentContainer() {
         value={textAreaText}
         onChange={handleChange}
       />
-      <button className="comment-btn" onClick={() => commentClicked(textAreaText)}>
+      <button className="comment-btn" disabled={textAreaText.trim() == ""} onClick={() => commentClicked(textAreaText)}>
         Comment <FaAngleRight></FaAngleRight>
       </button>
     </div>

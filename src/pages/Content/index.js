@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from 'react-dom';
-// import Questionnaire from './modules/Questionnaire';
-// import Comment from './modules/Comment-Container';
+import Questionnaire from './Questionnaire';
+import Comment from './modules/Comment-Container';
 import { URLS } from '../Background/workingUrls';
 import axios from 'axios';
 import { calculateScore } from '../../containers/Score/Score';
@@ -19,6 +19,8 @@ var paragraphs = null;
 var currentURL = null;
 var currentHostname = null;
 var currentUserInfo = null;
+var showTooltip = false;
+var selectionY = null;
 
 function getLoadedState() {
   return LOADED;
@@ -160,35 +162,40 @@ async function activateReliant() {
     var startY = 0;
     var endY = 0;
 
+    function hasSomeParentTheClass(element, classname) {
+      if (typeof element.className === 'undefined' || typeof element.className.split === "undefined") return false;
+      if (element.className.split(' ').indexOf(classname)>=0) return true;
+      return element.parentNode && hasSomeParentTheClass(element.parentNode, classname);
+    }
     //Close the tool tip
     document.addEventListener('mousedown', (e) => {
-      const parentClassName = e.target.parentNode.getAttribute('class');
-      const parentIdName = e.target.parentNode.getAttribute('id');
-      console.log('Parent Class:', parentClassName);
-      console.log('Parent ID:', parentIdName);
+      
       //Make the tool tip invisible
       if (isToolTipVisible) {
         e.stopPropagation();
         return false;
-      } else {
-        startX = e.pageX;
-        startY = e.pageY;
-        closeToolTip();
-      }
+      } 
+      if (!e.target || !e.target.parentNode || hasSomeParentTheClass(e.target.parentNode, 'bordered-container')) {
+        e.stopPropagation();
+        showTooltip = false;
+        return false;}
+
+      showTooltip = true;
+      startX = e.pageX;
+      startY = e.pageY;
+      closeToolTip();
+        
     });
     // Show the tool tip
     document.addEventListener('mouseup', (e) => {
-      console.log(window.getSelection());
+      if (!showTooltip) return false;
       let temp = window.getSelection();
       let selection = temp.toString();
-      console.log('Current selection', selection);
-      console.log('THIS SELECTION WAS THIS LONG: ', selection.length);
-      console.log('Selection baseNode:', temp.baseNode);
-      console.log('Selection focusNode:', temp.focusNode);
-      console.log(
-        'CHECKING SELECTION PARENTS:',
-        temp.baseNode.parentNode == temp.focusNode.parentNode
-      );
+      if (!temp.baseNode || !temp.focusNode) {
+        e.stopPropagation();
+        showTooltip = false;
+        return false;
+      }
        let comp =
         temp.baseNode == temp.focusNode ||
        temp.baseNode.parentNode == temp.focusNode.parentNode;
@@ -211,26 +218,25 @@ async function activateReliant() {
         const realEndY = Math.max(startY, endY);
         lastSelection = selection;
         lastSelectionObj = window.getSelection();
-
+        selectionY = realStartY - (realEndY - realStartY);
         renderToolTip(
           (realendX - realStartX) / 2 + realStartX,
           realStartY - (realEndY - realStartY) / 2,
           selection
         );
       } else {
+        showTooltip = false;
         closeToolTip();
       }
     });
 
     //Highlight options
     document.addEventListener('click', (e) => {
+      if (!showTooltip) return false;
       const parser = new DOMParser();
       const parentIdName = e.target.parentNode.getAttribute('id');
       const currentID = e.target.getAttribute('id');
       const range = lastSelectionObj.getRangeAt(0)
-      console.log("RANGE:", range)
-      console.log("Range to string:", range.toString())
-      console.log("type of widow.getSelection():", typeof(window.getSelection()))
       const payload = {
         url: currentURL,
         userID: currentUserInfo.id,
@@ -253,8 +259,14 @@ async function activateReliant() {
       } else if (parentIdName == 'frown' || currentID == 'frown') {
         highlightText('#dc3545', range);
         closeToolTip();
-      } else if (parentIdName == 'comment' || currentID == 'commment') {
+      } else if (parentIdName == 'comment' || currentID == 'comment') {
         highlightText('#dc3545', range, true);
+        console.log("CREATING COMMENT")
+        const comment = document.createElement('div')
+        console.log(selectionY)
+        render(<Comment startY={selectionY} selectionText={range.toString()}></Comment>, comment)
+        document.body.appendChild(comment)
+
         //Youssef's comment
         closeToolTip();
       } else if (parentIdName == 'note' || currentID == 'note') {

@@ -4,9 +4,7 @@ import axios from 'axios';
 
 import { URLS } from '../Background/workingUrls';
 import Questionnaire from './modules/Questionnaire-Component';
-import Comment from './modules/Comment-Component';
 
-const comment = document.createElement('div');
 const questionnaire = document.createElement('div');
 
 export function createQuestionnaire(userId, url, hostname) {
@@ -50,9 +48,7 @@ export function createQuestionnaire(userId, url, hostname) {
       }
     }
     contentBody.appendChild(questionnaire);
-    contentBody.appendChild(comment);
     console.log('Content Body', contentBody);
-    render(<Comment />, comment);
     render(
       <Questionnaire userId={userId} url={url} genre={genre} />,
       questionnaire
