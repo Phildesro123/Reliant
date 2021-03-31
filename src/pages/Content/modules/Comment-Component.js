@@ -35,6 +35,12 @@ function Comment(props) {
   const [downVote, setDownVote] = useState(0)
   const [reply, setReply] = useState(false)
 
+  const [time, setTime] = useState(0)
+
+  useEffect(() => {
+    setTime(props.time)
+  }, [time])
+
   //Run once at creation
   useEffect(() => {
       setComment(props.commentContent)
@@ -42,7 +48,7 @@ function Comment(props) {
       setUpVote(props.upVote)
       setDownVote(props.downVote)
       setReply(props.canReply)
-
+      
   }, [])
   
   function updateUpvote() {
@@ -53,17 +59,28 @@ function Comment(props) {
     setDownVote(downVote - 1)
   }
 
+  // var today = new Date();
+  // const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
 
   return (
     <div>
-        <p style={{margin: 0}}>{comment}</p>
         <p style={{fontWeight: 'bold', margin: 0}}>{name}</p>
-        {/* <p style={{margin: 0}}><FaRegThumbsUp></FaRegThumbsUp>{upVote}</p> */}
- 
-        <button onClick={updateUpvote}>{upVote}<FaRegThumbsUp/></button>
-        <button onClick={updateDownVote}>{downVote}<FaRegThumbsDown/></button>
+        <p style={{margin: 0}}>{comment}
 
-        {/* <p style={{margin: 0}}><FaRegThumbsDown></FaRegThumbsDown>{downVote}</p> */}
+
+        <button style={{float: "right"}} onClick={updateUpvote}>{upVote}<FaRegThumbsUp/></button>
+        
+        </p>
+
+        <p>At time: {time}
+          <button style={{float: "right"}} onClick={updateDownVote}>{downVote}<FaRegThumbsDown/>
+          </button>
+        </p>
+
+        
+        
+
+
         <p style={{margin: 0}}>{reply}</p>
       
     </div>

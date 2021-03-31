@@ -49,10 +49,13 @@ function CommentContainer(props) {
     setTextAreaText(event.target.value)
   }
 
+  var today = new Date();
+  const times = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+
   const commentClicked = (commentContent) => {
     setCommentList(commentList => [...commentList, 
       <Comment key={"comment_key_" + tempKey} displayName="User Name" commentContent={commentContent}
-      upVote={50} downVote={1} canReply={false}></Comment>
+      upVote={50} downVote={1} canReply={false} time={times}></Comment>
       ]
 
     )
