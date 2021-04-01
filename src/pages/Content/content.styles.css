@@ -103,7 +103,7 @@ input[type='radio'] {
   position: relative;
 }
 .comment-btn {
-  background-color: red;
+  background-color: lightblue;
   border-radius: 3px;
   margin: 0;
   border: none;
