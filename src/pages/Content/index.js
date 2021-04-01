@@ -1,6 +1,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import rangySerializer from 'rangy/lib/rangy-serializer';
+import selectionSave from 'rangy/lib/rangy-selectionsaverestore'
 import { URLS } from '../Background/workingUrls';
 import axios from 'axios';
 import { calculateScore } from '../../containers/Score/Score';
@@ -100,11 +101,20 @@ async function activateReliant() {
     url: currentURL,
     userID: currentUserInfo.id
   }}).then((res) => {
-    for(highlightObj in res) {
-      console.log("Highlight from DB:", highlightObj.highlightSelection)
-      highlightText('#ffc107', highlightObj.highlightSelection);
+    console.log("Data", res.data[0])
+    console.log("Data type", typeof(res.data))
+    res.data.forEach(highlightObj => {
+      console.log("highlightOBJ", highlightObj)
+      console.log("Highlight from DB:", highlightObj.selection)
+
+      if (highlightObj.selection) {
+        console.log("Selection isn't null")
+        console.log("Pulled range", rangySerializer.deserializeRange(highlightObj.selection).nativeRange)
+        highlightText('#ffc107', rangySerializer.deserializeRange(highlightObj.selection).nativeRange);
+      }
+    })
     }
-  }).catch((err) => {
+  ).catch((err) => {
     console.log('Internal server error in getUserHighlights:', err);
   });
 
@@ -232,7 +242,6 @@ async function activateReliant() {
         const realEndY = Math.max(startY, endY);
         lastSelection = selection;
         lastSelectionObj = window.getSelection();
-
         renderToolTip(
           (realendX - realStartX) / 2 + realStartX,
           realStartY - (realEndY - realStartY) / 2,
@@ -252,8 +261,10 @@ async function activateReliant() {
       const payload = {
         url: currentURL,
         userID: currentUserInfo.id,
-        highlightSelection: rangySerializer.serializeRange(range) // Serializes the range into a string to store in DB
+        highlightSelection: rangySerializer.serializeRange(range, true, document.getElementsByName('html')[0]) // Serializes the range into a string to store in DB
       }
+
+      console.log(rangySerializer.deserializeRange(payload.highlightSelection));
 
       if (parentIdName == 'highlight' || currentID == 'highlight') {
 
@@ -288,44 +299,44 @@ async function activateReliant() {
     });
 
 
-    const highlightText = (color, range, underline=false) => {
-      var mark = document.createElement('mark')
-      if (underline) {
-        console.log("UNDERLINING")
-        mark = document.createElement('u');
-        mark.style.textDecoration = "underline";
-        mark.style.textDecorationColor = color;
-        mark.style.textDecorationThickness = ".2rem";
-        mark.style.textDecorationSkipInk = "none"
-      } else {
-        mark.style.backgroundColor = color;
-        mark.style.textDecoration = 'none';
-      }
-
-      /*
-      ISSUE 4:
-        Need a check if the common ancestor of the range is a mark.
-        Ideally, we should "overwrite" the existing highlight with the newer one
-        
-
-        Need checks for nested highlights
-        As of now, if you "update" (highlight a highlight) a highlight - the mark doesn't get update but instead a new mark tag gets nested in it
-
-        RIght now, im suspecting the extractContents as the culprit because it's extract the contents of the range
-        If the range has a mark it'll just add the mark to the newly created mark
-
-        For more reference of the Range API checkout: https://developer.mozilla.org/en-US/docs/Web/API/Range
-      */
    
-      mark.appendChild(range.extractContents()); //Append the contents of the selection's range to our mark tag
-      console.log("Mark element:", mark)
-      range.deleteContents(); // Not sure if this is necessary, but just in case I'm removing the rangeContents to make sure no extra elements
-      range.insertNode(mark) // Insert mark into the range
-      console.log("Range after highlight:", range)
-    };
   }
 }
+const highlightText = (color, range, underline=false) => {
+  var mark = document.createElement('mark')
+  if (underline) {
+    console.log("UNDERLINING")
+    mark = document.createElement('u');
+    mark.style.textDecoration = "underline";
+    mark.style.textDecorationColor = color;
+    mark.style.textDecorationThickness = ".2rem";
+    mark.style.textDecorationSkipInk = "none"
+  } else {
+    mark.style.backgroundColor = color;
+    mark.style.textDecoration = 'none';
+  }
 
+  /*
+  ISSUE 4:
+    Need a check if the common ancestor of the range is a mark.
+    Ideally, we should "overwrite" the existing highlight with the newer one
+    
+
+    Need checks for nested highlights
+    As of now, if you "update" (highlight a highlight) a highlight - the mark doesn't get update but instead a new mark tag gets nested in it
+
+    RIght now, im suspecting the extractContents as the culprit because it's extract the contents of the range
+    If the range has a mark it'll just add the mark to the newly created mark
+
+    For more reference of the Range API checkout: https://developer.mozilla.org/en-US/docs/Web/API/Range
+  */
+
+  mark.appendChild(range.extractContents()); //Append the contents of the selection's range to our mark tag
+  console.log("Mark element:", mark)
+  range.deleteContents(); // Not sure if this is necessary, but just in case I'm removing the rangeContents to make sure no extra elements
+  range.insertNode(mark) // Insert mark into the range
+  console.log("Range after highlight:", range)
+};
 function deactivateReliant() {
   ACTIVATED = false;
   console.log('Deactivating Reliant');
