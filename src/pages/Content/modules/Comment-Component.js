@@ -25,7 +25,13 @@ import {FaRegThumbsUp, FaRegThumbsDown, FaAngleRight} from 'react-icons/fa';
  * commentContent: String
  * canReply: boolean
  */
-
+class callbackData {
+  constructor(top, horizontal, bottom) {
+    this.top = top;
+    this.horizontal = horizontal;
+    this.bottom = bottom;
+  }
+}
 
 function Comment(props) {
   

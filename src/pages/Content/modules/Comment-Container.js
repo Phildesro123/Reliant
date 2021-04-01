@@ -19,6 +19,13 @@ import Comment from './Comment-Component';
  *    list of replies
  *    reply (optional : set true for main comment but not sub replies)
  */
+class callbackData {
+  constructor(top, horizontal, bottom) {
+    this.top = top;
+    this.horizontal = horizontal;
+    this.bottom = bottom;
+  }
+}
 
 var tempKey = 0
 function CommentContainer(props) {
@@ -33,19 +40,18 @@ function CommentContainer(props) {
   const handleChange = (event) => {
     const textAreaLineHeight = parseInt(window.getComputedStyle(ReactDOM.findDOMNode(textAreaRef.current)).getPropertyValue('line-height'), 10);
 
-    const previousRows = event.target.rows;
-    event.target.rows = minRows
     const currentRows = ~~(event.target.scrollHeight / textAreaLineHeight);
 
-    if (currentRows === previousRows) {
-      event.target.rows = currentRows
+    if (currentRows !== rows) {
+    
+      if (currentRows >= maxRows) {
+        event.target.scrollTop = event.target.scrollHeight;
+      } 
+      setRows(currentRows < maxRows ? currentRows : maxRows)
+      props.callback("Test")
+      props.callback(new callbackData(1, 2, 3))
     }
 
-    if (currentRows >= maxRows) {
-      event.target.rows = maxRows;
-      event.target.scrollTop = event.target.scrollHeight;
-    } 
-    setRows(currentRows < maxRows ? currentRows : maxRows)
     setTextAreaText(event.target.value)
   }
 
@@ -57,14 +63,13 @@ function CommentContainer(props) {
       <Comment key={"comment_key_" + tempKey} displayName="User Name" commentContent={commentContent}
       upVote={50} downVote={1} canReply={false} time={times}></Comment>
       ]
-
     )
     tempKey += 1
     setTextAreaText('')
   }
 
   return (
-    <div className="bordered-container comment-container" style={{top: props.startY + "px"}}>
+    <div className="bordered-container comment-container" style={{top: props.top}}>
       <div className="voting-container">
       </div>
       <div className="truncate-container">
