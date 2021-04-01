@@ -43,7 +43,3 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     }
     return true; //This line is what allows us to wait for the async sendResponse
 });
-
-
-
-
