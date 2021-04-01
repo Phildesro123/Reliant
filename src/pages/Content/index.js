@@ -2,16 +2,19 @@ import React from 'react';
 import { render } from 'react-dom';
 import Questionnaire from './Questionnaire';
 import Comment from './modules/Comment-Container';
+import CommentScroll from './modules/Comment-Scroll';
 import { URLS } from '../Background/workingUrls';
 import axios from 'axios';
 import { calculateScore } from '../../containers/Score/Score';
 import ToolComponent from './modules/Tooltip-Component';
 import {createQuestionnaire, removeQuestionnaire}  from './Questionnaire'
 import {authorName} from './authorName'
+import {FaComment} from 'react-icons/fa'
+
+import ReactDOM from 'react-dom'
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
-
 
 var ACTIVATED = false;
 var LOADED = false;
@@ -113,7 +116,15 @@ async function activateReliant() {
 
   if (first) {
     createQuestionnaire(currentUserInfo.id, currentURL, currentHostname);
-
+    const commentScroll = document.createElement('div')
+    commentScroll.className = "comment-scroll"
+    console.log(selectionY)
+    var testCall = "Hello";
+    ReactDOM.render(<CommentScroll ref={(cs) => {testCall = cs}}></CommentScroll>, commentScroll)
+    console.log("Window", window)
+    console.log("Test Call", testCall)
+    console.log("window.commentScroll", window.commentScroll())
+    document.body.appendChild(commentScroll)
     //Highlight everything
     even = (even + 1) % 2;
 
@@ -262,10 +273,9 @@ async function activateReliant() {
       } else if (parentIdName == 'comment' || currentID == 'comment') {
         highlightText('#dc3545', range, true);
         console.log("CREATING COMMENT")
-        const comment = document.createElement('div')
-        console.log(selectionY)
-        render(<Comment startY={selectionY} selectionText={range.toString()}></Comment>, comment)
-        document.body.appendChild(comment)
+        window.commentScroll.addCommentContainer(range.toString(), selectionY)
+        // render(<Comment startY={selectionY} selectionText={range.toString()}></Comment>, comment)
+        // document.body.appendChild(comment)
 
         //Youssef's comment
         closeToolTip();
