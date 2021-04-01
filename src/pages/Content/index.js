@@ -103,14 +103,14 @@ async function activateReliant() {
   }}).then((res) => {
     console.log("Data", res.data[0])
     console.log("Data type", typeof(res.data))
-    res.data.forEach(highlightObj => {
+    res.data.forEach((highlightObj, color) => {
       console.log("highlightOBJ", highlightObj)
       console.log("Highlight from DB:", highlightObj.selection)
 
       if (highlightObj.selection) {
         console.log("Selection isn't null")
-        console.log("Pulled range", rangySerializer.deserializeRange(highlightObj.selection).nativeRange)
-        highlightText('#ffc107', rangySerializer.deserializeRange(highlightObj.selection).nativeRange);
+        console.log("Pulled range", rangySerializer.deserializeRange(highlightObj.selection, document.getElementsByName('html')[0]).nativeRange)
+        highlightText(color, rangySerializer.deserializeRange(highlightObj.selection, document.getElementsByName('html')[0]).nativeRange);
       }
     })
     }
@@ -258,16 +258,18 @@ async function activateReliant() {
       const currentID = e.target.getAttribute('id');
       const range = lastSelectionObj != null ? lastSelectionObj.getRangeAt(0) : null;
       console.log("Range object:", range)
-      const payload = {
+      
+
+      let payload = {
         url: currentURL,
         userID: currentUserInfo.id,
-        highlightSelection: rangySerializer.serializeRange(range, true, document.getElementsByName('html')[0]) // Serializes the range into a string to store in DB
+        highlightSelection: rangySerializer.serializeRange(range, true, document.getElementsByName('html')[0]), // Serializes the range into a string to store in DB
+        color: 'no color'
       }
-
-      console.log(rangySerializer.deserializeRange(payload.highlightSelection));
+      console.log(rangySerializer.deserializeRange(payload.highlightSelection, document.getElementsByName('html')[0]));
 
       if (parentIdName == 'highlight' || currentID == 'highlight') {
-
+       
         /*
         ISSUE 3: 
         May need to update the method of update to the DB because someone may just KEEP pushing highlights
@@ -275,16 +277,24 @@ async function activateReliant() {
         
         Might need to check this out: https://github.com/Phildesro123/Reliant#secrets
         */
+       payload.color = '#ffc107'
         axios.post('http://localhost:4000/api/websites/addHighlights', payload).then((res) => {
           console.log(res);
-          highlightText('#ffc107', range);
         })
+        highlightText('#ffc107', range);
         closeToolTip();
       } else if (parentIdName == 'smile' || currentID == 'smile') {
-
+        payload.color = '#28a745'
+        axios.post('http://localhost:4000/api/websites/addHighlights', payload).then((res) => {
+          console.log(res);
+        })
         highlightText('#28a745', range);
         closeToolTip();
       } else if (parentIdName == 'frown' || currentID == 'frown') {
+        payload.color = '#dc3545'
+        axios.post('http://localhost:4000/api/websites/addHighlights', payload).then((res) => {
+          console.log(res);
+        })
         highlightText('#dc3545', range);
         closeToolTip();
       } else if (parentIdName == 'comment' || currentID == 'commment') {
