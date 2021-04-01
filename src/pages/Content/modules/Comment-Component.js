@@ -59,30 +59,19 @@ function Comment(props) {
     setDownVote(downVote - 1)
   }
 
-  // var today = new Date();
-  // const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+  
 
   return (
     <div>
         <p style={{fontWeight: 'bold', margin: 0}}>{name}</p>
-        <p style={{margin: 0}}>{comment}
-
-
-        <button style={{float: "right"}} onClick={updateUpvote}>{upVote}<FaRegThumbsUp/></button>
-        
+        <p style={{margin: 0, marginLeft:'20px'}}>{comment}
+        <button style={{float: "right"}} onClick={updateUpvote}>{upVote}<FaRegThumbsUp/></button> 
         </p>
-
-        <p>At time: {time}
-          <button style={{float: "right"}} onClick={updateDownVote}>{downVote}<FaRegThumbsDown/>
+        <p style={{margin: 0, marginLeft:'20px', fontSize:12,color:"grey"}}>At time: {time}
+          <button style={{float: "right", fontSize:18}} onClick={updateDownVote}>{downVote}<FaRegThumbsDown/>
           </button>
         </p>
-
-        
-        
-
-
         <p style={{margin: 0}}>{reply}</p>
-      
     </div>
   );
 };
