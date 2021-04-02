@@ -134,7 +134,7 @@ async function activateReliant() {
 
     const renderToolTip = (mouseX, mouseY, selection) => {
       mouseX = mouseX - 50;
-      mouseY = mouseY - 40;
+      mouseY = mouseY - 30;
       if (selection.length < 60) {
         mouseX = mouseX - 20;
       }
@@ -173,6 +173,7 @@ async function activateReliant() {
       //Make the tool tip invisible
       if (isToolTipVisible) {
         e.stopPropagation();
+        closeToolTip();
         return false;
       } 
       if (!e.target || !e.target.parentNode || hasSomeParentTheClass(e.target.parentNode, 'bordered-container')) {
@@ -186,6 +187,29 @@ async function activateReliant() {
       closeToolTip();
         
     });
+
+    function getSelectionDimensions() {
+      var sel = document.selection, range;
+      var width = 0, height = 0;
+      if (sel) {
+          if (sel.type != "Control") {
+              range = sel.createRange();
+              width = range.boundingWidth;
+              height = range.boundingHeight;
+          }
+      } else if (window.getSelection) {
+          sel = window.getSelection();
+          if (sel.rangeCount) {
+              range = sel.getRangeAt(0).cloneRange();
+              if (range.getBoundingClientRect) {
+                  var rect = range.getBoundingClientRect();
+                  width = rect.right - rect.left;
+                  height = rect.bottom - rect.top;
+              }
+          }
+      }
+      return { width: width , height: height };
+    }
     // Show the tool tip
     document.addEventListener('mouseup', (e) => {
       if (!showTooltip) return false;
@@ -206,6 +230,15 @@ async function activateReliant() {
       } else if (selection.length > 0) {
         console.log("Rendering the tooltip")
         //Render the tooltip
+
+        console.log("SELECTION IS THIS WE TRYHING");
+        // h = getSelectionDimensions()
+        console.log(getSelectionDimensions());
+        var h = getSelectionDimensions().height;
+        console.log("WE TREID LMAOOOOOOOOO");
+
+
+
         endX = e.pageX;
         endY = e.pageY;
         console.log('start x is ', startY);
@@ -221,7 +254,7 @@ async function activateReliant() {
         selectionY = realStartY - (realEndY - realStartY);
         renderToolTip(
           (realendX - realStartX) / 2 + realStartX,
-          realStartY - (realEndY - realStartY) / 2,
+          realEndY - h,
           selection
         );
       } else {
