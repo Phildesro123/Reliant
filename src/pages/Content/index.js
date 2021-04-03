@@ -264,46 +264,38 @@ async function activateReliant() {
         url: currentURL,
         userID: currentUserInfo.id,
         highlightSelection: rangySerializer.serializeRange(range, true, document.getElementsByName('html')[0]), // Serializes the range into a string to store in DB
-        color: 'no color'
+        highlight_type: null
       }
       console.log(rangySerializer.deserializeRange(payload.highlightSelection, document.getElementsByName('html')[0]));
 
       if (parentIdName == 'highlight' || currentID == 'highlight') {
-       
-        /*
-        ISSUE 3: 
-        May need to update the method of update to the DB because someone may just KEEP pushing highlights
-        We need a check before making an API call
-        
-        Might need to check this out: https://github.com/Phildesro123/Reliant#secrets
-        */
-       payload.color = '#ffc107'
+        payload.highlight_type = 'highlights'
         axios.post('http://localhost:4000/api/websites/addHighlights', payload).then((res) => {
           console.log(res);
         })
         highlightText('#ffc107', range);
         closeToolTip();
       } else if (parentIdName == 'smile' || currentID == 'smile') {
-        payload.color = '#28a745'
+        payload.highlight_type = 'smiles'
         axios.post('http://localhost:4000/api/websites/addHighlights', payload).then((res) => {
           console.log(res);
         })
         highlightText('#28a745', range);
         closeToolTip();
       } else if (parentIdName == 'frown' || currentID == 'frown') {
-        payload.color = '#dc3545'
+        payload.highlight_type = 'frowns'
         axios.post('http://localhost:4000/api/websites/addHighlights', payload).then((res) => {
           console.log(res);
         })
         highlightText('#dc3545', range);
         closeToolTip();
       } else if (parentIdName == 'comment' || currentID == 'commment') {
+        // API call
         highlightText('#dc3545', range, true);
-        //Youssef's comment
         closeToolTip();
       } else if (parentIdName == 'note' || currentID == 'note') {
+        // API call
         highlightText('blue', range, true);
-        // Implement note
         closeToolTip();
       }
     });
