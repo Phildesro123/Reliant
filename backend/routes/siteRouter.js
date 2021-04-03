@@ -229,6 +229,33 @@ siteRouter.route('/getUserHighlights').get((req, res, next) => {
   });
 });
 
+
+/**
+ * Usage: When page loads, check if theres comments that needs to get loiaded 
+ * ex:
+ * send with a payload that at least has
+ *
+ * Query params
+ *  "url":"{currentURL from user}",
+ * GET: Get user's saved comments from website.
+ */
+ siteRouter.route('/getComments').get((req, res, next) => {
+  if (req.query.url == null) {
+    console.log('ERROR: Null query received');
+    return res.status(400).send({ message: 'Need a valid site URL and UserID' });
+  }
+  console.log('GET: Information about current site:', req.query.url);
+  VisitedSites.findOne({ _id: req.query.url }, (err, result) => {
+    if (err || result == null) {
+      console.log(result);
+      console.log('Error:', err);
+      return res.status(400).send({ message: 'Current site not found' });
+    } else {
+      return res.send(result.commentContainers);
+    }
+  });
+});
+
 /**
  * Usage: Probably when the user begins the access a new page.
  * ex:
