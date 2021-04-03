@@ -1055,3 +1055,7 @@ button.bg-dark:focus {
 .bg-transparent {
   background-color: transparent !important;
 }
+
+div[data-popper-reference-hidden="false"] {
+  display: none;
+}
