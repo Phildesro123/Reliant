@@ -94,7 +94,12 @@ const CommentScroll = React.forwardRef((props, ref) => {
         else {
             let temp = [];
             let index = 0
-            while (index < commentContainerList.length && comment.selectionTop >= commentContainerList[index].selectionTop) {
+            while (index < commentContainerList.length && 
+                //insert after elements that have a smaller y value
+                (comment.selectionTop > commentContainerList[index].selectionTop || 
+                    //insert after elements of the same y value and smaller x
+                    (comment.selectionTop == commentContainerList[index].selectionTop && comment.startX > commentContainerList[index].startX))) { 
+
                 temp.push(commentContainerList[index])
                 index += 1;
             }
@@ -104,6 +109,7 @@ const CommentScroll = React.forwardRef((props, ref) => {
                 index += 1
             }
             setCommentContainerList(temp)
+            moveContainer(id)
         }
        //<CommentContainer selectionText={selectionText} top={top + "px"} callback={commentContainerChanged}></CommentContainer>
     }

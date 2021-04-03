@@ -100,16 +100,30 @@ input[type='radio'] {
   width: 400px;
 }
 
+@keyframes showContainer {
+  0% {
+    transform: scaleY(0);
+  }
+  100% {
+    transform: scaleY(1);
+  }
+}
+
 .comment-container {
+  background-color: white;
   position: absolute;
   left: 0;
-  background-color: aliceblue;
   width: 300px;
   overflow: hidden;
   transition-duration: 100ms;
   transform: translateY(-50px);
   margin: 0;
+  /* delay showing it to allow the rest of the icons time to move out of the way first */
+  animation: 1ms showContainer forwards;
+  /* animation-delay: 100ms; */
+  /* animation-fill-mode: forwards; */
 }
+
 .comment-input-container {
   position: relative;
 }
@@ -134,6 +148,7 @@ input[type='radio'] {
   margin: auto;
 }
 .comment-input {
+  background-color: aliceblue;
   vertical-align: middle;
   margin: 0;
   border: none;
@@ -180,6 +195,7 @@ input[type='radio'] {
   bottom: 0;
 }
 
+/* --------------------------------------------- BOOTSTRAP CSS ----------------------------------- */
 svg.icon {
   pointer-events: none;
 }
@@ -1142,4 +1158,10 @@ div[data-testid='standard-dock'] {
 
 aside.paywall-bar.paywall-bar--visible {
   display: none;
+}
+
+.reliant-tooltip {
+  position: absolute;
+  padding-bottom: 10px;
+  transform: translate(-50%, -100%);
 }
