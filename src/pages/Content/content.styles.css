@@ -107,10 +107,11 @@ input[type='radio'] {
   background-color: aliceblue;
   width: 300px;
   overflow: hidden;
+  transition-duration: 100ms;
+  transform: translateY(-50px);
+  margin: 0;
 }
 .comment-input-container {
-  background-color: blue;
-  /* height: 2rem; */
   position: relative;
 }
 .comment-btn {
@@ -118,8 +119,21 @@ input[type='radio'] {
   border-radius: 3px;
   border: none;
   float: right;
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  padding: 4px;
 }
-
+.vote-btn {
+  display: block;
+  float: right;
+}
+.vote-count {
+  font-size: 10pt;
+  color: grey;
+  padding: 3px;
+  margin: auto;
+}
 .comment-input {
   vertical-align: middle;
   margin: 0;
@@ -127,6 +141,7 @@ input[type='radio'] {
   height: auto;
   width: 100%;
   resize: none;
+  margin-top: 10px;
 }
 
 .truncate-overflow {
