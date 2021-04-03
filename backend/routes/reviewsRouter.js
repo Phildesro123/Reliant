@@ -2,8 +2,9 @@ const e = require('express');
 let express = require('express');
 let Review = require('../models/review');
 let Website = require('../models/visitedSites')
-
+let Users = require('../models/users')
 const reviewsRouter = express.Router({ mergeParams: true });
+let Score = require('../Score/Score');
 /**
  * Usage: User presses submit
  * Payload: {
@@ -18,30 +19,31 @@ const reviewsRouter = express.Router({ mergeParams: true });
  * }
  * POST: Creates new review or update it if it exists.
  */
-reviewsRouter.route('/addReview').post((req, res, next) => {
-  console.log("Called addReview")
-  Review.exists(
+reviewsRouter.route('/addReview').post(async (req, res, next) => {
+  console.log("Called addReview");
+  await Review.exists(
     {
       _id: {
         userId: req.body._id.userId,
         url: req.body._id.url,
       },
     },
-    (err, result) => {
+    async (err, result) => {
       if (err || result == null) {
         return res
           .status(400)
           .send({ message: 'Error occured in checking if review exists' });
       }
+      console.log(req.body.timeNeeded);
       if (!result) {
         const userReview = new Review(req.body);
         userReview.save().then(saveDoc => {
           res.status(200).send({ response: 'Added Results' });
           //update site reliability score
-          updateReliabilityScore(req.body._id.url)
+          updateReliabilityScore(req.body._id.url, req.body.timeNeeded)
         });
       } else {
-        Review.findById(
+        await Review.findById(
           { userId: req.body._id.userId, url: req.body._id.url },
           (err, rs) => {
             if (err || rs == null) {
@@ -53,11 +55,11 @@ reviewsRouter.route('/addReview').post((req, res, next) => {
               console.log('Results saved');
               rs.results = req.body.results;
               rs.overallScore = req.body.overallScore;
-              return rs.save().then(savedDoc => {
+              return rs.save().then(async savedDoc => {
                 console.log('Saved the review');
                 res.status(200).send({ response: 'Updated Results' });
                 //update site reliability score
-                updateReliabilityScore(req.body._id.url);
+                await updateReliabilityScore(req.body._id.url, req.body.timeNeeded);
               });
             }
           }
@@ -96,20 +98,99 @@ reviewsRouter.route('/getResults').get((req, res, next) => {
   );
 });
 
-function updateReliabilityScore(url) {
-  let avg = 0;
-  Review.find({"_id.url": url}, "overallScore -_id", (err, res)=>{
+ async function updateReliabilityScore(url, timeNeeded) {
+  var average = 0 ;
+  let totalWeight = 0;
+  await Review.find({"_id.url": url}, {"overallScore":1, "_id":1}, (err, res)=>{
+    return res;
+  }).then(res=> {
+    console.log('avg at then call is ', average);
+    console.log('res is ', res);
+    var score = 0;
+    var done = false;
+    res.forEach(async (element, idx) => {
+      console.log('this si for user, ', element._id.userId);
+      console.log(score);
+      await findWeight(url, element._id.userId, timeNeeded).then(we => {
+        totalWeight += we;
+        score += element.overallScore * we;
+        average = score;
+        average /= totalWeight;
+        if (idx == res.length - 1) {
+          done = true;
+          console.log('we done');
+        }
+        console.log('total weight of ', totalWeight, " with score of ", score);
+      });
+    });
+    //done = true;
+    /** 
    res.forEach(element => {
-     avg += element.overallScore;
-   })
-   avg /= res.length;
-   Website.findById(url, (err, rs)=>{
-     if (rs) {
-       rs.reliabilityScore = avg;
-       rs.save();
-     }
-   })
+     console.log("this is ", element);
+     Users.find({"_id":element._id.userId}, {"visitedSites":1}, (err, rs)=> {
+       console.log("Nan>?", rs);
+       console.log(typeof(rs));
+       console.log('before userts foreach', avg);
+       rs[0].visitedSites.forEach(elmnt => {
+         console.log(elmnt);
+         if (elmnt._id == url) {
+          console.log(element.overallScore);
+          let w = Score.timeWeight(elmnt.timespent, timeNeeded);
+          console.log(w);
+          totalWeight = totalWeight + w;
+          let addition = element.overallScore * w;
+          console.log(addition);
+          console.log("score exd", score);
+          console.log("avg beforei s ", avg);
+          score = score + addition;
+          console.log("new avg is ", avg);
+          console.log("new wght is ", totalWeight);
+         }
+       })
+       console.log('done with visited sites');
+     });
+   });
+   **/
+
+   /** 
+  var counter = 0;
+  while (done == false) {
+    console.log('while counter ', counter);
+    counter = counter + 1;
+    continue
+  }
+  */
+   console.log("done with reviews")
+   console.log("score is now ", score);
+   //console.log('tot   ', totalWeight);
+   console.log("WITHEN THE THEN  ", average);
+    console.log('idk)');
+  }).catch(err => {
+    console.log(err);
+    return 0;
+  });
+  console.log('done with find()');
+  
+  Website.findById(url, (err, rs)=>{
+    if (rs) {
+      console.log("storing -->  ", average);
+      rs.reliabilityScore = average;
+      rs.save();
+    }
   })
+}
+
+ async function findWeight(url, userId, timeNeeded) {
+  var toReturn = 1;
+  await Users.find({"_id":userId}, {"visitedSites":1}, (err, res) => {
+    for (var i = 0; i < res[0].visitedSites.length; i++) {
+      var current = res[0].visitedSites[i];
+      if (current._id == url) {
+        toReturn = Score.timeWeight(current.timespent, timeNeeded);
+      }
+    }
+  });
+  return toReturn;
 }
 
 module.exports = reviewsRouter;

@@ -8,6 +8,7 @@ import { calculateScore } from '../../containers/Score/Score';
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
 
+const readingTime = require('reading-time');
 const comment = document.createElement('div')
 const questionnaire = document.createElement('div')
 var ACTIVATED = false;
@@ -210,7 +211,7 @@ async function activateReliant() {
     _id: userInfo.id,
     website: {
       _id: url,
-      timespent: 5
+      timespent: 0
     }
   })
     .then(() => {
@@ -256,7 +257,23 @@ function deactivateReliant() {
     i++;
   }
 }
-
+function timeAdjustment(documentObj) {
+  if (typeof documentObj == 'undefined') {
+    console.log('bad document');
+    return 1;
+  }
+  let paragraphs = documentObj.getElementsByTagName('p');
+  var overall = '';
+  for (const paragraph of paragraphs) {
+    //Basic way to filter out title or unrelated content.
+    if (paragraph.textContent.length > 100) {
+      overall = overall + paragraph.textContent;
+    }
+  }
+  let expectedTime = readingTime(overall).minutes * 60;
+  console.log("expected," , expectedTime);
+  return expectedTime;
+}
 export async function submitQuestionnaire(score) {
   //Logic for submitting questionarre
   const userInfo = await getUserInfo();
@@ -273,25 +290,48 @@ export async function submitQuestionnaire(score) {
   }
   overallScore /= Object.keys(score).length
 
-  await axios.post('http://localhost:4000/api/reviews/addReview', {
-    _id: {
-      userId: userInfo.id,
-      url: url,
-    },
-    results: results,
-    overallScore: overallScore 
-  }).then((res) => {
-    console.log("Successfully saved review")
-  }).catch((err) => {
-    console.log("Error from addReview:", err)
-    throw err;
-  });
+  
+  let timeRightNow = new Date().getTime();
+  let seconds = Math.floor((timeRightNow - timeOpened) / 1000);
+  console.log(seconds);
+  let timeNeeded = timeAdjustment(document);
+  await axios.post('http://localhost:4000/api/user/updateSites',{
+    _id: userInfo.id,
+    website: {
+      _id: url,
+      timespent: seconds,
+    }
+  })
+    .then((res) => {
+      console.log(res.body.w);
+      console.log('Data has been sent to the server');
+      timeOpened = timeRightNow;
+    })
+    .catch(() => {
+      console.log('Internal server error');
+    });
+    await axios.post('http://localhost:4000/api/reviews/addReview', {
+      _id: {
+        userId: userInfo.id,
+        url: url,
+      },
+      results: results,
+      overallScore: overallScore,
+      timeNeeded: timeNeeded
+    }).then((res) => {
+      console.log(res);
+      console.log("Successfully saved review")
+    }).catch((err) => {
+      console.log("Error from addReview:", err)
+      throw err;
+    });
   //TODO: Implement the two push calls below which save the review to the reviews collection and update the reliability score
   // axios
   //   .push('http://localhost:4000/api/reviews', {
   //     _id: { userId: userInfo.id, url: url },
   //   })
   // })
+
   /* Necessary Inputs:
   oldWebsiteScore = reliability score of url from the database (default 0)
   oldWebsiteWeight = number of reviews of url (default 0 ) -- this accounts for review weights
