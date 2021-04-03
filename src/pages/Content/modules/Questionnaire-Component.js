@@ -25,7 +25,6 @@ function Questionnaire(props) {
 
   // fetches the questions once the questionnaire is made
   useEffect(() => {
-    console.log('Getting Questions');
     axios
       .get('http://localhost:4000/api/question/getQuestions', {
         params: {
@@ -33,7 +32,6 @@ function Questionnaire(props) {
         },
       })
       .then((response) => {
-        console.log(response.data);
         axios.get("http://localhost:4000/api/reviews/getResults", {params: {userId: props.userId, url: props.url}}).then((res) => {
           setResults(res.data);
           setQuestions(response.data);
@@ -47,7 +45,6 @@ function Questionnaire(props) {
 
   // handles the submit button state
   useEffect(() => {
-    console.log('Is Loading called');
     if (submitState === SUBMITTING) {
       console.log('Submitting questionnaire with scores:', scores);
       submitQuestionnaire(scores)
@@ -69,7 +66,7 @@ function Questionnaire(props) {
     <div className="bordered-container questionnaire-container">
       <h1>Questionnaire</h1>
       <div className="question-container">
-        {questions.map((question, i) => {0
+        {questions.map((question, i) => {
           var value = 0;
           if (results.length > 0) {
             const temp = results.filter(result =>{
@@ -79,8 +76,6 @@ function Questionnaire(props) {
               value = temp[0].response
             }
           }
-
-          console.log(value)
           const ratingValue = i + 1;
           return (
             //
