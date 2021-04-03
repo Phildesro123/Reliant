@@ -2,16 +2,18 @@ import React from 'react';
 import { render } from 'react-dom';
 import Questionnaire from './Questionnaire';
 import Comment from './modules/Comment-Container';
+import CommentScroll from './modules/Comment-Scroll';
 import { URLS } from '../Background/workingUrls';
 import axios from 'axios';
 import { calculateScore } from '../../containers/Score/Score';
 import ToolComponent from './modules/Tooltip-Component';
 import {createQuestionnaire, removeQuestionnaire}  from './Questionnaire'
 import {authorName} from './authorName'
+import {FaComment} from 'react-icons/fa'
+
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
-
 
 var ACTIVATED = false;
 var LOADED = false;
@@ -20,7 +22,6 @@ var currentURL = null;
 var currentHostname = null;
 var currentUserInfo = null;
 var showTooltip = false;
-var selectionY = null;
 
 function getLoadedState() {
   return LOADED;
@@ -113,7 +114,12 @@ async function activateReliant() {
 
   if (first) {
     createQuestionnaire(currentUserInfo.id, currentURL, currentHostname);
-
+    const commentScroll = document.createElement('div')
+    commentScroll.className = "comment-scroll"
+    render(<CommentScroll ref={(cs) => {window.commentScroll = cs}}></CommentScroll>, commentScroll)
+    console.log("Window", window)
+    console.log("Window.commentScroll", window.commentScroll)
+    document.body.appendChild(commentScroll)
     //Highlight everything
     even = (even + 1) % 2;
 
@@ -169,7 +175,9 @@ async function activateReliant() {
     }
     //Close the tool tip
     document.addEventListener('mousedown', (e) => {
-      
+      Array.prototype.forEach.call(document.getElementsByClassName("reliant-selected"), (element) => {
+        element.classList.remove("reliant-selected");
+      })
       //Make the tool tip invisible
       if (isToolTipVisible) {
         e.stopPropagation();
@@ -224,14 +232,12 @@ async function activateReliant() {
         temp.baseNode == temp.focusNode ||
        temp.baseNode.parentNode == temp.focusNode.parentNode;
       if ((selection == lastSelection && isToolTipVisible)) {
-        console.log('I dont want to render at all');
         e.stopPropagation();
         if (isToolTipVisible) {
           closeToolTip();
         }
         return false;
       } else if (selection.length > 0) {
-        console.log("Rendering the tooltip")
         //Render the tooltip
 
         console.log("SELECTION IS THIS WE TRYHING");
@@ -244,9 +250,6 @@ async function activateReliant() {
 
         endX = e.pageX;
         endY = e.pageY;
-        console.log('start x is ', startY);
-        console.log('end x is ', endY);
-
         const realStartX = Math.min(startX, endX);
         const realendX = Math.max(startX, endX);
 
@@ -254,7 +257,6 @@ async function activateReliant() {
         const realEndY = Math.max(startY, endY);
         lastSelection = selection;
         lastSelectionObj = window.getSelection();
-        selectionY = realStartY - (realEndY - realStartY);
         renderToolTip(
           (realendX - realStartX) / 2 + realStartX,
           realEndY - h,
@@ -273,48 +275,43 @@ async function activateReliant() {
       const parentIdName = e.target.parentNode.getAttribute('id');
       const currentID = e.target.getAttribute('id');
       const range = lastSelectionObj.getRangeAt(0)
+      const boundingBox = range.getBoundingClientRect()
+      console.log("Bounding Box", boundingBox)
+      const top = boundingBox.y + window.pageYOffset;
+      const startX = boundingBox.x + window.pageXOffset;
+      var id = null;
       const payload = {
         url: currentURL,
         userID: currentUserInfo.id,
         highlightSelection: range
       }
-      console.log("type of payload.hightlightSelection:", typeof(payload.highlightSelection))
-      console.log("Payload", payload)
-      console.log("Payload type:", typeof(payload))
-      console.log("SelectionObj.toString()", payload.highlightSelection.toString())
       if (parentIdName == 'highlight' || currentID == 'highlight') {
         axios.post('http://localhost:4000/api/websites/addHighlights', payload).then((res) => {
           console.log(res);
-          highlightText('#ffc107', range);
+          highlightText('#ffc107', range, "reliant-highlight");
         })
         closeToolTip();
       } else if (parentIdName == 'smile' || currentID == 'smile') {
 
-        highlightText('#28a745', range);
+        highlightText('#28a745', range, "reliant-smile");
         closeToolTip();
       } else if (parentIdName == 'frown' || currentID == 'frown') {
-        highlightText('#dc3545', range);
+        highlightText('#dc3545', range, "reliant-frown");
         closeToolTip();
       } else if (parentIdName == 'comment' || currentID == 'comment') {
-        highlightText('#dc3545', range, true);
-        console.log("CREATING COMMENT")
-        const comment = document.createElement('div')
-        console.log(selectionY)
-        render(<Comment startY={selectionY} selectionText={range.toString()}></Comment>, comment)
-        document.body.appendChild(comment)
-
-        //Youssef's comment
+        id = highlightText('#dc3545', range, "reliant-comment", true);
+        window.commentScroll.addCommentContainer(id, range.toString(), top, startX)
         closeToolTip();
       } else if (parentIdName == 'note' || currentID == 'note') {
-        highlightText('blue', range, true);
+        highlightText('blue', range, "reliant-note", true);
         // Implement note
         closeToolTip();
       }
     });
 
     //Fix this, WE SHOULD ONLY MANIPULATE P TAGS
-
-    const highlightText = (color, range, underline=false) => {
+    var selectionId = 0
+    const highlightText = (color, range, className, underline=false) => {
       var mark = document.createElement('mark')
       if (underline) {
         console.log("UNDERLINING")
@@ -327,9 +324,17 @@ async function activateReliant() {
         mark.style.backgroundColor = color;
         mark.style.textDecoration = 'none';
       }
+      mark.className = className;
+      mark.id = selectionId;
+      mark.onclick = () => {
+        mark.className += " reliant-selected"
+        window.commentScroll.moveContainer(parseInt(mark.id))
+      };
       mark.textContent = range.toString();
       range.deleteContents();
       range.insertNode(mark);
+      selectionId+=1
+      return parseInt(mark.id)
     };
   }
 }
