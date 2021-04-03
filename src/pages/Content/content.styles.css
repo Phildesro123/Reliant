@@ -110,6 +110,7 @@ input[type='radio'] {
 }
 
 .comment-container {
+  background-color: white;
   position: absolute;
   left: 0;
   width: 300px;
