@@ -226,6 +226,9 @@ async function activateReliant() {
       if ((selection == lastSelection && isToolTipVisible)) {
         console.log('I dont want to render at all');
         e.stopPropagation();
+        if (isToolTipVisible) {
+          closeToolTip();
+        }
         return false;
       } else if (selection.length > 0) {
         console.log("Rendering the tooltip")
