@@ -87,9 +87,8 @@ userRouter.route('/').get((req, res, next) => {
  * query params
  * {
  *  "_id":"{user ID}",
- *  "url": 
  * }
- * GET: Get information on the current user
+ * GET: Gets the user's notes
  */
  userRouter.route('/getNotes').get((req, res, next) => {
   if (req.query._id == null) {
@@ -102,8 +101,8 @@ userRouter.route('/').get((req, res, next) => {
       console.log('error occured');
       return res.status(400).send({ message: 'User not found.' });
     }
-    console.log(user);
-    return res.status(200).send(user);
+    console.log("Notes:", user.notes)
+    return res.status(200).send(user.notes);
   });
 });
 
