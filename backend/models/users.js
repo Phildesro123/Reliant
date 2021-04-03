@@ -16,6 +16,7 @@ let detail = new Schema(
     ],
     notes: [
       {
+        url: String,
         range: String,
         content: String,
         time: Date

@@ -81,4 +81,76 @@ userRouter.route('/').get((req, res, next) => {
   });
 });
 
+/**
+ * Usage: Get information about current user
+ * send with a payload that at least has
+ * query params
+ * {
+ *  "_id":"{user ID}",
+ *  "url": 
+ * }
+ * GET: Get information on the current user
+ */
+ userRouter.route('/getNotes').get((req, res, next) => {
+  if (req.query._id == null) {
+    console.log("ERROR: Null userID")
+    return res.status(400).send({message: "Null userID"});
+  }
+  console.log('GET: We will get information about the current user');
+  Users.findById(req.query._id, (err, user) => {
+    if (err || user == null) {
+      console.log('error occured');
+      return res.status(400).send({ message: 'User not found.' });
+    }
+    console.log(user);
+    return res.status(200).send(user);
+  });
+});
+
+/** Usage: Whenever the user adds a new comment.
+ * Payload: {
+ *  "_id":"{user ID}",
+ *  "url": {url},
+ *  "range": selectionRange,
+ *  "content": Content of note
+ * 
+ * POST: Add note to user's notes array or update it.
+ */
+userRouter.route('/addNotes').post((req, res, next) => {
+  if (req.body._id == null 
+    || req.body.url == null 
+    || req.body.range == null || req.body.content == null) {
+    console.log("ERROR: Null userID")
+    return res.status(400).send({message: "Null elements are found in payload"});
+  }
+  if (req.body.content.trim() === '') {
+    console.log("ERROR: Cannot have empty contents")
+    return res.status(400).send({message: "Empty Contents"});
+  }
+  Users.findById(req.body._id, (err, user) => {
+    if (err || user == null) {
+      console.log('error occured');
+      return res.status(400).send({ message: 'User not found.' });
+    } 
+      let index = user.notes.findIndex((e)=> e.url === req.body.url && e.range === req.body.range)
+      if (index >= 0) {
+        user.notes[index].content = req.body.content;
+        user.notes[index].time = Date.now();
+      } else {
+        user.notes.push({
+          url: req.body.url,
+          range: req.body.range,
+          content: req.body.content,
+          time: Date.now()
+        });
+      }
+      user.save((err)=> {
+        console.log(user);
+        return res.status(200).send(user);
+      });
+    });
+});
+
+
+
 module.exports = userRouter;

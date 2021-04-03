@@ -257,7 +257,7 @@ siteRouter.route('/getUserHighlights').get((req, res, next) => {
 });
 
 /**
- * Usage: Probably when the user begins the access a new page.
+ * Usage: When the user posts a new comment
  * ex:
  * send with a payload that at least has
  *
@@ -268,7 +268,7 @@ siteRouter.route('/getUserHighlights').get((req, res, next) => {
  *  "range": rangeSelection
  *  "content": Content
  * }
- * GET: Add user's commment.
+ * POST: Add user's commment.
  */
 siteRouter.route('/addComment').post((req, res, next) => {
   if (req.body.url == null) {
