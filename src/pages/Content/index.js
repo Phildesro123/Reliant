@@ -6,7 +6,7 @@ import CommentScroll from './modules/Comment-Scroll';
 import { URLS } from '../Background/workingUrls';
 import axios from 'axios';
 import { calculateScore } from '../../containers/Score/Score';
-import ToolComponent from './modules/Tooltip-Component';
+import {createTooltip, removeTooltip} from './modules/Tooltip-Component';
 import {createQuestionnaire, removeQuestionnaire}  from './Questionnaire'
 import {authorName} from './authorName'
 import {FaComment} from 'react-icons/fa'
@@ -123,162 +123,112 @@ async function activateReliant() {
     //Highlight everything
     even = (even + 1) % 2;
 
-    let tooltip = document.createElement('span');
-    tooltip.className = 'tool_tip';
-
-    document.body.appendChild(tooltip);
-
-    let isToolTipVisible = false;
-    let lastSelection = null;
-    let lastSelectionObj = null;
-    var markerEl = null;
-
-    render(<ToolComponent>aa</ToolComponent>, tooltip);
-    tooltip.style.position = 'absolute';
-    tooltip.style.visibility = 'hidden';
-    tooltip.style.display = 'none';
-
-    const renderToolTip = (mouseX, mouseY, selection) => {
-      mouseX = mouseX - 50;
-      mouseY = mouseY - 30;
-      if (selection.length < 60) {
-        mouseX = mouseX - 20;
-      }
-      tooltip.style.top = mouseY + 'px';
-      tooltip.style.left = mouseX + 'px';
-      tooltip.style.visibility = 'visible';
-      tooltip.style.display = 'block';
-      isToolTipVisible = true;
-    };
-
-    const closeToolTip = () => {
-      tooltip.style.visibility = 'hidden';
-      tooltip.style.display = 'none';
-      isToolTipVisible = false;
-      clearSelection();
-    };
 
     function clearSelection() {
       if (window.getSelection) {window.getSelection().removeAllRanges();}
-      else if (document.selection) {document.selection.empty();}
+      else if (document.selectionText) {document.selectionText.empty();}
     }
 
-    var startX = 0;
-    var endX = 0;
-    var startY = 0;
-    var endY = 0;
-
+    var mouseDownX = 0;
+    var selectionTopY = 0;
+    let range = null;
     function hasSomeParentTheClass(element, classname) {
       if (typeof element.className === 'undefined' || typeof element.className.split === "undefined") return false;
       if (element.className.split(' ').indexOf(classname)>=0) return true;
       return element.parentNode && hasSomeParentTheClass(element.parentNode, classname);
     }
-    //Close the tool tip
+
+
     document.addEventListener('mousedown', (e) => {
+      console.log("MOUSE DOWN")
+      // remove all selected css styles when you click anywher on the screen
       Array.prototype.forEach.call(document.getElementsByClassName("reliant-selected"), (element) => {
         element.classList.remove("reliant-selected");
       })
+
+      
       //Make the tool tip invisible
-      if (isToolTipVisible) {
-        e.stopPropagation();
-        closeToolTip();
-        return false;
-      } 
+      // if (isToolTipVisible) {
+      //   console.log("Tooltip is visible")
+      //   e.stopPropagation();
+      //   removeTooltip();
+      //   return false;
+      // } 
+
+
       if (!e.target || !e.target.parentNode || hasSomeParentTheClass(e.target.parentNode, 'bordered-container')) {
+        console.log("Clicked inside comment, showTooltip is now false")
         e.stopPropagation();
         showTooltip = false;
         return false;}
+      
+      if (hasSomeParentTheClass(e.target), "reliant-tooltip") {
+        console.log("Clicked inside tooltip")
+      }
 
+      console.log("Setting showTooltip to true")
       showTooltip = true;
-      startX = e.pageX;
-      startY = e.pageY;
-      closeToolTip();
+      mouseDownX = e.pageX;
+      console.log("MouseDown", mouseDownX)
+      removeTooltip();
         
     });
 
-    function getSelectionDimensions() {
-      var sel = document.selection, range;
-      var width = 0, height = 0;
-      if (sel) {
-          if (sel.type != "Control") {
-              range = sel.createRange();
-              width = range.boundingWidth;
-              height = range.boundingHeight;
-          }
-      } else if (window.getSelection) {
-          sel = window.getSelection();
-          if (sel.rangeCount) {
-              range = sel.getRangeAt(0).cloneRange();
-              if (range.getBoundingClientRect) {
-                  var rect = range.getBoundingClientRect();
-                  width = rect.right - rect.left;
-                  height = rect.bottom - rect.top;
-              }
-          }
-      }
-      return { width: width , height: height };
-    }
     // Show the tool tip
     document.addEventListener('mouseup', (e) => {
-      if (!showTooltip) return false;
-      let temp = window.getSelection();
-      let selection = temp.toString();
-      if (!temp.baseNode || !temp.focusNode) {
-        e.stopPropagation();
-        showTooltip = false;
-        return false;
-      }
-       let comp =
-        temp.baseNode == temp.focusNode ||
-       temp.baseNode.parentNode == temp.focusNode.parentNode;
-      if ((selection == lastSelection && isToolTipVisible)) {
-        e.stopPropagation();
-        if (isToolTipVisible) {
-          closeToolTip();
-        }
-        return false;
-      } else if (selection.length > 0) {
+      console.log("MOUSE UP")
+      // if (!showTooltip) return false;
+      console.log("Executing mouse up commands")
+      let selection = window.getSelection();
+      let selectionText = selection.toString();
+      console.log("Selection", selection);
+      // if (!selection.baseNode || !selection.focusNode) {
+      //   console.log("Mouse up: setting show tooltip false")
+      //   e.stopPropagation();
+      //   showTooltip = false;
+      //   return false;
+      // }
+      let comp =
+        selection.baseNode == selection.focusNode || selection.baseNode.parentNode == selection.focusNode.parentNode;
+      
+      console.log("Selection", selectionText)
+      console.log("Last Selection")
+        // if ((selectionText == lastSelection && isToolTipVisible)) {
+        // e.stopPropagation();
+        // if (isToolTipVisible) {
+        //   removeTooltip();
+        // }
+        // return false;
+
+      // } else 
+      if (selectionText.length > 0) {
         //Render the tooltip
+        console.log("Rendering Tooltip");
+        range = selection.getRangeAt(0)
+        console.log("Range", range)
+        const boundingBox = range.getBoundingClientRect();
+        console.log("Bounding Box", boundingBox)
+        const selectionCenterX = (mouseDownX + boundingBox.right) / 2
+        selectionTopY = boundingBox.y + window.pageYOffset;
+        console.log("selectionTopY", selectionTopY)
+        createTooltip(selectionCenterX, selectionTopY)
 
-        console.log("SELECTION IS THIS WE TRYHING");
-        // h = getSelectionDimensions()
-        console.log(getSelectionDimensions());
-        var h = getSelectionDimensions().height;
-        console.log("WE TREID LMAOOOOOOOOO");
-
-
-
-        endX = e.pageX;
-        endY = e.pageY;
-        const realStartX = Math.min(startX, endX);
-        const realendX = Math.max(startX, endX);
-
-        const realStartY = Math.min(startY, endY);
-        const realEndY = Math.max(startY, endY);
-        lastSelection = selection;
-        lastSelectionObj = window.getSelection();
-        renderToolTip(
-          (realendX - realStartX) / 2 + realStartX,
-          realEndY - h,
-          selection
-        );
+        // lastSelection = selectionText;
+        // lastSelectionObj = selection;
       } else {
         showTooltip = false;
-        closeToolTip();
+        removeTooltip();
       }
     });
 
     //Highlight options
     document.addEventListener('click', (e) => {
+      console.log("CLICK")
       if (!showTooltip) return false;
+      console.log("Executing click commands")
       const parser = new DOMParser();
       const parentIdName = e.target.parentNode.getAttribute('id');
       const currentID = e.target.getAttribute('id');
-      const range = lastSelectionObj.getRangeAt(0)
-      const boundingBox = range.getBoundingClientRect()
-      console.log("Bounding Box", boundingBox)
-      const top = boundingBox.y + window.pageYOffset;
-      const startX = boundingBox.x + window.pageXOffset;
       var id = null;
       const payload = {
         url: currentURL,
@@ -290,27 +240,27 @@ async function activateReliant() {
           console.log(res);
           highlightText('#ffc107', range, "reliant-highlight");
         })
-        closeToolTip();
+        removeTooltip();
       } else if (parentIdName == 'smile' || currentID == 'smile') {
 
         highlightText('#28a745', range, "reliant-smile");
-        closeToolTip();
+        removeTooltip();
       } else if (parentIdName == 'frown' || currentID == 'frown') {
         highlightText('#dc3545', range, "reliant-frown");
-        closeToolTip();
+        removeTooltip();
       } else if (parentIdName == 'comment' || currentID == 'comment') {
         id = highlightText('#dc3545', range, "reliant-comment", true);
-        window.commentScroll.addCommentContainer(id, range.toString(), top, startX)
-        closeToolTip();
+        window.commentScroll.addCommentContainer(id, range.toString(), selectionTopY, mouseDownX)
+        removeTooltip();
       } else if (parentIdName == 'note' || currentID == 'note') {
         highlightText('blue', range, "reliant-note", true);
         // Implement note
-        closeToolTip();
+        removeTooltip();
       }
     });
 
     //Fix this, WE SHOULD ONLY MANIPULATE P TAGS
-    var selectionId = 0
+    var selectionTextId = 0
     const highlightText = (color, range, className, underline=false) => {
       var mark = document.createElement('mark')
       if (underline) {
@@ -325,7 +275,7 @@ async function activateReliant() {
         mark.style.textDecoration = 'none';
       }
       mark.className = className;
-      mark.id = selectionId;
+      mark.id = selectionTextId;
       mark.onclick = () => {
         mark.className += " reliant-selected"
         window.commentScroll.moveContainer(parseInt(mark.id))
@@ -333,7 +283,7 @@ async function activateReliant() {
       mark.textContent = range.toString();
       range.deleteContents();
       range.insertNode(mark);
-      selectionId+=1
+      selectionTextId+=1
       return parseInt(mark.id)
     };
   }

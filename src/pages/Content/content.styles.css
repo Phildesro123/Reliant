@@ -180,6 +180,7 @@ input[type='radio'] {
   bottom: 0;
 }
 
+/* --------------------------------------------- BOOTSTRAP CSS ----------------------------------- */
 svg.icon {
   pointer-events: none;
 }
@@ -1142,4 +1143,10 @@ div[data-testid='standard-dock'] {
 
 aside.paywall-bar.paywall-bar--visible {
   display: none;
+}
+
+.reliant-tooltip {
+  position: absolute;
+  padding-bottom: 10px;
+  transform: translate(-50%, -100%);
 }
