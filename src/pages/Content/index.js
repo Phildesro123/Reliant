@@ -132,85 +132,66 @@ async function activateReliant() {
     var mouseDownX = 0;
     var selectionTopY = 0;
     let range = null;
+    var tooltipClicked = false;
+
+
     function hasSomeParentTheClass(element, classname) {
-      if (typeof element.className === 'undefined' || typeof element.className.split === "undefined") return false;
-      if (element.className.split(' ').indexOf(classname)>=0) return true;
-      return element.parentNode && hasSomeParentTheClass(element.parentNode, classname);
+      if (!element || typeof element.classList === 'undefined') return false;
+      if (element.classList.contains(classname)) return true;
+      return hasSomeParentTheClass(element.parentNode, classname);
     }
 
 
     document.addEventListener('mousedown', (e) => {
       console.log("MOUSE DOWN")
+      console.log("e:", e)
+      console.log("e.target.ParentNode", e.target.parentNode)
+      mouseDownX = e.pageX;
+      showTooltip = true;
       // remove all selected css styles when you click anywher on the screen
       Array.prototype.forEach.call(document.getElementsByClassName("reliant-selected"), (element) => {
         element.classList.remove("reliant-selected");
       })
-
       
-      //Make the tool tip invisible
-      // if (isToolTipVisible) {
-      //   console.log("Tooltip is visible")
-      //   e.stopPropagation();
-      //   removeTooltip();
-      //   return false;
-      // } 
-
+      tooltipClicked = false;
+      if (hasSomeParentTheClass(e.target.parentNode, "reliant-tooltip")) {
+        console.log("Tooltip clicked")
+        tooltipClicked = true;
+      } else {
+        removeTooltip();
+      }
 
       if (!e.target || !e.target.parentNode || hasSomeParentTheClass(e.target.parentNode, 'bordered-container')) {
         console.log("Clicked inside comment, showTooltip is now false")
         e.stopPropagation();
         showTooltip = false;
         return false;}
-      
-      if (hasSomeParentTheClass(e.target), "reliant-tooltip") {
-        console.log("Clicked inside tooltip")
-      }
-
-      console.log("Setting showTooltip to true")
-      showTooltip = true;
-      mouseDownX = e.pageX;
-      console.log("MouseDown", mouseDownX)
-      removeTooltip();
-        
     });
 
     // Show the tool tip
     document.addEventListener('mouseup', (e) => {
       console.log("MOUSE UP")
-      // if (!showTooltip) return false;
+      if (tooltipClicked || !showTooltip) return false;
       console.log("Executing mouse up commands")
       let selection = window.getSelection();
       let selectionText = selection.toString();
       console.log("Selection", selection);
-      // if (!selection.baseNode || !selection.focusNode) {
-      //   console.log("Mouse up: setting show tooltip false")
-      //   e.stopPropagation();
-      //   showTooltip = false;
-      //   return false;
-      // }
-      let comp =
-        selection.baseNode == selection.focusNode || selection.baseNode.parentNode == selection.focusNode.parentNode;
-      
-      console.log("Selection", selectionText)
-      console.log("Last Selection")
-        // if ((selectionText == lastSelection && isToolTipVisible)) {
-        // e.stopPropagation();
-        // if (isToolTipVisible) {
-        //   removeTooltip();
-        // }
-        // return false;
 
-      // } else 
+
+      // Triggers when multi paragraph selection occurs
+      if (!(selection.baseNode == selection.focusNode || selection.baseNode.parentNode == selection.focusNode.parentNode)) {
+        console.log("Please dont select multiple paragraphs")
+        removeTooltip();
+        clearSelection();
+        return false;
+      }
+      
       if (selectionText.length > 0) {
         //Render the tooltip
-        console.log("Rendering Tooltip");
         range = selection.getRangeAt(0)
-        console.log("Range", range)
         const boundingBox = range.getBoundingClientRect();
-        console.log("Bounding Box", boundingBox)
         const selectionCenterX = (mouseDownX + boundingBox.right) / 2
         selectionTopY = boundingBox.y + window.pageYOffset;
-        console.log("selectionTopY", selectionTopY)
         createTooltip(selectionCenterX, selectionTopY)
 
         // lastSelection = selectionText;
@@ -224,9 +205,9 @@ async function activateReliant() {
     //Highlight options
     document.addEventListener('click', (e) => {
       console.log("CLICK")
-      if (!showTooltip) return false;
-      console.log("Executing click commands")
-      const parser = new DOMParser();
+      console.log("Clicked in tooltip", tooltipClicked)
+      if (!tooltipClicked) return false;
+      clearSelection()
       const parentIdName = e.target.parentNode.getAttribute('id');
       const currentID = e.target.getAttribute('id');
       var id = null;
@@ -241,8 +222,8 @@ async function activateReliant() {
           highlightText('#ffc107', range, "reliant-highlight");
         })
         removeTooltip();
-      } else if (parentIdName == 'smile' || currentID == 'smile') {
 
+      } else if (parentIdName == 'smile' || currentID == 'smile') {
         highlightText('#28a745', range, "reliant-smile");
         removeTooltip();
       } else if (parentIdName == 'frown' || currentID == 'frown') {
@@ -264,7 +245,6 @@ async function activateReliant() {
     const highlightText = (color, range, className, underline=false) => {
       var mark = document.createElement('mark')
       if (underline) {
-        console.log("UNDERLINING")
         mark = document.createElement('u');
         mark.style.textDecoration = "underline";
         mark.style.textDecorationColor = color;

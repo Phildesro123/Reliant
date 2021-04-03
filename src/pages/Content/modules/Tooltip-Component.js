@@ -8,7 +8,7 @@ import {FaStickyNote} from 'react-icons/fa';
 
 
 let tooltip = document.createElement('div');
-tooltip.className = "btn-group btn-group-sm reliant-tooltip";
+tooltip.className = "reliant-tooltip btn-group btn-group-sm";
 
 export function createTooltip(x, y) {
     tooltip.style.top = y + 'px';
