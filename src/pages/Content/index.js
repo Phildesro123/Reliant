@@ -1,16 +1,15 @@
 import React from 'react';
-import { render } from 'react-dom'
+import { render } from 'react-dom';
 import rangySerializer from 'rangy/lib/rangy-serializer';
 import { URLS } from '../Background/workingUrls';
 import axios from 'axios';
 import { calculateScore } from '../../containers/Score/Score';
 import ToolComponent from './modules/Tooltip-Component';
-import {createQuestionnaire, removeQuestionnaire}  from './Questionnaire'
-import {authorName} from './authorName'
+import { createQuestionnaire, removeQuestionnaire } from './Questionnaire';
+import { authorName } from './authorName';
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
-
 
 var ACTIVATED = false;
 var LOADED = false;
@@ -98,26 +97,63 @@ async function activateReliant() {
       console.log('Internal server error in addSite:', err);
     });
 
-  axios.get("http://localhost:4000/api/websites/getUserHighlights", {params: {
-    url: currentURL,
-    userID: currentUserInfo.id
-  }}).then((res) => {
-    console.log("Data", res.data[0])
-    console.log("Data type", typeof(res.data))
-    res.data.forEach((highlightObj, color) => {
-      console.log("highlightOBJ", highlightObj)
-      console.log("Highlight from DB:", highlightObj.selection)
+  axios
+    .get('http://localhost:4000/api/websites/getUserHighlights', {
+      params: {
+        url: currentURL,
+        userID: currentUserInfo.id,
+      },
+    })
+    .then((res) => {
+      const rootNode = document.getElementsByName('html');
+      console.log('Root node', rootNode);
 
-      if (highlightObj.selection) {
-        console.log("Selection isn't null")
-        console.log("Pulled range", rangySerializer.deserializeRange(highlightObj.selection, document.getElementsByName('html')[0]).nativeRange)
-        highlightText(color, rangySerializer.deserializeRange(highlightObj.selection, document.getElementsByName('html')[0]).nativeRange);
+      if (res.data.frowns.length > 0) {
+        res.data.frowns.forEach((element) => {
+          if (rangySerializer.canDeserializeRange(element.selection)) {
+            try {
+            highlightText(
+              '#dc3545',
+              rangySerializer.deserializeRange(element.selection).nativeRange
+            ); 
+            } catch (error){
+              console.log("Highlight failed to restore");
+            }
+          }
+        });
+      }
+      if (res.data.smiles.length > 0) {
+        res.data.smiles.forEach((element) => {
+          if (rangySerializer.canDeserializeRange(element.selection)) {
+            try {
+            highlightText(
+              '#28a745',
+              rangySerializer.deserializeRange(element.selection).nativeRange
+            );
+            } catch (error) {
+              console.log("Highlight failed to restore")
+            }
+          }
+        });
+      }
+      if (res.data.highlights.length > 0) {
+        res.data.highlights.forEach((element) => {
+          if (rangySerializer.canDeserializeRange(element.selection)) {
+            try {
+            highlightText(
+              '#ffc107',
+              rangySerializer.deserializeRange(element.selection).nativeRange
+            );
+            } catch (error) {
+              console.log("Failed to restore")
+            }
+          }
+        });
       }
     })
-    }
-  ).catch((err) => {
-    console.log('Internal server error in getUserHighlights:', err);
-  });
+    .catch((err) => {
+      console.log('Internal server error in getUserHighlights:', err);
+    });
 
   if (first) {
     createQuestionnaire(currentUserInfo.id, currentURL, currentHostname);
@@ -161,8 +197,11 @@ async function activateReliant() {
     };
 
     function clearSelection() {
-      if (window.getSelection) {window.getSelection().removeAllRanges();}
-      else if (document.selection) {document.selection.empty();}
+      if (window.getSelection) {
+        window.getSelection().removeAllRanges();
+      } else if (document.selection) {
+        document.selection.empty();
+      }
     }
 
     var startX = 0;
@@ -171,9 +210,16 @@ async function activateReliant() {
     var endY = 0;
 
     function hasSomeParentTheClass(element, classname) {
-      if (typeof element.className === 'undefined' || typeof element.className.split === "undefined") return false;
-      if (element.className.split(' ').indexOf(classname)>=0) return true;
-      return element.parentNode && hasSomeParentTheClass(element.parentNode, classname);
+      if (
+        typeof element.className === 'undefined' ||
+        typeof element.className.split === 'undefined'
+      )
+        return false;
+      if (element.className.split(' ').indexOf(classname) >= 0) return true;
+      return (
+        element.parentNode &&
+        hasSomeParentTheClass(element.parentNode, classname)
+      );
     }
     //Close the tool tip
     document.addEventListener('mousedown', (e) => {
@@ -193,17 +239,21 @@ async function activateReliant() {
       if (isToolTipVisible) {
         e.stopPropagation();
         return false;
-      } 
-      if (!e.target || !e.target.parentNode || hasSomeParentTheClass(e.target.parentNode, 'bordered-container')) {
+      }
+      if (
+        !e.target ||
+        !e.target.parentNode ||
+        hasSomeParentTheClass(e.target.parentNode, 'bordered-container')
+      ) {
         e.stopPropagation();
         showTooltip = false;
-        return false;}
+        return false;
+      }
 
       showTooltip = true;
       startX = e.pageX;
       startY = e.pageY;
       closeToolTip();
-        
     });
     // Show the tool tip
     document.addEventListener('mouseup', (e) => {
@@ -215,19 +265,19 @@ async function activateReliant() {
         showTooltip = false;
         return false;
       }
-       let comp =
+      let comp =
         temp.baseNode == temp.focusNode ||
-       temp.baseNode.parentNode == temp.focusNode.parentNode ||
-       temp.baseNode.parentNode == temp.focusNode.parentNode.parentElement;
-       
-       console.log("Can tooltip render for selection:", comp)
-       
+        temp.baseNode.parentNode == temp.focusNode.parentNode ||
+        temp.baseNode.parentNode == temp.focusNode.parentNode.parentElement;
+
+      console.log('Can tooltip render for selection:', comp);
+
       if (!comp || (selection == lastSelection && isToolTipVisible)) {
         console.log('I dont want to render at all');
         e.stopPropagation();
         return false;
       } else if (selection.length > 0) {
-        console.log("Rendering the tooltip")
+        console.log('Rendering the tooltip');
         //Render the tooltip
         endX = e.pageX;
         endY = e.pageY;
@@ -256,46 +306,61 @@ async function activateReliant() {
     document.addEventListener('click', (e) => {
       const parentIdName = e.target.parentNode.getAttribute('id');
       const currentID = e.target.getAttribute('id');
-      const range = lastSelectionObj != null ? lastSelectionObj.getRangeAt(0) : null;
-      console.log("Range object:", range)
-      
+      const range =
+        lastSelectionObj != null ? lastSelectionObj.getRangeAt(0) : null;
+      console.log('Range object:', range);
 
       let payload = {
         url: currentURL,
         userID: currentUserInfo.id,
-        highlightSelection: rangySerializer.serializeRange(range, true, document.getElementsByName('html')[0]), // Serializes the range into a string to store in DB
-        highlight_type: null
-      }
-      console.log(rangySerializer.deserializeRange(payload.highlightSelection, document.getElementsByName('html')[0]));
-
+        highlightSelection: rangySerializer.serializeRange(
+          range,
+          true,
+          document.getElementsByName('html')[0]
+        ), // Serializes the range into a string to store in DB
+        highlight_type: null,
+      };
+      console.log('Serialized range:', payload.highlightSelection);
       if (parentIdName == 'highlight' || currentID == 'highlight') {
-        payload.highlight_type = 'highlights'
-        axios.post('http://localhost:4000/api/websites/addHighlights', payload).then((res) => {
-          console.log(res);
-        })
+        payload.highlight_type = 'highlights';
+        axios
+          .post('http://localhost:4000/api/websites/addHighlights', payload)
+          .then((res) => {
+            console.log(res);
+          });
         highlightText('#ffc107', range);
         closeToolTip();
       } else if (parentIdName == 'smile' || currentID == 'smile') {
-        payload.highlight_type = 'smiles'
-        axios.post('http://localhost:4000/api/websites/addHighlights', payload).then((res) => {
-          console.log(res);
-        })
+        payload.highlight_type = 'smiles';
+        axios
+          .post('http://localhost:4000/api/websites/addHighlights', payload)
+          .then((res) => {
+            console.log(res);
+          });
         highlightText('#28a745', range);
         closeToolTip();
       } else if (parentIdName == 'frown' || currentID == 'frown') {
-        payload.highlight_type = 'frowns'
-        axios.post('http://localhost:4000/api/websites/addHighlights', payload).then((res) => {
-          console.log(res);
-        })
+        payload.highlight_type = 'frowns';
+        axios
+          .post('http://localhost:4000/api/websites/addHighlights', payload)
+          .then((res) => {
+            console.log(res);
+          });
         highlightText('#dc3545', range);
         closeToolTip();
       } else if (parentIdName == 'comment' || currentID == 'comment') {
         highlightText('#dc3545', range, true);
-        console.log("CREATING COMMENT")
-        const comment = document.createElement('div')
-        console.log(selectionY)
-        render(<Comment startY={selectionY} selectionText={range.toString()}></Comment>, comment)
-        document.body.appendChild(comment)
+        console.log('CREATING COMMENT');
+        const comment = document.createElement('div');
+        console.log(selectionY);
+        render(
+          <Comment
+            startY={selectionY}
+            selectionText={range.toString()}
+          ></Comment>,
+          comment
+        );
+        document.body.appendChild(comment);
 
         //Youssef's comment
         closeToolTip();
@@ -305,23 +370,20 @@ async function activateReliant() {
         closeToolTip();
       }
     });
-
-
-   
   }
 }
-const highlightText = (color, range, underline=false) => {
-  var mark = document.createElement('mark')
+const highlightText = (color, range, underline = false) => {
+  var mark = document.createElement('span');
   if (underline) {
-    console.log("UNDERLINING")
+    console.log('UNDERLINING');
     mark = document.createElement('u');
-    mark.style.textDecoration = "underline";
+    mark.style.textDecoration = 'underline';
     mark.style.textDecorationColor = color;
-    mark.style.textDecorationThickness = ".2rem";
-    mark.style.textDecorationSkipInk = "none"
+    mark.style.textDecorationThickness = '.2rem';
+    mark.style.textDecorationSkipInk = 'none';
   } else {
     mark.style.backgroundColor = color;
-    mark.style.textDecoration = 'none';
+   // mark.style.textDecoration = 'none';
   }
 
   /*
@@ -340,10 +402,11 @@ const highlightText = (color, range, underline=false) => {
   */
 
   mark.appendChild(range.extractContents()); //Append the contents of the selection's range to our mark tag
-  console.log("Mark element:", mark)
+  mark.normalize();
+  console.log('Mark element:', mark);
   range.deleteContents(); // Not sure if this is necessary, but just in case I'm removing the rangeContents to make sure no extra elements
-  range.insertNode(mark) // Insert mark into the range
-  console.log("Range after highlight:", range)
+  range.insertNode(mark); // Insert mark into the range
+  console.log('Range after highlight:', range);
 };
 function deactivateReliant() {
   ACTIVATED = false;
@@ -356,7 +419,6 @@ function deactivateReliant() {
     i++;
   }
 }
-
 
 //Runs when activate is pressed from Popup
 chrome.runtime.onMessage.addListener((req, send, sendResponse) => {
