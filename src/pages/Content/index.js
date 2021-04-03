@@ -141,18 +141,17 @@ async function activateReliant() {
       return hasSomeParentTheClass(element.parentNode, classname);
     }
 
-
+    /**Mouse events to handle tooltip interaction */ 
     document.addEventListener('mousedown', (e) => {
-      console.log("MOUSE DOWN")
-      console.log("e:", e)
-      console.log("e.target.ParentNode", e.target.parentNode)
       mouseDownX = e.pageX;
       showTooltip = true;
+
       // remove all selected css styles when you click anywher on the screen
       Array.prototype.forEach.call(document.getElementsByClassName("reliant-selected"), (element) => {
         element.classList.remove("reliant-selected");
       })
       
+      // checks if the tooltip was pressed if not it removes it
       tooltipClicked = false;
       if (hasSomeParentTheClass(e.target.parentNode, "reliant-tooltip")) {
         console.log("Tooltip clicked")
@@ -161,14 +160,16 @@ async function activateReliant() {
         removeTooltip();
       }
 
+      //checks if click was inside comment
       if (!e.target || !e.target.parentNode || hasSomeParentTheClass(e.target.parentNode, 'bordered-container')) {
         console.log("Clicked inside comment, showTooltip is now false")
+        clearSelection()
         e.stopPropagation();
         showTooltip = false;
         return false;}
     });
 
-    // Show the tool tip
+    // If there is a selection on mouse up and its valid the tooltip will be presented
     document.addEventListener('mouseup', (e) => {
       console.log("MOUSE UP")
       if (tooltipClicked || !showTooltip) return false;
@@ -186,26 +187,22 @@ async function activateReliant() {
         return false;
       }
       
+      //Render the tooltip
       if (selectionText.length > 0) {
-        //Render the tooltip
         range = selection.getRangeAt(0)
         const boundingBox = range.getBoundingClientRect();
         const selectionCenterX = (mouseDownX + boundingBox.right) / 2
         selectionTopY = boundingBox.y + window.pageYOffset;
         createTooltip(selectionCenterX, selectionTopY)
-
-        // lastSelection = selectionText;
-        // lastSelectionObj = selection;
       } else {
         showTooltip = false;
         removeTooltip();
       }
     });
 
-    //Highlight options
+    //Handles a button click on the tool tip, ignores other clicks
     document.addEventListener('click', (e) => {
-      console.log("CLICK")
-      console.log("Clicked in tooltip", tooltipClicked)
+      //only run if tooltip is clicked
       if (!tooltipClicked) return false;
       clearSelection()
       const parentIdName = e.target.parentNode.getAttribute('id');
@@ -235,12 +232,12 @@ async function activateReliant() {
         removeTooltip();
       } else if (parentIdName == 'note' || currentID == 'note') {
         highlightText('blue', range, "reliant-note", true);
-        // Implement note
+        // TODO: Implement note
         removeTooltip();
       }
     });
 
-    //Fix this, WE SHOULD ONLY MANIPULATE P TAGS
+    //TODO: Fix this, WE SHOULD ONLY MANIPULATE P TAGS
     var selectionTextId = 0
     const highlightText = (color, range, className, underline=false) => {
       var mark = document.createElement('mark')
