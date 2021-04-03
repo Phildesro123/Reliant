@@ -112,7 +112,6 @@ input[type='radio'] {
 .comment-container {
   position: absolute;
   left: 0;
-  background-color: aliceblue;
   width: 300px;
   overflow: hidden;
   transition-duration: 100ms;
@@ -148,6 +147,7 @@ input[type='radio'] {
   margin: auto;
 }
 .comment-input {
+  background-color: aliceblue;
   vertical-align: middle;
   margin: 0;
   border: none;
