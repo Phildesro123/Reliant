@@ -6,7 +6,10 @@
     "contextMenus",
     "identity",
     "identity.email",
-    "tabs"
+    "tabs",
+    "webRequest",
+    "webRequestBlocking",
+    "<all_urls>"
   ],
   "background": {
     "page": "background.html"
