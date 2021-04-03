@@ -14,6 +14,13 @@ let detail = new Schema(
         timespent: {type: Number, default: 0 },
       },
     ],
+    notes: [
+      {
+        range: String,
+        content: String,
+        time: Date
+      }
+    ]
   },
   { collection: 'Users' }
 );
