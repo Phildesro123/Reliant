@@ -175,7 +175,9 @@ async function activateReliant() {
     }
     //Close the tool tip
     document.addEventListener('mousedown', (e) => {
-      
+      Array.prototype.forEach.call(document.getElementsByClassName("reliant-selected"), (element) => {
+        element.classList.remove("reliant-selected");
+      })
       //Make the tool tip invisible
       if (isToolTipVisible) {
         e.stopPropagation();
@@ -250,22 +252,22 @@ async function activateReliant() {
       if (parentIdName == 'highlight' || currentID == 'highlight') {
         axios.post('http://localhost:4000/api/websites/addHighlights', payload).then((res) => {
           console.log(res);
-          highlightText('#ffc107', range);
+          highlightText('#ffc107', range, "reliant-highlight");
         })
         closeToolTip();
       } else if (parentIdName == 'smile' || currentID == 'smile') {
 
-        highlightText('#28a745', range);
+        highlightText('#28a745', range, "reliant-smile");
         closeToolTip();
       } else if (parentIdName == 'frown' || currentID == 'frown') {
-        highlightText('#dc3545', range);
+        highlightText('#dc3545', range, "reliant-frown");
         closeToolTip();
       } else if (parentIdName == 'comment' || currentID == 'comment') {
-        id = highlightText('#dc3545', range, true);
+        id = highlightText('#dc3545', range, "reliant-comment", true);
         window.commentScroll.addCommentContainer(id, range.toString(), top, startX)
         closeToolTip();
       } else if (parentIdName == 'note' || currentID == 'note') {
-        highlightText('blue', range, true);
+        highlightText('blue', range, "reliant-note", true);
         // Implement note
         closeToolTip();
       }
@@ -273,7 +275,7 @@ async function activateReliant() {
 
     //Fix this, WE SHOULD ONLY MANIPULATE P TAGS
     var selectionId = 0
-    const highlightText = (color, range, underline=false) => {
+    const highlightText = (color, range, className, underline=false) => {
       var mark = document.createElement('mark')
       if (underline) {
         console.log("UNDERLINING")
@@ -286,8 +288,12 @@ async function activateReliant() {
         mark.style.backgroundColor = color;
         mark.style.textDecoration = 'none';
       }
+      mark.className = className;
       mark.id = selectionId;
-      mark.onclick = () => {window.commentScroll.moveContainer(parseInt(mark.id))};
+      mark.onclick = () => {
+        mark.className += " reliant-selected"
+        window.commentScroll.moveContainer(parseInt(mark.id))
+      };
       mark.textContent = range.toString();
       range.deleteContents();
       range.insertNode(mark);

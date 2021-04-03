@@ -20,6 +20,7 @@ const CommentScroll = React.forwardRef((props, ref) => {
     const [commentContainerList, setCommentContainerList] = useState([])
     const [shouldUpdate, setShouldUpdate] = useState(false)
     
+    //helper function to move surrounding containers out of the way to avoid overlap
     function shiftContainers(index) {
         let currentIndex = index
         let rerender = false;
@@ -27,14 +28,10 @@ const CommentScroll = React.forwardRef((props, ref) => {
         while (currentIndex > 0) {
             let currentElement = commentContainerList[currentIndex]
             let aboveElement = commentContainerList[currentIndex - 1]
-            console.log("Above Element", aboveElement)
-            console.log("Current Element", currentElement)
             if (aboveElement.bottom + margin > currentElement.top) {
-                console.log("Change Above Happening")
                 let aboveHeight = aboveElement.bottom - aboveElement.top
                 aboveElement.bottom = currentElement.top - margin
                 aboveElement.top = aboveElement.bottom - aboveHeight
-                console.log("New Above Element", aboveElement)
                 rerender = true
             } else {
                 break
@@ -44,14 +41,10 @@ const CommentScroll = React.forwardRef((props, ref) => {
 
         //move any overlapping items below current item down
         currentIndex = index
-        console.log(commentContainerList.length - 1)
         while (currentIndex < commentContainerList.length - 1) {
             let currentElement = commentContainerList[currentIndex]
             let belowElement = commentContainerList[currentIndex + 1]
-            console.log("Current Element", currentElement)
-            console.log("Below Element", belowElement)
             if (belowElement.top < currentElement.bottom + margin) {
-                console.log("Change Below Happening")
                 let belowHeight = belowElement.bottom - belowElement.top
                 belowElement.top = currentElement.bottom + margin
                 belowElement.bottom = belowElement.top + belowHeight 
@@ -62,7 +55,6 @@ const CommentScroll = React.forwardRef((props, ref) => {
             currentIndex += 1;
         }
         if (rerender) {
-            console.log("Rerender is true")
             setShouldUpdate(!shouldUpdate)
         }
         
@@ -74,11 +66,10 @@ const CommentScroll = React.forwardRef((props, ref) => {
         shiftContainers(elementPos)
     }
 
+    //Gets called when a selection is clicked and moves appropriate comment to selectionTop
     const moveContainer = (id) => {
-        console.log("MOVING CONTAINER")
         var targetContainer = null;
         var targetId = null
-        console.log(commentContainerList)
         for (let i = 0; i < commentContainerList.length; i++) {
             if (commentContainerList[i].id == id) {
                 targetContainer = commentContainerList[i]
@@ -94,9 +85,8 @@ const CommentScroll = React.forwardRef((props, ref) => {
         }
     }
 
+    //Adds commentContainer into array in order or selectionTop
     const addCommentContainer = (id, selectionText, top, startX) => {
-        console.log("Adding Comment Container")
-        console.log("ID", id)
         let comment = new CommentContainer(id, selectionText, top, startX)
         if (commentContainerList.length == 0) {
             setCommentContainerList([comment])
@@ -122,10 +112,6 @@ const CommentScroll = React.forwardRef((props, ref) => {
         addCommentContainer,
         moveContainer
     }))
-
-    useEffect(() => {
-        console.log("SCROLL RERENDERED")
-    })
     
     return (<>
         {commentContainerList.map((commentContainer, index) => {

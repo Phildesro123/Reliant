@@ -93,7 +93,6 @@ input[type='radio'] {
 }
 
 .comment-scroll {
-  background-color: blue;
   height: 100%;
   position: absolute;
   top: 0;
@@ -142,6 +141,14 @@ input[type='radio'] {
   width: 100%;
   resize: none;
   margin-top: 10px;
+}
+
+.reliant-comment:hover {
+  background-color: rgba(228, 78, 78, 0.438);
+}
+
+.reliant-comment.reliant-selected {
+  background-color: rgba(228, 78, 78, 0.644);
 }
 
 .truncate-overflow {
@@ -1056,6 +1063,6 @@ button.bg-dark:focus {
   background-color: transparent !important;
 }
 
-div[data-popper-reference-hidden="false"] {
+div[data-popper-reference-hidden='false'] {
   display: none;
 }
