@@ -1,12 +1,6 @@
 import React from 'react';
-import { render } from 'react-dom';
-<<<<<<< HEAD
+import { render } from 'react-dom'
 import rangySerializer from 'rangy/lib/rangy-serializer';
-import selectionSave from 'rangy/lib/rangy-selectionsaverestore'
-=======
-import Questionnaire from './Questionnaire';
-import Comment from './modules/Comment-Container';
->>>>>>> mongoupdate
 import { URLS } from '../Background/workingUrls';
 import axios from 'axios';
 import { calculateScore } from '../../containers/Score/Score';
@@ -183,7 +177,6 @@ async function activateReliant() {
     }
     //Close the tool tip
     document.addEventListener('mousedown', (e) => {
-<<<<<<< HEAD
       const parentClassName = e.target.parentNode.getAttribute('class');
       const parentIdName = e.target.parentNode.getAttribute('id');
       console.log('Parent Class:', parentClassName);
@@ -196,9 +189,6 @@ async function activateReliant() {
         Share findings if anyone can.
       */
 
-=======
-      
->>>>>>> mongoupdate
       //Make the tool tip invisible
       if (isToolTipVisible) {
         e.stopPropagation();
@@ -220,32 +210,11 @@ async function activateReliant() {
       if (!showTooltip) return false;
       let temp = window.getSelection();
       let selection = temp.toString();
-<<<<<<< HEAD
-      console.log('Current selection', selection);
-      console.log('THIS SELECTION WAS THIS LONG: ', selection.length);
-      console.log('Selection baseNode:', temp.baseNode);
-      console.log('Selection focusNode:', temp.focusNode);
-      
-      /*
-      ISSUE 2:
-      The comp variable is made as one of the checks for NOT displaying the toolbar.
-
-      In short,
-        1. If the baseNode and focusNode of the selection are equal then we can display toolbar
-        2. If the baseNode's parentNode is equal to the focusNode's parentNode then we can display the toolbar
-        3. If the focusNode's grandparent (if existing) is the the baseNode's parentNode then we can display the toolbar
-
-        I added #3 to allow links to be highlighted, but it doesn't always work for nested highlights (refer to ISSUE 4)
-
-        For more reference checkout: https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model
-      */
-=======
       if (!temp.baseNode || !temp.focusNode) {
         e.stopPropagation();
         showTooltip = false;
         return false;
       }
->>>>>>> mongoupdate
        let comp =
         temp.baseNode == temp.focusNode ||
        temp.baseNode.parentNode == temp.focusNode.parentNode ||
@@ -272,10 +241,6 @@ async function activateReliant() {
         const realEndY = Math.max(startY, endY);
         lastSelection = selection;
         lastSelectionObj = window.getSelection();
-<<<<<<< HEAD
-=======
-        selectionY = realStartY - (realEndY - realStartY);
->>>>>>> mongoupdate
         renderToolTip(
           (realendX - realStartX) / 2 + realStartX,
           realStartY - (realEndY - realStartY) / 2,
@@ -289,7 +254,6 @@ async function activateReliant() {
 
     //Highlight options
     document.addEventListener('click', (e) => {
-<<<<<<< HEAD
       const parentIdName = e.target.parentNode.getAttribute('id');
       const currentID = e.target.getAttribute('id');
       const range = lastSelectionObj != null ? lastSelectionObj.getRangeAt(0) : null;
@@ -297,14 +261,6 @@ async function activateReliant() {
       
 
       let payload = {
-=======
-      if (!showTooltip) return false;
-      const parser = new DOMParser();
-      const parentIdName = e.target.parentNode.getAttribute('id');
-      const currentID = e.target.getAttribute('id');
-      const range = lastSelectionObj.getRangeAt(0)
-      const payload = {
->>>>>>> mongoupdate
         url: currentURL,
         userID: currentUserInfo.id,
         highlightSelection: rangySerializer.serializeRange(range, true, document.getElementsByName('html')[0]), // Serializes the range into a string to store in DB
@@ -333,11 +289,6 @@ async function activateReliant() {
         })
         highlightText('#dc3545', range);
         closeToolTip();
-<<<<<<< HEAD
-      } else if (parentIdName == 'comment' || currentID == 'commment') {
-        // API call
-        highlightText('#dc3545', range, true);
-=======
       } else if (parentIdName == 'comment' || currentID == 'comment') {
         highlightText('#dc3545', range, true);
         console.log("CREATING COMMENT")
@@ -347,7 +298,6 @@ async function activateReliant() {
         document.body.appendChild(comment)
 
         //Youssef's comment
->>>>>>> mongoupdate
         closeToolTip();
       } else if (parentIdName == 'note' || currentID == 'note') {
         // API call
