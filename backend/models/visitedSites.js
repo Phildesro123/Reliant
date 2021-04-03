@@ -14,10 +14,47 @@ let detail = new Schema(
         rating: Number,
       },
     ],
-    highlights: [
+    selections: {
+      highlights: [
+        {
+          owner: String,
+          selection: Object,
+        },
+      ],
+      frowns: [
+        {
+          owner: String,
+          selection: Object,
+        },
+      ],
+      smiles: [
+        {
+          owner: String,
+          selection: Object,
+        },
+      ],
+    },
+    commentContainers: [
       {
-        owner: String,
-        selection: Object
+        range: String,
+        comments: [{
+          content: String,
+          ownerName: String,
+          ownerID: String,
+          upvotes: Number,
+          downvotes: Number,
+          time: Date,
+          replies: [
+            {
+              content: String,
+              ownerName: String,
+              ownerID: String,
+              upvotes: Number,
+              downvotes: Number,
+              time: Date,
+            },
+          ],
+        }],
       },
     ],
   },
