@@ -1066,3 +1066,80 @@ button.bg-dark:focus {
 div[data-popper-reference-hidden='false'] {
   display: none;
 }
+
+div[id='div-gpt-ad-desktop_leaderboard_variable'] {
+  display: none;
+}
+
+div[class='l-col__sidebar'] {
+  display: none;
+}
+
+div[class='ob-widget-section ob-first'] {
+  display: none;
+}
+div[data-concert-ads-name='desktop_leaderboard_variable'] {
+  display: none;
+}
+
+div[data-concert-ads-name='connatix-article-desktop'] {
+  display: none;
+}
+
+div[data-concert-ads-name] {
+  display: none;
+}
+
+div[class='sidebar-columns'] {
+  display: none;
+}
+
+/* div[class="contain"] {
+  display: none;
+} */
+
+div.article-meta.article-meta-lower {
+  left: auto;
+  margin-left: auto;
+}
+div[class='article-content'] {
+  width: auto;
+  float: none;
+}
+
+div.grid--item.grid-layout__aside {
+  display: none;
+}
+div.ad {
+  display: none;
+}
+div.ad-stickyhero--standard {
+  display: none;
+}
+div.vendor-unit.tablet-desktop {
+  display: none;
+}
+div[class='js-inbetweener-pinner--type1 inbetweener-pinner--type1'] {
+  display: none;
+}
+div[data-bundle='adzones'] {
+  display: none;
+}
+div.ob-smartfeed-wrapper {
+  display: none;
+}
+
+div[data-testid='recirculation'] {
+  display: none;
+}
+
+div[id='c-col-editors-picks'] {
+  display: none;
+}
+div[data-testid='standard-dock'] {
+  display: none;
+}
+
+aside.paywall-bar.paywall-bar--visible {
+  display: none;
+}
