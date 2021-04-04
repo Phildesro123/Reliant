@@ -1,10 +1,11 @@
 import React from 'react';
 import { render } from 'react-dom';
+
 import rangySerializer from 'rangy/lib/rangy-serializer';
+import CommentScroll from './modules/Comment-Scroll';
 import { URLS } from '../Background/workingUrls';
 import axios from 'axios';
-import { calculateScore } from '../../containers/Score/Score';
-import ToolComponent from './modules/Tooltip-Component';
+import { createTooltip, removeTooltip } from './modules/Tooltip-Component';
 import { createQuestionnaire, removeQuestionnaire } from './Questionnaire';
 import { authorName } from './authorName';
 
@@ -18,11 +19,11 @@ var currentURL = null;
 var currentHostname = null;
 var currentUserInfo = null;
 var showTooltip = false;
-var selectionY = null;
 
 function getLoadedState() {
   return LOADED;
 }
+//TODO: FIX ACTIVATE IN POPUP WHEN RELIANT AUTO LOADS IT SHOULD CHANGE TO DEACTIVATE
 function getActivateState() {
   return ACTIVATED;
 }
@@ -112,12 +113,15 @@ async function activateReliant() {
         res.data.frowns.forEach((element) => {
           if (rangySerializer.canDeserializeRange(element.selection)) {
             try {
-            highlightText(
-              '#dc3545',
-              rangySerializer.deserializeRange(element.selection).nativeRange
-            ); 
-            } catch (error){
-              console.log("Highlight failed to restore");
+              highlightText(
+                '#dc3545',
+                rangySerializer.deserializeRange(element.selection, rootNode[0])
+                  .nativeRange,
+                'reliant-frown'
+              );
+            } catch (error) {
+              console.log('Frown error:', error);
+              console.log('Highlight failed to restore');
             }
           }
         });
@@ -126,12 +130,15 @@ async function activateReliant() {
         res.data.smiles.forEach((element) => {
           if (rangySerializer.canDeserializeRange(element.selection)) {
             try {
-            highlightText(
-              '#28a745',
-              rangySerializer.deserializeRange(element.selection).nativeRange
-            );
+              highlightText(
+                '#28a745',
+                rangySerializer.deserializeRange(element.selection, rootNode[0])
+                  .nativeRange,
+                'reliant-smile'
+              );
             } catch (error) {
-              console.log("Highlight failed to restore")
+              console.log('Smile error:', error);
+              console.log('Highlight failed to restore');
             }
           }
         });
@@ -140,12 +147,15 @@ async function activateReliant() {
         res.data.highlights.forEach((element) => {
           if (rangySerializer.canDeserializeRange(element.selection)) {
             try {
-            highlightText(
-              '#ffc107',
-              rangySerializer.deserializeRange(element.selection).nativeRange
-            );
+              highlightText(
+                '#ffc107',
+                rangySerializer.deserializeRange(element.selection, rootNode[0])
+                  .nativeRange,
+                'reliant-highlight'
+              );
             } catch (error) {
-              console.log("Failed to restore")
+              console.log('Highlight error:', error);
+              console.log('Highlight Failed to restore');
             }
           }
         });
@@ -157,158 +167,108 @@ async function activateReliant() {
 
   if (first) {
     createQuestionnaire(currentUserInfo.id, currentURL, currentHostname);
-
+    const commentScroll = document.createElement('div');
+    commentScroll.className = 'comment-scroll';
+    render(
+      <CommentScroll
+        ref={(cs) => {
+          window.commentScroll = cs;
+        }}
+      ></CommentScroll>,
+      commentScroll
+    );
+    document.body.appendChild(commentScroll);
     //Highlight everything
     even = (even + 1) % 2;
-
-    let tooltip = document.createElement('span');
-    tooltip.className = 'tool_tip';
-
-    document.body.appendChild(tooltip);
-
-    let isToolTipVisible = false;
-    let lastSelection = null;
-    let lastSelectionObj = null;
-    var markerEl = null;
-
-    render(<ToolComponent>aa</ToolComponent>, tooltip);
-    tooltip.style.position = 'absolute';
-    tooltip.style.visibility = 'hidden';
-    tooltip.style.display = 'none';
-
-    const renderToolTip = (mouseX, mouseY, selection) => {
-      mouseX = mouseX - 50;
-      mouseY = mouseY - 40;
-      if (selection.length < 60) {
-        mouseX = mouseX - 20;
-      }
-      tooltip.style.top = mouseY + 'px';
-      tooltip.style.left = mouseX + 'px';
-      tooltip.style.visibility = 'visible';
-      tooltip.style.display = 'block';
-      isToolTipVisible = true;
-    };
-
-    const closeToolTip = () => {
-      tooltip.style.visibility = 'hidden';
-      tooltip.style.display = 'none';
-      isToolTipVisible = false;
-      clearSelection();
-    };
 
     function clearSelection() {
       if (window.getSelection) {
         window.getSelection().removeAllRanges();
-      } else if (document.selection) {
-        document.selection.empty();
+      } else if (document.selectionText) {
+        document.selectionText.empty();
       }
     }
 
-    var startX = 0;
-    var endX = 0;
-    var startY = 0;
-    var endY = 0;
+    var mouseDownX = 0;
+    var selectionTopY = 0;
+    let range = null;
+    var tooltipClicked = false;
 
     function hasSomeParentTheClass(element, classname) {
-      if (
-        typeof element.className === 'undefined' ||
-        typeof element.className.split === 'undefined'
-      )
-        return false;
-      if (element.className.split(' ').indexOf(classname) >= 0) return true;
-      return (
-        element.parentNode &&
-        hasSomeParentTheClass(element.parentNode, classname)
-      );
+      if (!element || typeof element.classList === 'undefined') return false;
+      if (element.classList.contains(classname)) return true;
+      return hasSomeParentTheClass(element.parentNode, classname);
     }
-    //Close the tool tip
+
+    /**Mouse events to handle tooltip interaction */
     document.addEventListener('mousedown', (e) => {
-      const parentClassName = e.target.parentNode.getAttribute('class');
-      const parentIdName = e.target.parentNode.getAttribute('id');
-      console.log('Parent Class:', parentClassName);
-      console.log('Parent ID:', parentIdName);
-      /*
-        ISSUE 1: Need more testing on more pages to see if the tooltip properly disappears
-        You can double click to "remove" a selection, but the tooltip is still visible need to workout cases
-        
-        Albeit this one may be a very simple fix
-        Share findings if anyone can.
-      */
-
-      //Make the tool tip invisible
-      if (isToolTipVisible) {
-        e.stopPropagation();
-        return false;
-      }
-      if (
-        !e.target ||
-        !e.target.parentNode ||
-        hasSomeParentTheClass(e.target.parentNode, 'bordered-container')
-      ) {
-        e.stopPropagation();
-        showTooltip = false;
-        return false;
-      }
-
+      mouseDownX = e.pageX;
       showTooltip = true;
-      startX = e.pageX;
-      startY = e.pageY;
-      closeToolTip();
-    });
-    // Show the tool tip
-    document.addEventListener('mouseup', (e) => {
-      if (!showTooltip) return false;
-      let temp = window.getSelection();
-      let selection = temp.toString();
-      if (!temp.baseNode || !temp.focusNode) {
-        e.stopPropagation();
+
+      // remove all selected css styles when you click anywher on the screen
+      Array.prototype.forEach.call(
+        document.getElementsByClassName('reliant-selected'),
+        (element) => {
+          element.classList.remove('reliant-selected');
+        }
+      );
+
+      // checks if the tooltip was pressed if not it removes it
+      tooltipClicked = false;
+      if (hasSomeParentTheClass(e.target.parentNode, 'reliant-tooltip')) {
+        tooltipClicked = true;
+      } else {
+        removeTooltip();
+      }
+
+      //checks if click was inside comment
+      if (hasSomeParentTheClass(e.target.parentNode, 'bordered-container')) {
+        clearSelection();
         showTooltip = false;
         return false;
       }
-      let comp =
-        temp.baseNode == temp.focusNode ||
-        temp.baseNode.parentNode == temp.focusNode.parentNode ||
-        temp.baseNode.parentNode == temp.focusNode.parentNode.parentElement;
+    });
 
-      console.log('Can tooltip render for selection:', comp);
+    // If there is a selection on mouse up and its valid the tooltip will be presented
+    document.addEventListener('mouseup', (e) => {
+      if (tooltipClicked || !showTooltip) return false;
+      let selection = window.getSelection();
+      let selectionText = selection.toString();
 
-      if (!comp || (selection == lastSelection && isToolTipVisible)) {
-        console.log('I dont want to render at all');
-        e.stopPropagation();
+      // Triggers when multi paragraph selection occurs
+      if (
+        !(
+          selection.baseNode == selection.focusNode ||
+          selection.baseNode.parentNode == selection.focusNode.parentNode
+        )
+      ) {
+        //TODO: Add modal to tell user that reliant doesn't support multip paragraph selections
+        console.log('Please dont select multiple paragraphs');
+        removeTooltip();
+        clearSelection();
         return false;
-      } else if (selection.length > 0) {
-        console.log('Rendering the tooltip');
-        //Render the tooltip
-        endX = e.pageX;
-        endY = e.pageY;
-        console.log('start x is ', startY);
-        console.log('end x is ', endY);
+      }
 
-        const realStartX = Math.min(startX, endX);
-        const realendX = Math.max(startX, endX);
-
-        const realStartY = Math.min(startY, endY);
-        const realEndY = Math.max(startY, endY);
-        lastSelection = selection;
-        lastSelectionObj = window.getSelection();
-        renderToolTip(
-          (realendX - realStartX) / 2 + realStartX,
-          realStartY - (realEndY - realStartY) / 2,
-          selection
-        );
+      //Render the tooltip
+      if (selectionText.length > 0) {
+        range = selection.getRangeAt(0);
+        const boundingBox = range.getBoundingClientRect();
+        const selectionCenterX = (mouseDownX + boundingBox.right) / 2;
+        selectionTopY = boundingBox.y + window.pageYOffset;
+        createTooltip(selectionCenterX, selectionTopY);
       } else {
         showTooltip = false;
-        closeToolTip();
+        removeTooltip();
       }
     });
 
-    //Highlight options
+    //Handles a button click on the tool tip, ignores other clicks
     document.addEventListener('click', (e) => {
+      //only run if tooltip is clicked
+      if (!tooltipClicked) return false;
+      clearSelection();
       const parentIdName = e.target.parentNode.getAttribute('id');
       const currentID = e.target.getAttribute('id');
-      const range =
-        lastSelectionObj != null ? lastSelectionObj.getRangeAt(0) : null;
-      console.log('Range object:', range);
 
       let payload = {
         url: currentURL,
@@ -320,7 +280,7 @@ async function activateReliant() {
         ), // Serializes the range into a string to store in DB
         highlight_type: null,
       };
-      console.log('Serialized range:', payload.highlightSelection);
+
       if (parentIdName == 'highlight' || currentID == 'highlight') {
         payload.highlight_type = 'highlights';
         axios
@@ -328,8 +288,8 @@ async function activateReliant() {
           .then((res) => {
             console.log(res);
           });
-        highlightText('#ffc107', range);
-        closeToolTip();
+        highlightText('#ffc107', range, 'reliant-highlight');
+        removeTooltip();
       } else if (parentIdName == 'smile' || currentID == 'smile') {
         payload.highlight_type = 'smiles';
         axios
@@ -337,8 +297,8 @@ async function activateReliant() {
           .then((res) => {
             console.log(res);
           });
-        highlightText('#28a745', range);
-        closeToolTip();
+        highlightText('#28a745', range, 'reliant-smile');
+        removeTooltip();
       } else if (parentIdName == 'frown' || currentID == 'frown') {
         payload.highlight_type = 'frowns';
         axios
@@ -346,90 +306,77 @@ async function activateReliant() {
           .then((res) => {
             console.log(res);
           });
-        highlightText('#dc3545', range);
-        closeToolTip();
+        highlightText('#dc3545', range, 'reliant-frown');
+        removeTooltip();
       } else if (parentIdName == 'comment' || currentID == 'comment') {
-        highlightText('#dc3545', range, true);
-        console.log('CREATING COMMENT');
-        const comment = document.createElement('div');
-        console.log(selectionY);
-        render(
-          <Comment
-            startY={selectionY}
-            selectionText={range.toString()}
-          ></Comment>,
-          comment
+        const id = highlightText('#dc3545', range, 'reliant-comment', true);
+        window.commentScroll.addCommentContainer(
+          id,
+          range.toString(),
+          selectionTopY,
+          mouseDownX
         );
-        document.body.appendChild(comment);
-
-        //Youssef's comment
-        closeToolTip();
+        removeTooltip();
       } else if (parentIdName == 'note' || currentID == 'note') {
-        // API call
-        highlightText('blue', range, true);
-        closeToolTip();
+        highlightText('blue', range, 'reliant-note', true);
+        // TODO: Implement note
+        removeTooltip();
       }
     });
-  }
-}
-const highlightText = (color, range, underline = false) => {
-  var mark = document.createElement('span');
-  if (underline) {
-    console.log('UNDERLINING');
-    mark = document.createElement('u');
-    mark.style.textDecoration = 'underline';
-    mark.style.textDecorationColor = color;
-    mark.style.textDecorationThickness = '.2rem';
-    mark.style.textDecorationSkipInk = 'none';
-  } else {
-    mark.style.backgroundColor = color;
-   // mark.style.textDecoration = 'none';
-  }
 
-  /*
-  ISSUE 4:
-    Need a check if the common ancestor of the range is a mark.
-    Ideally, we should "overwrite" the existing highlight with the newer one
-    
+    function deactivateReliant() {
+      ACTIVATED = false;
+      console.log('Deactivating Reliant');
+      removeQuestionnaire();
+      // Implement removing highlight
+      var i = 0;
+      for (const paragraph of paragraphs) {
+        paragraph.style['background-color'] = colors[i][0];
+        i++;
+      }
+    }
 
-    Need checks for nested highlights
-    As of now, if you "update" (highlight a highlight) a highlight - the mark doesn't get update but instead a new mark tag gets nested in it
-
-    RIght now, im suspecting the extractContents as the culprit because it's extract the contents of the range
-    If the range has a mark it'll just add the mark to the newly created mark
-
-    For more reference of the Range API checkout: https://developer.mozilla.org/en-US/docs/Web/API/Range
-  */
-
-  mark.appendChild(range.extractContents()); //Append the contents of the selection's range to our mark tag
-  mark.normalize();
-  console.log('Mark element:', mark);
-  range.deleteContents(); // Not sure if this is necessary, but just in case I'm removing the rangeContents to make sure no extra elements
-  range.insertNode(mark); // Insert mark into the range
-  console.log('Range after highlight:', range);
-};
-function deactivateReliant() {
-  ACTIVATED = false;
-  console.log('Deactivating Reliant');
-  removeQuestionnaire();
-  // Implement removing highlight
-  var i = 0;
-  for (const paragraph of paragraphs) {
-    paragraph.style['background-color'] = colors[i][0];
-    i++;
-  }
-}
-
-//Runs when activate is pressed from Popup
-chrome.runtime.onMessage.addListener((req, send, sendResponse) => {
-  if (req.type === 'activate') {
-    activateReliant();
-  } else if (req.type === 'getAuthors') {
-    getURL().then((url) => {
-      sendResponse(authorName(new URL(url).hostname));
+    //Runs when activate is pressed from Popup
+    chrome.runtime.onMessage.addListener((req, send, sendResponse) => {
+      if (req.type === 'activate') {
+        activateReliant();
+      } else if (req.type === 'getAuthors') {
+        getURL().then((url) => {
+          sendResponse(authorName(new URL(url).hostname));
+        });
+      } else if (req.type === 'deactivate') {
+        deactivateReliant();
+      }
+      return true;
     });
-  } else if (req.type === 'deactivate') {
-    deactivateReliant();
   }
-  return true;
-});
+
+  var selectionTextId = 0;
+  const highlightText = (color, range, className, underline = false) => {
+    var mark = document.createElement('span');
+    if (underline) {
+      mark = document.createElement('u');
+      mark.style.textDecoration = 'underline';
+      mark.style.textDecorationColor = color;
+      mark.style.textDecorationThickness = '.2rem';
+      mark.style.textDecorationSkipInk = 'none';
+    } else {
+      mark.style.backgroundColor = color;
+    }
+    mark.className = className;
+    mark.id = selectionTextId;
+    mark.onclick = () => {
+      mark.className += ' reliant-selected';
+      window.commentScroll.moveContainer(parseInt(mark.id));
+    };
+
+    mark.appendChild(range.extractContents()); //Append the contents of the selection's range to our mark tag
+    mark.normalize();
+    console.log('Mark element:', mark);
+    range.deleteContents(); // Not sure if this is necessary, but just in case I'm removing the rangeContents to make sure no extra elements
+    range.insertNode(mark); // Insert mark into the range
+    console.log('Range after highlight:', range);
+    selectionTextId += 1;
+    return parseInt(mark.id);
+  };
+}
