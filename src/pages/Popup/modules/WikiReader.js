@@ -1,43 +1,43 @@
 import axios from 'axios';
 
-
 function getPromise() {
-  return new Promise(function(resolve, reject) {
-      setTimeout(function() {
-          resolve({
-              'country': 'India'
-          });
-      }, 2000)
-  })
+  return new Promise(function (resolve, reject) {
+    setTimeout(function () {
+      resolve({
+        country: 'India',
+      });
+    }, 2000);
+  });
 }
 
 function getResult(response) {
-  getPromise()
-      .then(function(response) {
-          return response;
-      })
+  getPromise().then(function (response) {
+    return response;
+  });
 }
 
- async function readURL(name) {
-    let wikipediaURL = correctApiUrl(name);
-    console.log(wikipediaURL);
-    let extractedHTMLData;
-    let promise = await axios.get(wikipediaURL).then(response => {
+async function readURL(name) {
+  console.log(name);
+  let wikipediaURL = correctApiUrl(name);
+  console.log(wikipediaURL);
+  let extractedHTMLData;
+  // let promise = await
+  return axios
+    .get(wikipediaURL)
+    .then((response) => {
       extractedHTMLData = response.data.query.pages;
       var id = 0;
       for (const key in extractedHTMLData) {
         id = key;
       }
       extractedHTMLData = extractedHTMLData[id].extract;
-      return response;
-    }).catch(error => {
+      console.log('HTML:', extractedHTMLData);
+      return extractedHTMLData;
+    })
+    .catch((error) => {
       console.log(error);
+      return null;
     });
-    //console.log("DUMMY");
-    //console.log(extractedHTMLData);
-    //console.log(typeof(extractedHTMLData));
-    //console.log(extractedHTMLData instanceof Promise);
-    return extractedHTMLData;
 }
 
 function correctApiUrl(authorName) {
@@ -47,7 +47,7 @@ function correctApiUrl(authorName) {
   string += '&exsentences=1';
   string += '&origin=*';
   string = string.replace(' ', '%20');
-  return string
+  return string;
 }
 
 export default readURL;

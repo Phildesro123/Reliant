@@ -343,6 +343,7 @@ async function activateReliant() {
       } else if (req.type === 'getAuthors') {
         getURL().then((url) => {
           sendResponse(authorName(new URL(url).hostname));
+          // sendResponse(['Pablo Escobar', 'Youssef Asaad']);
         });
       } else if (req.type === 'deactivate') {
         deactivateReliant();
