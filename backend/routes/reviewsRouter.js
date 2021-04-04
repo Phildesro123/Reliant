@@ -104,13 +104,9 @@ reviewsRouter.route('/getResults').get((req, res, next) => {
   await Review.find({"_id.url": url}, {"overallScore":1, "_id":1}, (err, res)=>{
     return res;
   }).then(res=> {
-    console.log('avg at then call is ', average);
-    console.log('res is ', res);
     var score = 0;
     var done = false;
     res.forEach(async (element, idx) => {
-      console.log('this si for user, ', element._id.userId);
-      console.log(score);
       await findWeight(url, element._id.userId, timeNeeded).then(we => {
         totalWeight += we;
         score += element.overallScore * we;
@@ -118,7 +114,6 @@ reviewsRouter.route('/getResults').get((req, res, next) => {
         average /= totalWeight;
         if (idx == res.length - 1) {
           done = true;
-          console.log('we done');
         }
         console.log('total weight of ', totalWeight, " with score of ", score);
       });
@@ -160,16 +155,11 @@ reviewsRouter.route('/getResults').get((req, res, next) => {
     continue
   }
   */
-   console.log("done with reviews")
-   console.log("score is now ", score);
    //console.log('tot   ', totalWeight);
-   console.log("WITHEN THE THEN  ", average);
-    console.log('idk)');
   }).catch(err => {
     console.log(err);
     return 0;
   });
-  console.log('done with find()');
   
   Website.findById(url, (err, rs)=>{
     if (rs) {

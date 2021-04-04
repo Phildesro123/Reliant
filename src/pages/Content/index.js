@@ -293,21 +293,22 @@ export async function submitQuestionnaire(score) {
   
   let timeRightNow = new Date().getTime();
   let seconds = Math.floor((timeRightNow - timeOpened) / 1000);
-  console.log(seconds);
+  console.log("this is how much we are adding " , seconds);
   let timeNeeded = timeAdjustment(document);
   await axios.post('http://localhost:4000/api/user/updateSites',{
     _id: userInfo.id,
     website: {
       _id: url,
-      timespent: seconds,
+      timespent: seconds
     }
   })
     .then((res) => {
-      console.log(res.body.w);
       console.log('Data has been sent to the server');
-      timeOpened = timeRightNow;
+      timeOpened = new Date().getTime();
+      
     })
-    .catch(() => {
+    .catch((er) => {
+      console.log(er);
       console.log('Internal server error');
     });
     await axios.post('http://localhost:4000/api/reviews/addReview', {
