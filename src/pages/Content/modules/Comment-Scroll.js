@@ -1,7 +1,6 @@
 import React, {useEffect, useState, useImperativeHandle, useForceUpdate} from 'react';
 import {render} from 'react-dom';
 import CommentContainerComponent from './Comment-Container';
-import {Node, LinkedList} from './Linked-List';
 
 class CommentContainer {
     constructor(id, selectionText, top, startX) {
@@ -59,6 +58,8 @@ const CommentScroll = React.forwardRef((props, ref) => {
         }
         
     }
+
+    //Callback function passed to commentContainer to use when it is updated
     const commentContainerChanged = (containerData) => {
         var elementPos = commentContainerList.findIndex((x) => {return (x.id == containerData.id);})
         const height = containerData.offsetHeight
