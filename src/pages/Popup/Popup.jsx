@@ -83,9 +83,8 @@ import wiki from './modules/WikiReader';
           className="pr-0"
           style={{ paddingLeft: '10px', textAlign: 'left' }}
         >
-          {authors.map((author, index) => {
-            return <h4 key={"author" + index} style={{fontSize: Math.floor(20 - 3*(index+1)) + "pt"}} className="mb-0 mt-0">{author}</h4>
-          })}
+          <h4 style={{fontSize: "20pt"}} className="mb-0 mt-0">{authors[0]}</h4>
+          <h4 style={{fontSize: "14pt"}} className="mb-0 mt-0">{authors.slice(1, authors.length).join(", ")}</h4>
           <span style={{fontSize:"10pt"}}>{wikiInfo == null || stripHtml(wikiInfo) == null ? 'Could not find author background' : stripHtml(wikiInfo)}</span>
           <div className="reliability-container">
             <h6>Reliability Score:</h6>

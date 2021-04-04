@@ -43,8 +43,9 @@ async function readURL(name) {
 function correctApiUrl(authorName) {
   let string = 'https://en.wikipedia.org/w/api.php?';
   string += 'action=query&format=json&prop=extracts&exintro&titles=';
-  string += authorName;
-  string += '&exsentences=1';
+  string +=
+    authorName == 'Melissa Bell' ? authorName + '_(journalist)' : authorName;
+  // string += '&exsentences=1';
   string += '&origin=*';
   string = string.replace(' ', '%20');
   return string;
