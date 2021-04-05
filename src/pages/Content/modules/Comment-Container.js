@@ -77,6 +77,7 @@ const CommentContainer = React.forwardRef((props, ref) => {
 
   useEffect(() => {
     const offsetHeight = containerRef.current.offsetHeight;
+    //check if height is changed (the - 1 and + 1 are there since offsetHeight is converted from float to int so this accommodates the rounding errors)
     const changed = !(
       offsetHeight - 1 <= height.current && height.current <= offsetHeight + 1
     );
