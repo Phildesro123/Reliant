@@ -368,7 +368,7 @@ async function activateReliant() {
     mark.id = selectionTextId;
     mark.onclick = () => {
       mark.className += ' reliant-selected';
-      window.commentScroll.moveContainer(parseInt(mark.id));
+      window.commentScroll.moveToSelection(parseInt(mark.id));
     };
 
     mark.appendChild(range.extractContents()); //Append the contents of the selection's range to our mark tag
