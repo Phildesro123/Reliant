@@ -19,8 +19,8 @@ class CommentContainer {
     this.comments = [];
   }
 }
-
 //TODO: when a comment container is clicked scroll the page to the selection location
+
 const margin = 20;
 const CommentScroll = React.forwardRef((props, ref) => {
   const [commentContainerList, setCommentContainerList] = useState([]);
@@ -29,13 +29,10 @@ const CommentScroll = React.forwardRef((props, ref) => {
   function shiftContainers(index) {
     let currentIndex = index;
     commentContainerList[currentIndex].left = -40;
-    console.log('Priority Index:', currentIndex);
-    console.log('List:', commentContainerList);
     // move any overlapping items above current item up
     while (currentIndex > 0) {
       let currentElement = commentContainerList[currentIndex];
       let aboveElement = commentContainerList[currentIndex - 1];
-      console.log('Above Index', currentIndex - 1);
       aboveElement.left = 0;
       let aboveHeight = aboveElement.bottom - aboveElement.top;
       //Move any above elements that won't overlap in their selectionTop position to selectionTop
@@ -58,8 +55,6 @@ const CommentScroll = React.forwardRef((props, ref) => {
     while (currentIndex < commentContainerList.length - 1) {
       let currentElement = commentContainerList[currentIndex];
       let belowElement = commentContainerList[currentIndex + 1];
-      console.log('Below Index', currentIndex + 1);
-
       belowElement.left = 0;
       let belowHeight = belowElement.bottom - belowElement.top;
       //Move any below elements that won't overlap in thier selectionTop position to selectionTop
@@ -75,7 +70,6 @@ const CommentScroll = React.forwardRef((props, ref) => {
     }
     //updates render even if the commentContainerList is the same length
     setCommentContainerList([...commentContainerList]);
-    console.log('Done Shifting\n');
   }
 
   //Callback function passed to commentContainer to use when it is updated
@@ -102,7 +96,6 @@ const CommentScroll = React.forwardRef((props, ref) => {
       }
     }
     if (targetContainer) {
-      console.log('Calling Shift Containers');
       let height = targetContainer.bottom - targetContainer.top;
       targetContainer.top = targetContainer.selectionTop;
       targetContainer.bottom = targetContainer.top + height;
@@ -112,7 +105,6 @@ const CommentScroll = React.forwardRef((props, ref) => {
 
   //Adds commentContainer into array in order or selectionTop
   const addCommentContainer = (id, selectionText, top, startX) => {
-    console.log('Adding Comment Container');
     let comment = new CommentContainer(id, selectionText, top, startX);
     if (commentContainerList.length == 0) {
       // commentContainerList.push(comment);
@@ -136,7 +128,6 @@ const CommentScroll = React.forwardRef((props, ref) => {
         temp.push(commentContainerList[index]);
         index += 1;
       }
-      console.log('End of add');
       setCommentContainerList(temp);
     }
     //<CommentContainer selectionText={selectionText} top={top + "px"} callback={containerChangedCallback}></CommentContainer>

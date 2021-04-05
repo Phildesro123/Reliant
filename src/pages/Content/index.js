@@ -169,6 +169,7 @@ async function activateReliant() {
     createQuestionnaire(currentUserInfo.id, currentURL, currentHostname);
     const commentScroll = document.createElement('div');
     commentScroll.className = 'comment-scroll';
+    //TODO: Locate side of text and put commentScroll there for each page
     render(
       <CommentScroll
         ref={(cs) => {

@@ -83,14 +83,6 @@ const CommentContainer = React.forwardRef((props, ref) => {
     if (changed) {
       const previousHeight = height.current;
       height.current = offsetHeight;
-      console.log(
-        'Callback Called from',
-        props.id,
-        'Height Changed:',
-        previousHeight,
-        '->',
-        height.current
-      );
       props.callback(containerRef.current);
     }
   });
