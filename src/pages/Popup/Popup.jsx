@@ -28,16 +28,22 @@ import wiki from './modules/WikiReader';
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     message("getAuthors").then((authors) => {
-      setAuthors(authors);
-      wiki(authors[0]).then(response => {
-        if (response === null) {
-          return setWikiInfo('');
-        }
-        else {
-          return setWikiInfo(response);
-        }});
-      console.log("From popup", authors);
-    })
+      if (authors != null) {
+        setAuthors(authors);
+        wiki(authors[0]).then(response => {
+          if (response === null) {
+            console.log("Wiki response:", response);
+            return setWikiInfo('');
+          }
+          else {
+            console.log("Wiki response else:", response);
+            return setWikiInfo(response);
+          }});
+        console.log("From popup", authors);
+      } else {
+        setAuthors(["No found Author"])
+      }
+    }, [])
     console.log("WIKI INFO IS ", wikiInfo);
     chrome.runtime.sendMessage('userInfo', (userInfo) => {
       setUserEmail(userInfo.email)
@@ -77,8 +83,9 @@ import wiki from './modules/WikiReader';
           className="pr-0"
           style={{ paddingLeft: '10px', textAlign: 'left' }}
         >
-          <h4 className="mb-0 mt-0">{authors[0]}</h4>
-          <span>{stripHtml(wikiInfo) === null ? '' : stripHtml(wikiInfo)}</span>
+          <h4 style={{fontSize: "20pt"}} className="mb-0 mt-0">{authors[0]}</h4>
+          <h4 style={{fontSize: "14pt"}} className="mb-0 mt-0">{authors.slice(1, authors.length).join(", ")}</h4>
+          <span style={{fontSize:"10pt"}}>{wikiInfo == null || stripHtml(wikiInfo) == null ? 'Could not find author background' : stripHtml(wikiInfo)}</span>
           <div className="reliability-container">
             <h6>Reliability Score:</h6>
             <div className="star-reliability-container">
