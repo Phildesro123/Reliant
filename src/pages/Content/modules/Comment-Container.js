@@ -19,12 +19,8 @@ import Comment from './Comment-Component';
  *    list of replies
  *    reply (optional : set true for main comment but not sub replies)
  */
-class callbackData {
-  constructor(id, containerRef) {
-    this.id = id;
-    this.containerRef = containerRef;
-  }
-}
+
+//TODO: On click scroll page to comment
 var tempKey = 0;
 const CommentContainer = React.forwardRef((props, ref) => {
   const minRows = 2;
@@ -78,17 +74,16 @@ const CommentContainer = React.forwardRef((props, ref) => {
     tempKey += 1;
     setTextAreaText('');
   };
-  // const getBoundries = () => {
-  //   return 100
-  // }
-  // useImperativeHandle(ref, () => ({
-  //   getBoundries
-  // }))
 
   useEffect(() => {
-    if (height.current != containerRef.current.offsetHeight) {
-      //height changed
-      height.current = containerRef.current.offsetHeight;
+    const offsetHeight = containerRef.current.offsetHeight;
+    //check if height is changed (the - 1 and + 1 are there since offsetHeight is converted from float to int so this accommodates the rounding errors)
+    const changed = !(
+      offsetHeight - 1 <= height.current && height.current <= offsetHeight + 1
+    );
+    if (changed) {
+      const previousHeight = height.current;
+      height.current = offsetHeight;
       props.callback(containerRef.current);
     }
   });

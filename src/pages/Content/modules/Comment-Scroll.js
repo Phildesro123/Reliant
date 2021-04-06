@@ -19,11 +19,11 @@ class CommentContainer {
     this.comments = [];
   }
 }
-const margin = 20;
+//TODO: when a comment container is clicked scroll the page to the selection location
 
+const margin = 20;
 const CommentScroll = React.forwardRef((props, ref) => {
   const [commentContainerList, setCommentContainerList] = useState([]);
-  const [shouldUpdate, setShouldUpdate] = useState(false);
 
   //helper function to move surrounding containers out of the way to avoid overlap
   function shiftContainers(index) {
@@ -34,12 +34,18 @@ const CommentScroll = React.forwardRef((props, ref) => {
       let currentElement = commentContainerList[currentIndex];
       let aboveElement = commentContainerList[currentIndex - 1];
       aboveElement.left = 0;
-      if (aboveElement.bottom + margin > currentElement.top) {
-        let aboveHeight = aboveElement.bottom - aboveElement.top;
+      let aboveHeight = aboveElement.bottom - aboveElement.top;
+      //Move any above elements that won't overlap in their selectionTop position to selectionTop
+      if (
+        aboveElement.selectionTop + aboveHeight + margin <=
+        currentElement.top
+      ) {
+        aboveElement.top = aboveElement.selectionTop;
+        aboveElement.bottom = aboveElement.top + aboveHeight;
+      } else {
+        //Move above elements up to not overlap
         aboveElement.bottom = currentElement.top - margin;
         aboveElement.top = aboveElement.bottom - aboveHeight;
-      } else {
-        break;
       }
       currentIndex -= 1;
     }
@@ -50,20 +56,24 @@ const CommentScroll = React.forwardRef((props, ref) => {
       let currentElement = commentContainerList[currentIndex];
       let belowElement = commentContainerList[currentIndex + 1];
       belowElement.left = 0;
-      if (belowElement.top < currentElement.bottom + margin) {
-        let belowHeight = belowElement.bottom - belowElement.top;
-        belowElement.top = currentElement.bottom + margin;
+      let belowHeight = belowElement.bottom - belowElement.top;
+      //Move any below elements that won't overlap in thier selectionTop position to selectionTop
+      if (belowElement.selectionTop - margin > currentElement.bottom) {
+        belowElement.top = belowElement.selectionTop;
         belowElement.bottom = belowElement.top + belowHeight;
       } else {
-        break;
+        //Move bottom elements down to not overlap
+        belowElement.top = currentElement.bottom + margin;
+        belowElement.bottom = belowElement.top + belowHeight;
       }
       currentIndex += 1;
     }
-    setShouldUpdate(!shouldUpdate);
+    //updates render even if the commentContainerList is the same length
+    setCommentContainerList([...commentContainerList]);
   }
 
   //Callback function passed to commentContainer to use when it is updated
-  const commentContainerChanged = (containerData) => {
+  const containerChangedCallback = (containerData) => {
     var elementPos = commentContainerList.findIndex((x) => {
       return x.id == containerData.id;
     });
@@ -74,7 +84,8 @@ const CommentScroll = React.forwardRef((props, ref) => {
   };
 
   //Gets called when a selection is clicked and moves appropriate comment to selectionTop
-  const moveContainer = (id) => {
+  const moveToSelection = (id) => {
+    // console.log('Comment Containers:', commentContainerList);
     var targetContainer = null;
     var targetId = null;
     for (let i = 0; i < commentContainerList.length; i++) {
@@ -96,6 +107,7 @@ const CommentScroll = React.forwardRef((props, ref) => {
   const addCommentContainer = (id, selectionText, top, startX) => {
     let comment = new CommentContainer(id, selectionText, top, startX);
     if (commentContainerList.length == 0) {
+      // commentContainerList.push(comment);
       setCommentContainerList([comment]);
     } else {
       let temp = [];
@@ -117,14 +129,13 @@ const CommentScroll = React.forwardRef((props, ref) => {
         index += 1;
       }
       setCommentContainerList(temp);
-      moveContainer(id);
     }
-    //<CommentContainer selectionText={selectionText} top={top + "px"} callback={commentContainerChanged}></CommentContainer>
+    //<CommentContainer selectionText={selectionText} top={top + "px"} callback={containerChangedCallback}></CommentContainer>
   };
   // Exposes functions to ref (this allows them to be used outside of react components ie in the index.js file)
   useImperativeHandle(ref, () => ({
     addCommentContainer,
-    moveContainer,
+    moveToSelection,
   }));
 
   return (
@@ -138,7 +149,7 @@ const CommentScroll = React.forwardRef((props, ref) => {
             top={commentContainer.top}
             left={commentContainer.left}
             comments={commentContainer.comments}
-            callback={commentContainerChanged}
+            callback={containerChangedCallback}
           ></CommentContainerComponent>
         );
       })}
