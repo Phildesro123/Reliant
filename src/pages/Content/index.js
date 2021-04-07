@@ -1,80 +1,39 @@
 import React from 'react';
 import { render } from 'react-dom';
-import Questionnaire from './modules/Questionnaire';
-import Comment from './modules/Comment';
+
+import rangySerializer from 'rangy/lib/rangy-serializer';
+import CommentScroll from './modules/Comment-Scroll';
 import { URLS } from '../Background/workingUrls';
 import axios from 'axios';
-import { calculateScore } from '../../containers/Score/Score';
+import { createTooltip, removeTooltip } from './modules/Tooltip-Component';
+import { createQuestionnaire, removeQuestionnaire } from './Questionnaire';
+import { authorName } from './authorName';
+
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
 
-const readingTime = require('reading-time');
-const comment = document.createElement('div')
-const questionnaire = document.createElement('div')
 var ACTIVATED = false;
 var LOADED = false;
 var paragraphs = null;
+var currentURL = null;
+var currentHostname = null;
+var currentUserInfo = null;
+var showTooltip = false;
 
-document.querySelector('div').addEventListener('selectionchange', () => {
-  console.log('Selection updated');
-});
+function getLoadedState() {
+  return LOADED;
+}
+//TODO: FIX ACTIVATE IN POPUP WHEN RELIANT AUTO LOADS IT SHOULD CHANGE TO DEACTIVATE
+function getActivateState() {
+  return ACTIVATED;
+}
 
-export function getLoadedState() {return LOADED}
-export function getActivateState() {return ACTIVATED}
-
-export async function getURL() {
+async function getURL() {
   return new Promise((resolve) => {
     chrome.runtime.sendMessage('activeURL', (url) => {
       resolve(url);
     });
   });
-}
-
-function createQuestionnaire(userId, url, hostname) {
-  console.log('Creating Questionare for', hostname);
-  var contentBody = null;
-  var genre = "";
-  if (hostname.includes(URLS.WIRED)) {
-    console.log("We're on WIRED");
-    contentBody = document.getElementsByClassName('article main-content')[0];
-    genre = "Tech"
-  } else if (hostname.includes(URLS.CNN)) {
-    console.log("We're on CNN");
-    contentBody = document.getElementById('body-text');
-    genre = "Political"
-  } else if (hostname.includes(URLS.VERGE)) {
-    console.log("We're on Verge");
-    contentBody = document.getElementsByClassName('c-entry-content ')[0];
-    genre = "Tech"
-  } else if (hostname.includes(URLS.VOX)) {
-    console.log("We're on Vox");
-    contentBody = document.getElementsByClassName('c-entry-content ')[0];
-    genre = "Political"
-  } else if (hostname.includes(URLS.FOXNEWS)) {
-    console.log("We're on Fox");
-    contentBody = document.getElementsByClassName('article-body')[0];
-  } else if (hostname.includes(URLS.MEDIUM)) {
-    console.log("We're on Medium");
-    contentBody = document.getElementsByTagName("article")[0];
-    genre = "Education"
-  } else if (hostname.includes(URLS.NYTIMES)) {
-    console.log("We're on NY Times");
-    contentBody = document.getElementsByClassName('bottom-of-article')[0];
-    genre = "Political"
-  }
-  if (contentBody == undefined) {
-    const articles = document.getElementsByTagName('article');
-    if (articles.length > 0) {
-      contentBody = articles[articles.length -1]
-    } else {
-      contentBody = document.querySelector('body');
-    }
-  }
-  contentBody.appendChild(questionnaire);
-  contentBody.appendChild(comment);
-  console.log("Content Body" , contentBody)
-  render(<Comment />, comment)
-  render(<Questionnaire userId={userId} url={url} genre={genre} />, questionnaire);
 }
 
 async function getUserInfo() {
@@ -85,104 +44,22 @@ async function getUserInfo() {
   });
 }
 
-
-function authorName(hostname) {
-  var author = [];
-  var removeText;
-  var spaceCount = 0;
-  if (hostname.includes(URLS.WIRED)) {
-    author.push(document.getElementsByName("author")[0].content);
-    console.log(author);
-  } else if (hostname.includes(URLS.CNN)) {
-    removeText = document.getElementsByName("author")[0].content;
-    removeText = removeText.substr(0,removeText.length-5);
-    if (removeText.includes("and")) {
-      removeText = removeText.replace("and ", "");
-      for (let i in removeText) {
-        if (spaceCount == 2) {
-          author.push(removeText.substr(0,i-1));
-          author.push(removeText.substr(i));
-          spaceCount +=1;
-        }
-        if (removeText[i].includes(" ")) {
-          spaceCount += 1;
-        }
-      }
-    } else {
-      author.push(removeText);
-    }
-    console.log(author);
-  } else if (hostname.includes(URLS.VERGE)) {
-    author.push(document.getElementsByTagName("meta")[5].content);
-    console.log(author);
-  } else if (hostname.includes(URLS.VOX)) {
-    author.push(document.getElementsByTagName("meta")[5].content);
-    console.log(author);
-  } else if (hostname.includes(URLS.FOXNEWS)) {
-    author.push(document.getElementsByName("dc.creator")[0].content);
-    console.log(author);
-  } else if (hostname.includes(URLS.MEDIUM)) {
-    author.push(document.getElementsByName("author")[0].content);
-    console.log(author);
-  } else if (hostname.includes(URLS.NYTIMES)) {
-    removeText = document.getElementsByName("byl")[0].content;
-    removeText = removeText.replace("By ", "");
-    if (removeText.includes("and")) {
-      removeText = removeText.replace("and ", "");
-      for (let i in removeText) {
-        if (spaceCount == 2) {
-          author.push(removeText.substr(0,i-1));
-          author.push(removeText.substr(i));
-          spaceCount +=1;
-        }
-        if (removeText[i].includes(" ")) {
-          spaceCount += 1;
-        }
-      }
-    }
-    else {
-      author.push(removeText);
-    }
-    console.log(author);
-  } else {
-    if (document.getElementsByName("author")[0].content != null) {
-      author.push(document.getElementsByName("author")[0].content);
-    } else if (document.getElementsByTagName("meta")[5].content != null) {
-      author.push(document.getElementsByTagName("meta")[5].content);
-    } else {
-      author.push("Sorry IDK")
-    }
-  }
-  return author;
-}
-
-
-function getRandomColor() {
-  var letters = '0123456789ABCDEF';
-  var color = '#';
-  for (var i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
-  }
-  return color;
-}
-
 var first = true; //Used to ensure the questionnaire can only be injected once.
 var colors = []; // Array holding paragraph colors in the form [original, random]
 var even = 0; // 0 --> Original Color, 1 --> Random Color
 window.onload = async function () {
   LOADED = true;
   console.log('LOADED');
-  const hostname = new URL(await getURL()).hostname;
-  console.log(hostname)
+  currentHostname = new URL(await getURL()).hostname;
+  console.log(currentHostname);
   for (const key in URLS) {
-    if (hostname.includes(URLS[key])) {
+    if (currentHostname.includes(URLS[key])) {
       activateReliant();
       break;
     }
   }
 };
 var timeOpened = new Date().getTime();
-
 
 async function activateReliant() {
   if (!LOADED) {
@@ -191,183 +68,315 @@ async function activateReliant() {
   }
   ACTIVATED = true;
   console.log('activated reliant', getActivateState());
-  const url = await getURL();
-  const userInfo = await getUserInfo();
-  const hostname = new URL(url).hostname;
-  //Check if hostname is in URLS
-  // var foundURL = false;
-  // for (const key in URLS) {
-  //   if (hostname.includes(URLS[key])) {
-  //     foundURL = true;
-  //     break;
-  //   }
-  // }
-  // if (!foundURL) {
-  //   console.log('UNSUPPORTED WEBSITE');
-  //   return;
-  // }
+  currentURL = await getURL();
+  currentUserInfo = await getUserInfo();
+  currentHostname = new URL(currentURL).hostname;
 
-  axios.post('http://localhost:4000/api/user/updateSites',{
-    _id: userInfo.id,
-    website: {
-      _id: url,
-      timespent: 0
-    }
-  })
+  axios
+    .post('http://localhost:4000/api/user/updateSites', {
+      _id: currentUserInfo.id,
+      website: {
+        _id: currentURL,
+        timespent: 0,
+      },
+    })
     .then(() => {
       console.log('Data has been sent to the server');
     })
-    .catch(() => {
-      console.log('Internal server error');
+    .catch((err) => {
+      console.log('Internal server error in updateSites:', err);
     });
 
-  axios.post("http://localhost:4000/api/websites/addSite",{
-    _id: url
+  axios
+    .post('http://localhost:4000/api/websites/addSite', {
+      _id: currentURL,
     })
     .then((response) => {
       console.log(response);
     })
-    .catch(() => {
-      console.log('Internal server error');
+    .catch((err) => {
+      console.log('Internal server error in addSite:', err);
     });
-    createQuestionnaire(userInfo.id, url, hostname);
 
-  //Highlight everything
-  paragraphs = document.getElementsByTagName('p');
-  var i = 0
-  for (const paragraph of paragraphs) {
-    //console.log(paragraph.textContent)
-    if (first) {
-      colors.push([paragraph.style['background-color'], getRandomColor()]);
-    }
-    paragraph.style['background-color'] = colors[i][1];
-    i++;
-  }
-  first = false;
-}
-
-function deactivateReliant() {
-  ACTIVATED = false;
-  console.log("Deactivating Reliant")
-  comment.remove();
-  questionnaire.remove();
-  var i = 0
-  for (const paragraph of paragraphs) {
-    paragraph.style['background-color'] = colors[i][0];
-    i++;
-  }
-}
-function timeAdjustment(documentObj) {
-  if (typeof documentObj == 'undefined') {
-    console.log('bad document');
-    return 1;
-  }
-  let paragraphs = documentObj.getElementsByTagName('p');
-  var overall = '';
-  for (const paragraph of paragraphs) {
-    //Basic way to filter out title or unrelated content.
-    if (paragraph.textContent.length > 100) {
-      overall = overall + paragraph.textContent;
-    }
-  }
-  let expectedTime = readingTime(overall).minutes * 60;
-  console.log("expected," , expectedTime);
-  return expectedTime;
-}
-export async function submitQuestionnaire(score) {
-  //Logic for submitting questionarre
-  const userInfo = await getUserInfo();
-  const url = await getURL();
-  //create/update review
-  var results = [];
-  var overallScore = 0
-  for (const s in score) {
-    overallScore += score[s].score;
-    results.push({
-      _id: s,
-      response: score[s].score,
-    });
-  }
-  overallScore /= Object.keys(score).length
-
-  
-  let timeRightNow = new Date().getTime();
-  let seconds = Math.floor((timeRightNow - timeOpened) / 1000);
-  console.log("this is how much we are adding " , seconds);
-  let timeNeeded = timeAdjustment(document);
-  await axios.post('http://localhost:4000/api/user/updateSites',{
-    _id: userInfo.id,
-    website: {
-      _id: url,
-      timespent: seconds
-    }
-  })
-    .then((res) => {
-      console.log('Data has been sent to the server');
-      timeOpened = new Date().getTime();
-      
-    })
-    .catch((er) => {
-      console.log(er);
-      console.log('Internal server error');
-    });
-    await axios.post('http://localhost:4000/api/reviews/addReview', {
-      _id: {
-        userId: userInfo.id,
-        url: url,
+  axios
+    .get('http://localhost:4000/api/websites/getUserHighlights', {
+      params: {
+        url: currentURL,
+        userID: currentUserInfo.id,
       },
-      results: results,
-      overallScore: overallScore,
-      timeNeeded: timeNeeded
-    }).then((res) => {
-      console.log(res);
-      console.log("Successfully saved review")
-    }).catch((err) => {
-      console.log("Error from addReview:", err)
-      throw err;
-    });
-  //TODO: Implement the two push calls below which save the review to the reviews collection and update the reliability score
-  // axios
-  //   .push('http://localhost:4000/api/reviews', {
-  //     _id: { userId: userInfo.id, url: url },
-  //   })
-  // })
-
-  /* Necessary Inputs:
-  oldWebsiteScore = reliability score of url from the database (default 0)
-  oldWebsiteWeight = number of reviews of url (default 0 ) -- this accounts for review weights
-  oldUserScore = rating of review made by same user on same website earlier (0 if first time)
-  oldUserWeight = calculated weight made from previous review (0 if first time)
-  totalTimeOpened = number of seconds article has been read (stored time + current session time)
-  newUserScore = the score given by the user by the current questionnaire
-  document = document of HTML, already good as-is
-  Outputs:
-  r[0] = new reliability score of url
-  r[1] = new total weight of url (number of reviews)
-  r[2] = userScore
-  r[3] = userWeight --> r[2], r[3] used to store in Reviews
-  */
-  // calculateScore(
-  //   oldWebsiteScore,
-  //   oldWebsiteWeight,
-  //   oldUserScore,
-  //   oldUserWeight,
-  //   totalTimeOpened,
-  //   newUserScore,
-  //   documentObj
-  // );
-}
-
-//Runs when activate is pressed from Popup
-chrome.runtime.onMessage.addListener((req, send, sendResponse) => {
-  if (req.type === 'activate') {
-    activateReliant();
-  } else if (req.type === "getAuthors") {
-    getURL().then((url) => {
-      sendResponse(authorName(new URL(url).hostname))
     })
-  } else if (req.type === 'deactivate') {
-    deactivateReliant();
+    .then((res) => {
+      const rootNode = document.getElementsByName('html');
+      console.log('Root node', rootNode);
+
+      if (res.data.frowns.length > 0) {
+        res.data.frowns.forEach((element) => {
+          if (rangySerializer.canDeserializeRange(element.selection)) {
+            try {
+              highlightText(
+                '#dc3545',
+                rangySerializer.deserializeRange(element.selection, rootNode[0])
+                  .nativeRange,
+                'reliant-frown'
+              );
+            } catch (error) {
+              console.log('Frown error:', error);
+              console.log('Highlight failed to restore');
+            }
+          }
+        });
+      }
+      if (res.data.smiles.length > 0) {
+        res.data.smiles.forEach((element) => {
+          if (rangySerializer.canDeserializeRange(element.selection)) {
+            try {
+              highlightText(
+                '#28a745',
+                rangySerializer.deserializeRange(element.selection, rootNode[0])
+                  .nativeRange,
+                'reliant-smile'
+              );
+            } catch (error) {
+              console.log('Smile error:', error);
+              console.log('Highlight failed to restore');
+            }
+          }
+        });
+      }
+      if (res.data.highlights.length > 0) {
+        res.data.highlights.forEach((element) => {
+          if (rangySerializer.canDeserializeRange(element.selection)) {
+            try {
+              highlightText(
+                '#ffc107',
+                rangySerializer.deserializeRange(element.selection, rootNode[0])
+                  .nativeRange,
+                'reliant-highlight'
+              );
+            } catch (error) {
+              console.log('Highlight error:', error);
+              console.log('Highlight Failed to restore');
+            }
+          }
+        });
+      }
+    })
+    .catch((err) => {
+      console.log('Internal server error in getUserHighlights:', err);
+    });
+
+  if (first) {
+    createQuestionnaire(currentUserInfo.id, currentURL, currentHostname);
+    const commentScroll = document.createElement('div');
+    commentScroll.className = 'comment-scroll';
+    render(
+      <CommentScroll
+        ref={(cs) => {
+          window.commentScroll = cs;
+        }}
+      ></CommentScroll>,
+      commentScroll
+    );
+    document.body.appendChild(commentScroll);
+    //Highlight everything
+    even = (even + 1) % 2;
+
+    function clearSelection() {
+      if (window.getSelection) {
+        window.getSelection().removeAllRanges();
+      } else if (document.selectionText) {
+        document.selectionText.empty();
+      }
+    }
+
+    var mouseDownX = 0;
+    var selectionTopY = 0;
+    let range = null;
+    var tooltipClicked = false;
+
+    function hasSomeParentTheClass(element, classname) {
+      if (!element || typeof element.classList === 'undefined') return false;
+      if (element.classList.contains(classname)) return true;
+      return hasSomeParentTheClass(element.parentNode, classname);
+    }
+
+    /**Mouse events to handle tooltip interaction */
+    document.addEventListener('mousedown', (e) => {
+      mouseDownX = e.pageX;
+      showTooltip = true;
+
+      // remove all selected css styles when you click anywher on the screen
+      Array.prototype.forEach.call(
+        document.getElementsByClassName('reliant-selected'),
+        (element) => {
+          element.classList.remove('reliant-selected');
+        }
+      );
+
+      // checks if the tooltip was pressed if not it removes it
+      tooltipClicked = false;
+      if (hasSomeParentTheClass(e.target.parentNode, 'reliant-tooltip')) {
+        tooltipClicked = true;
+      } else {
+        removeTooltip();
+      }
+
+      //checks if click was inside comment
+      if (hasSomeParentTheClass(e.target.parentNode, 'bordered-container')) {
+        clearSelection();
+        showTooltip = false;
+        return false;
+      }
+    });
+
+    // If there is a selection on mouse up and its valid the tooltip will be presented
+    document.addEventListener('mouseup', (e) => {
+      if (tooltipClicked || !showTooltip) return false;
+      let selection = window.getSelection();
+      let selectionText = selection.toString();
+
+      // Triggers when multi paragraph selection occurs
+      if (
+        !(
+          selection.baseNode == selection.focusNode ||
+          selection.baseNode.parentNode == selection.focusNode.parentNode
+        )
+      ) {
+        //TODO: Add modal to tell user that reliant doesn't support multip paragraph selections
+        console.log('Please dont select multiple paragraphs');
+        removeTooltip();
+        clearSelection();
+        return false;
+      }
+
+      //Render the tooltip
+      if (selectionText.length > 0) {
+        range = selection.getRangeAt(0);
+        const boundingBox = range.getBoundingClientRect();
+        const selectionCenterX = (mouseDownX + boundingBox.right) / 2;
+        selectionTopY = boundingBox.y + window.pageYOffset;
+        createTooltip(selectionCenterX, selectionTopY);
+      } else {
+        showTooltip = false;
+        removeTooltip();
+      }
+    });
+
+    //Handles a button click on the tool tip, ignores other clicks
+    document.addEventListener('click', (e) => {
+      //only run if tooltip is clicked
+      if (!tooltipClicked) return false;
+      clearSelection();
+      const parentIdName = e.target.parentNode.getAttribute('id');
+      const currentID = e.target.getAttribute('id');
+
+      let payload = {
+        url: currentURL,
+        userID: currentUserInfo.id,
+        highlightSelection: rangySerializer.serializeRange(
+          range,
+          true,
+          document.getElementsByName('html')[0]
+        ), // Serializes the range into a string to store in DB
+        highlight_type: null,
+      };
+
+      if (parentIdName == 'highlight' || currentID == 'highlight') {
+        payload.highlight_type = 'highlights';
+        axios
+          .post('http://localhost:4000/api/websites/addHighlights', payload)
+          .then((res) => {
+            console.log(res);
+          });
+        highlightText('#ffc107', range, 'reliant-highlight');
+        removeTooltip();
+      } else if (parentIdName == 'smile' || currentID == 'smile') {
+        payload.highlight_type = 'smiles';
+        axios
+          .post('http://localhost:4000/api/websites/addHighlights', payload)
+          .then((res) => {
+            console.log(res);
+          });
+        highlightText('#28a745', range, 'reliant-smile');
+        removeTooltip();
+      } else if (parentIdName == 'frown' || currentID == 'frown') {
+        payload.highlight_type = 'frowns';
+        axios
+          .post('http://localhost:4000/api/websites/addHighlights', payload)
+          .then((res) => {
+            console.log(res);
+          });
+        highlightText('#dc3545', range, 'reliant-frown');
+        removeTooltip();
+      } else if (parentIdName == 'comment' || currentID == 'comment') {
+        const id = highlightText('#dc3545', range, 'reliant-comment', true);
+        window.commentScroll.addCommentContainer(
+          id,
+          range.toString(),
+          selectionTopY,
+          mouseDownX
+        );
+        removeTooltip();
+      } else if (parentIdName == 'note' || currentID == 'note') {
+        highlightText('blue', range, 'reliant-note', true);
+        // TODO: Implement note
+        removeTooltip();
+      }
+    });
+
+    function deactivateReliant() {
+      ACTIVATED = false;
+      console.log('Deactivating Reliant');
+      removeQuestionnaire();
+      // Implement removing highlight
+      var i = 0;
+      for (const paragraph of paragraphs) {
+        paragraph.style['background-color'] = colors[i][0];
+        i++;
+      }
+    }
+
+    //Runs when activate is pressed from Popup
+    chrome.runtime.onMessage.addListener((req, send, sendResponse) => {
+      if (req.type === 'activate') {
+        activateReliant();
+      } else if (req.type === 'getAuthors') {
+        getURL().then((url) => {
+          sendResponse(authorName(new URL(url).hostname));
+        });
+      } else if (req.type === 'deactivate') {
+        deactivateReliant();
+      }
+      return true;
+    });
   }
-  return true;
-});
+
+  var selectionTextId = 0;
+  const highlightText = (color, range, className, underline = false) => {
+    var mark = document.createElement('span');
+    if (underline) {
+      mark = document.createElement('u');
+      mark.style.textDecoration = 'underline';
+      mark.style.textDecorationColor = color;
+      mark.style.textDecorationThickness = '.2rem';
+      mark.style.textDecorationSkipInk = 'none';
+    } else {
+      mark.style.backgroundColor = color;
+    }
+    mark.className = className;
+    mark.id = selectionTextId;
+    mark.onclick = () => {
+      mark.className += ' reliant-selected';
+      window.commentScroll.moveContainer(parseInt(mark.id));
+    };
+
+    mark.appendChild(range.extractContents()); //Append the contents of the selection's range to our mark tag
+    mark.normalize();
+    console.log('Mark element:', mark);
+    range.deleteContents(); // Not sure if this is necessary, but just in case I'm removing the rangeContents to make sure no extra elements
+    range.insertNode(mark); // Insert mark into the range
+    console.log('Range after highlight:', range);
+    selectionTextId += 1;
+    return parseInt(mark.id);
+  };
+}

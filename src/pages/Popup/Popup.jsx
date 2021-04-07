@@ -9,7 +9,6 @@ import axios from 'axios';
 import './Popup.css';
 import StarRating from './modules/StarRating';
 import wiki from './modules/WikiReader';
-import parse from 'html-react-parser';
 
   const Popup = () => {
   const [userEmail, setUserEmail] = useState(null);
