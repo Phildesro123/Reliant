@@ -169,6 +169,7 @@ async function activateReliant() {
     createQuestionnaire(currentUserInfo.id, currentURL, currentHostname);
     const commentScroll = document.createElement('div');
     commentScroll.className = 'comment-scroll';
+    //TODO: Locate side of text and put commentScroll there for each page
     render(
       <CommentScroll
         ref={(cs) => {
@@ -343,6 +344,7 @@ async function activateReliant() {
       } else if (req.type === 'getAuthors') {
         getURL().then((url) => {
           sendResponse(authorName(new URL(url).hostname));
+          // sendResponse(['Pablo Escobar', 'Youssef Asaad']);
         });
       } else if (req.type === 'deactivate') {
         deactivateReliant();
@@ -367,7 +369,7 @@ async function activateReliant() {
     mark.id = selectionTextId;
     mark.onclick = () => {
       mark.className += ' reliant-selected';
-      window.commentScroll.moveContainer(parseInt(mark.id));
+      window.commentScroll.moveToSelection(parseInt(mark.id));
     };
 
     mark.appendChild(range.extractContents()); //Append the contents of the selection's range to our mark tag

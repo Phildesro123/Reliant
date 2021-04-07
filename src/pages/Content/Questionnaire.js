@@ -7,58 +7,62 @@ import Questionnaire from './modules/Questionnaire-Component';
 var readingTime = require('reading-time');
 const questionnaire = document.createElement('div');
 var timeOpened = new Date().getTime();
+var currentUserId = null;
+var currentUrl = null;
 export function createQuestionnaire(userId, url, hostname) {
-    console.log('Creating Questionare for', hostname);
-    var contentBody = null;
-    var genre = '';
-    if (hostname.includes(URLS.WIRED)) {
-      console.log("We're on WIRED");
-      contentBody = document.getElementsByClassName('article main-content')[0];
-      genre = 'Tech';
-    } else if (hostname.includes(URLS.CNN)) {
-      console.log("We're on CNN");
-      contentBody = document.getElementById('body-text');
-      genre = 'Political';
-    } else if (hostname.includes(URLS.VERGE)) {
-      console.log("We're on Verge");
-      contentBody = document.getElementsByClassName('c-entry-content ')[0];
-      genre = 'Tech';
-    } else if (hostname.includes(URLS.VOX)) {
-      console.log("We're on Vox");
-      contentBody = document.getElementsByClassName('c-entry-content ')[0];
-      genre = 'Political';
-    } else if (hostname.includes(URLS.FOXNEWS)) {
-      console.log("We're on Fox");
-      contentBody = document.getElementsByClassName('article-body')[0];
-    } else if (hostname.includes(URLS.MEDIUM)) {
-      console.log("We're on Medium");
-      contentBody = document.getElementsByTagName('article')[0];
-      genre = 'Education';
-    } else if (hostname.includes(URLS.NYTIMES)) {
-      console.log("We're on NY Times");
-      contentBody = document.getElementsByClassName('bottom-of-article')[0];
-      genre = 'Political';
-    }
-    if (contentBody == undefined) {
-      const articles = document.getElementsByTagName('article');
-      if (articles.length > 0) {
-        contentBody = articles[articles.length - 1];
-      } else {
-        contentBody = document.querySelector('body');
-      }
-    }
-    contentBody.appendChild(questionnaire);
-    console.log('Content Body', contentBody);
-    render(
-      <Questionnaire userId={userId} url={url} genre={genre} />,
-      questionnaire
-    );
+  console.log('Creating Questionare for', hostname);
+  currentUserId = userId;
+  currentUrl = url;
+  var contentBody = null;
+  var genre = '';
+  if (hostname.includes(URLS.WIRED)) {
+    console.log("We're on WIRED");
+    contentBody = document.getElementsByClassName('article main-content')[0];
+    genre = 'Tech';
+  } else if (hostname.includes(URLS.CNN)) {
+    console.log("We're on CNN");
+    contentBody = document.getElementById('body-text');
+    genre = 'Political';
+  } else if (hostname.includes(URLS.VERGE)) {
+    console.log("We're on Verge");
+    contentBody = document.getElementsByClassName('c-entry-content ')[0];
+    genre = 'Tech';
+  } else if (hostname.includes(URLS.VOX)) {
+    console.log("We're on Vox");
+    contentBody = document.getElementsByClassName('c-entry-content ')[0];
+    genre = 'Political';
+  } else if (hostname.includes(URLS.FOXNEWS)) {
+    console.log("We're on Fox");
+    contentBody = document.getElementsByClassName('article-body')[0];
+  } else if (hostname.includes(URLS.MEDIUM)) {
+    console.log("We're on Medium");
+    contentBody = document.getElementsByTagName('article')[0];
+    genre = 'Education';
+  } else if (hostname.includes(URLS.NYTIMES)) {
+    console.log("We're on NY Times");
+    contentBody = document.getElementsByClassName('bottom-of-article')[0];
+    genre = 'Political';
   }
+  if (contentBody == undefined) {
+    const articles = document.getElementsByTagName('article');
+    if (articles.length > 0) {
+      contentBody = articles[articles.length - 1];
+    } else {
+      contentBody = document.querySelector('body');
+    }
+  }
+  contentBody.appendChild(questionnaire);
+  console.log('Content Body', contentBody);
+  render(
+    <Questionnaire userId={userId} url={url} genre={genre} />,
+    questionnaire
+  );
+}
 
-  export function removeQuestionnaire() {
-      comment.remove();
-      questionnaire.remove();
-  }
+export function removeQuestionnaire() {
+  comment.remove();
+  questionnaire.remove();
+}
 
   function timeAdjustment(documentObj) {
     if (typeof documentObj == 'undefined') {
