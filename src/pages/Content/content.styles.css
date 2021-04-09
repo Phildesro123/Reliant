@@ -68,13 +68,13 @@ input[type='radio'] {
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
     border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   color: #fff;
-  background-color: #28a745;
+  background-color: #28a745!important;
   border-color: #28a745;
 }
 
 .submit-btn:hover {
   color: #fff;
-  background-color: #218838;
+  background-color: #218838!important;
   border-color: #1e7e34;
 }
 
@@ -1160,8 +1160,9 @@ aside.paywall-bar.paywall-bar--visible {
   display: none;
 }
 
-.reliant-tooltip {
+#reliant-tooltip {
   position: absolute;
   padding-bottom: 10px;
-  transform: translate(-50%, -100%);
+  -webkit-transform: translate(-50%,-100%)!important;
+  transform: translate(-50%, -100%)!important;
 }
