@@ -47,7 +47,7 @@ function Questionnaire(props) {
   useEffect(() => {
     if (submitState === SUBMITTING) {
       console.log('Submitting questionnaire with scores:', scores);
-      submitQuestionnaire(scores)
+      submitQuestionnaire(props.userId, props.url, scores)
         .then(() => {
           //handle success or faliure
           setSubmitState(SUBMITTED);

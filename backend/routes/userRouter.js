@@ -49,6 +49,14 @@ userRouter.route('/updateSites').post((req, res, next) => {
         results.visitedSites.push(req.body.website);
         return results.save();
       } else {
+        results.visitedSites.forEach((element, idx) => {
+          if (element._id == req.body.website._id) {
+            results.visitedSites[idx].timespent = results.visitedSites[idx].timespent + req.body.website.timespent;
+            console.log("match found");
+            console.log(results.visitedSites[idx].timespent);
+            return results.save();
+          }
+        })
         console.log('Site already exists in array, so just update timespent');
       }
     }

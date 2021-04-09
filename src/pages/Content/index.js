@@ -77,7 +77,7 @@ async function activateReliant() {
       _id: currentUserInfo.id,
       website: {
         _id: currentURL,
-        timespent: 5,
+        timespent: 0,
       },
     })
     .then(() => {
