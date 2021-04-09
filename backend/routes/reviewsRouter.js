@@ -1,8 +1,7 @@
-const e = require('express');
 let express = require('express');
-let Review = require('../models/review');
-let Website = require('../models/visitedSites')
-let Users = require('../models/users')
+const Review = require('../models/review');
+const Users = require('../models/users')
+const Website = require('../models/visitedSites')
 const reviewsRouter = express.Router({ mergeParams: true });
 let Score = require('../Score/Score');
 /**
@@ -37,11 +36,14 @@ reviewsRouter.route('/addReview').post(async (req, res, next) => {
       console.log(req.body.timeNeeded);
       if (!result) {
         const userReview = new Review(req.body);
-        userReview.save().then(saveDoc => {
-          res.status(200).send({ response: 'Added Results' });
+        userReview.save((error, savedDoc)=> {
+          if (error) {
+            return res.status(400).send({message: 'Error occured on saving review'})
+          }
           //update site reliability score
           updateReliabilityScore(req.body._id.url, req.body.timeNeeded)
-        });
+          return res.status(200).send({ response: 'Added Results' });
+        })    
       } else {
         await Review.findById(
           { userId: req.body._id.userId, url: req.body._id.url },
@@ -118,44 +120,6 @@ reviewsRouter.route('/getResults').get((req, res, next) => {
         console.log('total weight of ', totalWeight, " with score of ", score);
       });
     });
-    //done = true;
-    /** 
-   res.forEach(element => {
-     console.log("this is ", element);
-     Users.find({"_id":element._id.userId}, {"visitedSites":1}, (err, rs)=> {
-       console.log("Nan>?", rs);
-       console.log(typeof(rs));
-       console.log('before userts foreach', avg);
-       rs[0].visitedSites.forEach(elmnt => {
-         console.log(elmnt);
-         if (elmnt._id == url) {
-          console.log(element.overallScore);
-          let w = Score.timeWeight(elmnt.timespent, timeNeeded);
-          console.log(w);
-          totalWeight = totalWeight + w;
-          let addition = element.overallScore * w;
-          console.log(addition);
-          console.log("score exd", score);
-          console.log("avg beforei s ", avg);
-          score = score + addition;
-          console.log("new avg is ", avg);
-          console.log("new wght is ", totalWeight);
-         }
-       })
-       console.log('done with visited sites');
-     });
-   });
-   **/
-
-   /** 
-  var counter = 0;
-  while (done == false) {
-    console.log('while counter ', counter);
-    counter = counter + 1;
-    continue
-  }
-  */
-   //console.log('tot   ', totalWeight);
   }).catch(err => {
     console.log(err);
     return 0;
