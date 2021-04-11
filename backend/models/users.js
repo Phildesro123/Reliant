@@ -7,7 +7,7 @@ let detail = new Schema(
     _id: String,
     email: String,
     displayName: String,
-    userRating: {type: Number, defualt: 80},
+    userRating: {type: Number, default: 80},
     visitedSites: [
       {
         _id: String,
