@@ -1166,3 +1166,9 @@ aside.paywall-bar.paywall-bar--visible {
   -webkit-transform: translate(-50%,-100%)!important;
   transform: translate(-50%, -100%)!important;
 }
+
+#button-fix {
+  border: 0;
+  padding: 0.25rem 0.5rem;
+
+}
