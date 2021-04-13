@@ -12,7 +12,7 @@ const questionRouter = require('./routes/questionsRouter');
 
 const mongoose = require('mongoose');
 const { isAssertionExpression } = require('typescript');
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
