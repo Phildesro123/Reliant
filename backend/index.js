@@ -1,6 +1,5 @@
 require('dotenv').config({ path: __dirname + '/../.env' });
 const express = require('express');
-const bodyParser = require('body-parser');
 const router = express.Router();
 const cors = require('cors');
 const app = express();
@@ -15,8 +14,8 @@ const mongoose = require('mongoose');
 const { isAssertionExpression } = require('typescript');
 const PORT = 4000;
 
-var jsonParser = bodyParser.json();
-var urlencodedParser = bodyParser.urlencoded({ extended: false });
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 mongoose.connect(
   process.env.MONGODB_URI,
