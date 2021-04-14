@@ -25,8 +25,6 @@ mongoose.connect(
   }
 );
 app.use(cors());
-app.use(jsonParser);
-app.use(urlencodedParser);
 app.use('/', router);
 
 //Specify endpoints for router
