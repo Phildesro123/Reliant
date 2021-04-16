@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import StarRating from './StarRating-Component';
 import { submitQuestionnaire } from '../Questionnaire';
-import axios from 'axios';
+// import axios from 'axios';
+import { getQuestion, getResults } from '../../../API/APIModule';
 
 function Questionnaire(props) {
   const SUBMIT = 'Submit';
@@ -13,35 +14,33 @@ function Questionnaire(props) {
   const [questions, setQuestions] = useState([]);
   const [submitState, setSubmitState] = useState(SUBMIT);
   const [completedForm, setCompletedForm] = useState(false);
-  const [results, setResults] = useState([])
+  const [results, setResults] = useState([]);
   function checkFormCompletion() {
-    if (Object.keys(scores).length === questions.length) {      
-      setCompletedForm(true)
+    if (Object.keys(scores).length === questions.length) {
+      setCompletedForm(true);
     }
     if (submitState !== SUBMIT) {
-      setSubmitState(SUBMIT)
+      setSubmitState(SUBMIT);
     }
   }
 
   // fetches the questions once the questionnaire is made
   useEffect(() => {
-    axios
-      .get('http://localhost:4000/api/question/getQuestions', {
-        params: {
-          genre: props.genre,
-        },
-      })
+    // Fetches question from API
+    getQuestion(props.genre)
       .then((response) => {
-        axios.get("http://localhost:4000/api/reviews/getResults", {params: {userId: props.userId, url: props.url}}).then((res) => {
-          setResults(res.data);
-          setQuestions(response.data);
-        }).catch((err) => console.log(err))
+        // Fetches results from API
+        getResults(props.userId, props.url)
+          .then((res) => {
+            setResults(res.data);
+            setQuestions(response.data);
+          })
+          .catch((err) => console.log(err));
       })
       .catch((err) => {
         console.log(err);
       });
   }, []);
-
 
   // handles the submit button state
   useEffect(() => {
@@ -60,7 +59,6 @@ function Questionnaire(props) {
   }, [submitState]);
 
   const handleClick = () => setSubmitState(SUBMITTING);
-  
 
   return (
     <div className="bordered-container questionnaire-container">
@@ -69,11 +67,11 @@ function Questionnaire(props) {
         {questions.map((question, i) => {
           var value = 0;
           if (results.length > 0) {
-            const temp = results.filter(result =>{
-            return result._id === question._id;
-            })
+            const temp = results.filter((result) => {
+              return result._id === question._id;
+            });
             if (temp.length > 0) {
-              value = temp[0].response
+              value = temp[0].response;
             }
           }
           const ratingValue = i + 1;
@@ -105,6 +103,6 @@ function Questionnaire(props) {
       </div>
     </div>
   );
-};
+}
 
 export default Questionnaire;

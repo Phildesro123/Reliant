@@ -3,8 +3,6 @@ const minTime = 10;
 const commentIncrease = 1.25;
 const defaultWeight = 1;
 const PERCENTOFEXPECTED = 0.4;
-//import axios from 'axios';
-//import { TabPane } from 'react-bootstrap';
 
 //Used to see how long the user has been on the webpage
 //Input = date.time that the webpage was opened (does not work for current schema)
@@ -51,8 +49,7 @@ tto: 00:13:12
 score: 4.2
 */
 
-
- function calculateScore(
+function calculateScore(
   oldWebsiteScore,
   oldWebsiteWeight,
   oldUserScore,
@@ -99,13 +96,7 @@ score: 4.2
   website = {reviews: reviews};
   END OF TEST DATA */
   var replacedUserReview = false;
-  //THE GOAL OF THIS POST IS TO UPDATE THE WEBSITE OBJECT IN THE DAtABASE
-  /*axios.post('localhost:4000/getSiteData', payload2).then((response)=> {
-    console.log("Successfully updated reviews");
-  }).catch(error => {
-    console.log("Could not update reviews")
-  });
-  */
+
   console.log(score / totalWeight);
   return 0;
 }
@@ -121,7 +112,7 @@ Can be updated to account for reading time (my guess is 80% for full weight)
 https://github.com/michael-lynch/reading-time
 https://github.com/ngryman/reading-time - could be used over all <p>
 */
- function timeAdjustment(totalTimeOpened, documentObj) {
+function timeAdjustment(totalTimeOpened, documentObj) {
   if (typeof documentObj == 'undefined') {
     console.log('bad document');
     return 1;
@@ -155,5 +146,5 @@ function timeWeight(timeOpened, expectedTime) {
   return Math.min(1, (1 / (PERCENTOFEXPECTED * expectedTime)) * actualTime);
 }
 
-exports.timeAdjustment = timeAdjustment
-exports.timeWeight = timeWeight
+exports.timeAdjustment = timeAdjustment;
+exports.timeWeight = timeWeight;

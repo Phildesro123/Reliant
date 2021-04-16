@@ -27,6 +27,10 @@ mongoose.connect(
 app.use(cors());
 app.use('/', router);
 
+if (process.env.NODE_ENV) {
+  console.log('Environment:', process.env.NODE_ENV);
+}
+
 //Specify endpoints for router
 app.use('/api/user', userRouter);
 app.use('/api/websites', siteRouter);

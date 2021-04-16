@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { render } from 'react-dom';
 import {FaRegSmile} from 'react-icons/fa';
 import {FaRegFrown} from 'react-icons/fa';
