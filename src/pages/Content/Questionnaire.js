@@ -1,7 +1,6 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { addReview, updateWebsite } from '../../API/APIModule';
-//import axios from 'axios';
 
 import { URLS } from '../Background/workingUrls';
 import Questionnaire from './modules/Questionnaire-Component';
@@ -101,14 +100,6 @@ export async function submitQuestionnaire(userId, url, score) {
   let seconds = Math.floor((timeRightNow - timeOpened) / 1000);
   console.log(seconds);
   let timeNeeded = timeAdjustment(document);
-  // await axios
-  //   .post('http://localhost:4000/api/user/updateSites', {
-  //     _id: userId,
-  //     website: {
-  //       _id: url,
-  //       timespent: seconds,
-  //     },
-  //   })
   updateWebsite(userId, { _id: url, timespent: seconds })
     .then((res) => {
       console.log('Data has been sent to the server');
@@ -117,16 +108,6 @@ export async function submitQuestionnaire(userId, url, score) {
     .catch(() => {
       console.log('Internal server error');
     });
-  // await axios
-  //   .post('http://localhost:4000/api/reviews/addReview', {
-  //     _id: {
-  //       userId: userId,
-  //       url: url,
-  //     },
-  //     results: results,
-  //     overallScore: overallScore,
-  //     timeNeeded: timeNeeded,
-  //   })
   addReview({userId, url}, results, overallScore, timeNeeded)
     .then((res) => {
       console.log(res);
@@ -136,34 +117,4 @@ export async function submitQuestionnaire(userId, url, score) {
       console.log('Error from addReview:', err);
       throw err;
     });
-  //TODO: Implement the two push calls below which save the review to the reviews collection and update the reliability score
-  // axios
-  //   .push('http://localhost:4000/api/reviews', {
-  //     _id: { userId: userInfo.id, url: url },
-  //   })
-  // })
-
-  /* Necessary Inputs:
-    oldWebsiteScore = reliability score of url from the database (default 0)
-    oldWebsiteWeight = number of reviews of url (default 0 ) -- this accounts for review weights
-    oldUserScore = rating of review made by same user on same website earlier (0 if first time)
-    oldUserWeight = calculated weight made from previous review (0 if first time)
-    totalTimeOpened = number of seconds article has been read (stored time + current session time)
-    newUserScore = the score given by the user by the current questionnaire
-    document = document of HTML, already good as-is
-    Outputs:
-    r[0] = new reliability score of url
-    r[1] = new total weight of url (number of reviews)
-    r[2] = userScore
-    r[3] = userWeight --> r[2], r[3] used to store in Reviews
-    */
-  // calculateScore(
-  //   oldWebsiteScore,
-  //   oldWebsiteWeight,
-  //   oldUserScore,
-  //   oldUserWeight,
-  //   totalTimeOpened,
-  //   newUserScore,
-  //   documentObj
-  // );
 }

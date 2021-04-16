@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import StarRating from './StarRating-Component';
 import { submitQuestionnaire } from '../Questionnaire';
-// import axios from 'axios';
 import { getQuestion, getResults } from '../../../API/APIModule';
 
 function Questionnaire(props) {

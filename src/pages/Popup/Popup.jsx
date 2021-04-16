@@ -5,7 +5,6 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import message from './modules/messenger';
-// import axios from 'axios';
 import './Popup.css';
 import StarRating from './modules/StarRating';
 import wiki from './modules/WikiReader';
@@ -50,12 +49,6 @@ const Popup = () => {
       setUserEmail(userInfo.email);
     });
     chrome.runtime.sendMessage('activeURL', (url) => {
-      // axios
-      //   .get('http://localhost:4000/api/websites/getSiteData', {
-      //     params: {
-      //       _id: url,
-      //     },
-      //   })
       getSiteData(url)
         .then((response) => {
           if ('reliabilityScore' in response.data) {
