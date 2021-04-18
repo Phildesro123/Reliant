@@ -1,4 +1,5 @@
 let express = require('express');
+const users = require('../models/users');
 let Users = require('../models/users');
 
 const userRouter = express.Router();
@@ -181,7 +182,51 @@ userRouter.route('/addNotes').post((req, res, next) => {
         console.log(err);
         return res.status(200).send({ message: 'Error occured in saving note' });
       }
-      console.log(user);
+      return res.status(200).send(user);
+    });
+  });
+});
+
+/** Usage: Whenever the user deletes a note.
+ * Payload: {
+ *  "_id":"{user ID}",
+ *  "url": {url},
+ *  "range": selectionRange,
+ * POST: Add note to user's notes array or update it.
+ */
+userRouter.route('/deleteNotes').post((req, res, next) => {
+  console.log("POST: Deleting comment")
+  if (
+    req.body._id == null ||
+    req.body.url == null ||
+    req.body.range == null) {
+    console.log('ERROR: Null userID');
+    return res
+      .status(400)
+      .send({ message: 'Null elements are found in payload' });
+  }
+  if (req.body.content.trim() === '') {
+    console.log('ERROR: Cannot have empty contents');
+    return res.status(400).send({ message: 'Empty Contents' });
+  }
+  Users.findById(req.body._id, (err, user) => {
+    if (err || user == null) {
+      console.log('error occured');
+      return res.status(400).send({ message: 'User not found.' });
+    }
+    let index = user.notes.findIndex(
+      (e) => e.url === req.body.url && e.range === req.body.range
+    );
+    if (index >= 0) {
+      console.log("Note index found at:", index)
+      console.log("Note found is:", user.notes[index])
+      user.notes.splice(index)
+    }
+    user.save((err) => {
+      if (err) {
+        console.log(err);
+        return res.status(200).send({ message: 'Error occured in deleting note' });
+      }
       return res.status(200).send(user);
     });
   });
