@@ -6,6 +6,7 @@ import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import message from './modules/messenger';
 import './Popup.css';
+import UserForm from './modules/UserForm'
 import StarRating from './modules/StarRating';
 import wiki from './modules/WikiReader';
 import { getSiteData } from '../../API/APIModule';
@@ -88,7 +89,7 @@ const Popup = () => {
           </h4>
           <span style={{ fontSize: '10pt' }}>
             {wikiInfo == null || stripHtml(wikiInfo) == null
-              ? 'Could not find author background'
+              ? <UserForm/>
               : stripHtml(wikiInfo)}
           </span>
           <div className="reliability-container">
