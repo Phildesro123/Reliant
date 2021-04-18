@@ -148,7 +148,6 @@ siteRouter.route('/getSiteData').get((req, res, next) => {
  * POST: Add highlight to website
  */
 siteRouter.route('/addHighlights').post((req, res, next) => {
-  console.log('Request:', req);
   console.log("POST: Updating website's number of reviews:", req.body);
   VisitedSites.findOne({ _id: req.body.url }, (err, results) => {
     if (err || results == null) {

@@ -1160,6 +1160,7 @@ aside.paywall-bar.paywall-bar--visible {
   display: none;
 }
 
+/* CSS fixes */
 #reliant-tooltip {
   position: absolute;
   padding-bottom: 10px;
@@ -1167,8 +1168,11 @@ aside.paywall-bar.paywall-bar--visible {
   transform: translate(-50%, -100%)!important;
 }
 
-#button-fix {
+#smile, #frown, #highlight, #comment, #note {
   border: 0;
   padding: 0.25rem 0.5rem;
+}
 
+#smile-icon, #frown-icon, #highlight-icon, #comment-icon, #note-icon {
+pointer-events: none;
 }
