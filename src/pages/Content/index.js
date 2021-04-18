@@ -1,7 +1,6 @@
 import React from 'react';
 import { render } from 'react-dom';
 import rangySerializer from 'rangy/lib/rangy-serializer';
-import CommentScroll from './modules/Comment-Scroll';
 import { URLS } from '../Background/workingUrls';
 import { createTooltip, removeTooltip } from './modules/Tooltip-Component';
 import { createQuestionnaire, removeQuestionnaire } from './Questionnaire';
@@ -12,6 +11,7 @@ import {
   getUserHighlights,
   updateWebsite,
 } from '../../API/APIModule';
+import ContainerScroll from './modules/Container-Scroll';
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
@@ -154,15 +154,30 @@ async function activateReliant() {
 
   if (first) {
     createQuestionnaire(currentUserInfo.id, currentURL, currentHostname);
+    const noteScroll = document.createElement('div');
+    noteScroll.className = 'note-scroll';
+    //TODO: Locate side of text and put commentScroll there for each page
+    render(
+      <ContainerScroll
+        type="note"
+        ref={(cs) => {
+          window.noteScroll = cs;
+        }}
+      ></ContainerScroll>,
+      noteScroll
+    );
+    document.body.appendChild(noteScroll);
+
     const commentScroll = document.createElement('div');
     commentScroll.className = 'comment-scroll';
     //TODO: Locate side of text and put commentScroll there for each page
     render(
-      <CommentScroll
+      <ContainerScroll
+        type="comment"
         ref={(cs) => {
           window.commentScroll = cs;
         }}
-      ></CommentScroll>,
+      ></ContainerScroll>,
       commentScroll
     );
     document.body.appendChild(commentScroll);
@@ -299,7 +314,7 @@ async function activateReliant() {
         removeTooltip();
       } else if (parentIdName == 'comment' || currentID == 'comment') {
         const id = highlightText('#dc3545', range, 'reliant-comment', true);
-        window.commentScroll.addCommentContainer(
+        window.commentScroll.addContainer(
           id,
           range.toString(),
           selectionTopY,
@@ -307,8 +322,13 @@ async function activateReliant() {
         );
         removeTooltip();
       } else if (parentIdName == 'note' || currentID == 'note') {
-        highlightText('blue', range, 'reliant-note', true);
-        // TODO: Implement note
+        const id = highlightText('blue', range, 'reliant-note', true);
+        window.noteScroll.addContainer(
+          id,
+          range.toString(),
+          selectionTopY,
+          mouseDownX
+        );
         removeTooltip();
       }
     });
@@ -356,8 +376,12 @@ async function activateReliant() {
     mark.className = className;
     mark.id = className + '_' + selectionTextId.toString();
     mark.onclick = () => {
+      if (mark.className == 'reliant-comment') {
+        window.commentScroll.moveToSelection(mark.id);
+      } else if (mark.className == 'reliant-note') {
+        window.noteScroll.moveToSelection(mark.id);
+      }
       mark.className += ' reliant-selected';
-      window.commentScroll.moveToSelection(mark.id);
     };
 
     mark.appendChild(range.extractContents()); //Append the contents of the selection's range to our mark tag

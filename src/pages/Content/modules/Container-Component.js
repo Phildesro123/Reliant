@@ -22,7 +22,7 @@ import Comment from './Comment-Component';
 
 //TODO: On click scroll page to comment
 var tempKey = 0;
-const CommentContainer = React.forwardRef((props, ref) => {
+const Container = React.forwardRef((props, ref) => {
   const minRows = 2;
   const maxRows = 5;
   const [commentList, setCommentList] = useState([]);
@@ -99,8 +99,12 @@ const CommentContainer = React.forwardRef((props, ref) => {
     <div
       id={props.id}
       ref={containerRef}
-      className="bordered-container comment-container"
-      style={{ top: props.top + 'px', left: props.left + 'px' }}
+      className={'bordered-container ' + props.className}
+      style={
+        props.className == 'comment-container'
+          ? { top: props.top + 'px', left: props.shift + 'px' }
+          : { top: props.top + 'px', right: props.shift + 'px' }
+      }
     >
       <div className="voting-container"></div>
       <div className="truncate-container">
@@ -123,10 +127,10 @@ const CommentContainer = React.forwardRef((props, ref) => {
         disabled={textAreaText.trim() == ''}
         onClick={() => commentClicked(textAreaText)}
       >
-        Comment <FaAngleRight></FaAngleRight>
+        {props.buttonText} <FaAngleRight></FaAngleRight>
       </button>
     </div>
   );
 });
 
-export default CommentContainer;
+export default Container;
