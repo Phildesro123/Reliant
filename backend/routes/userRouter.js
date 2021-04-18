@@ -95,6 +95,7 @@ userRouter.route('/').get((req, res, next) => {
  * query params
  * {
  *  "_id":"{user ID}",
+ *  "url": "{url of website for user's note}"
  * }
  * GET: Gets the user's notes
  */
@@ -110,7 +111,8 @@ userRouter.route('/').get((req, res, next) => {
       return res.status(400).send({ message: 'User not found.' });
     }
     console.log("Notes:", user.notes)
-    return res.status(200).send(user.notes);
+    const resultNotes = user.notes.filter((entry) => entry.url === req.body.url);
+    return res.status(200).send(resultNotes);
   });
 });
 
