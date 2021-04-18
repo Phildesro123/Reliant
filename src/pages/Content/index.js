@@ -1,13 +1,17 @@
 import React from 'react';
 import { render } from 'react-dom';
-
 import rangySerializer from 'rangy/lib/rangy-serializer';
 import CommentScroll from './modules/Comment-Scroll';
 import { URLS } from '../Background/workingUrls';
-import axios from 'axios';
 import { createTooltip, removeTooltip } from './modules/Tooltip-Component';
 import { createQuestionnaire, removeQuestionnaire } from './Questionnaire';
 import { authorName } from './authorName';
+import {
+  addSite,
+  addHighlights,
+  getUserHighlights,
+  updateWebsite,
+} from '../../API/APIModule';
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
@@ -72,14 +76,7 @@ async function activateReliant() {
   currentUserInfo = await getUserInfo();
   currentHostname = new URL(currentURL).hostname;
 
-  axios
-    .post('http://localhost:4000/api/user/updateSites', {
-      _id: currentUserInfo.id,
-      website: {
-        _id: currentURL,
-        timespent: 0,
-      },
-    })
+  updateWebsite(currentUserInfo.id, { _id: currentURL, timespent: 0 })
     .then(() => {
       console.log('Data has been sent to the server');
     })
@@ -87,24 +84,14 @@ async function activateReliant() {
       console.log('Internal server error in updateSites:', err);
     });
 
-  axios
-    .post('http://localhost:4000/api/websites/addSite', {
-      _id: currentURL,
-    })
+  addSite(currentURL)
     .then((response) => {
       console.log(response);
     })
     .catch((err) => {
       console.log('Internal server error in addSite:', err);
     });
-
-  axios
-    .get('http://localhost:4000/api/websites/getUserHighlights', {
-      params: {
-        url: currentURL,
-        userID: currentUserInfo.id,
-      },
-    })
+  getUserHighlights(currentURL, currentUserInfo.id)
     .then((res) => {
       const rootNode = document.getElementsByName('html');
       console.log('Root node', rootNode);
@@ -270,43 +257,44 @@ async function activateReliant() {
       clearSelection();
       const parentIdName = e.target.parentNode.getAttribute('id');
       const currentID = e.target.getAttribute('id');
-
-      let payload = {
-        url: currentURL,
-        userID: currentUserInfo.id,
-        highlightSelection: rangySerializer.serializeRange(
-          range,
-          true,
-          document.getElementsByName('html')[0]
-        ), // Serializes the range into a string to store in DB
-        highlight_type: null,
-      };
-
+      let highlightSelection = rangySerializer.serializeRange(
+        range,
+        true,
+        document.getElementsByName('html')[0]
+      );
+      console.log("Parent ID name:", parentIdName);
+      console.log("Current ID name:", currentID)
       if (parentIdName == 'highlight' || currentID == 'highlight') {
-        payload.highlight_type = 'highlights';
-        axios
-          .post('http://localhost:4000/api/websites/addHighlights', payload)
-          .then((res) => {
-            console.log(res);
-          });
+        addHighlights(
+          currentURL,
+          currentUserInfo.id,
+          highlightSelection,
+          'highlights'
+        ).then((res) => {
+          console.log(res);
+        });
         highlightText('#ffc107', range, 'reliant-highlight');
         removeTooltip();
       } else if (parentIdName == 'smile' || currentID == 'smile') {
-        payload.highlight_type = 'smiles';
-        axios
-          .post('http://localhost:4000/api/websites/addHighlights', payload)
-          .then((res) => {
-            console.log(res);
-          });
+        addHighlights(
+          currentURL,
+          currentUserInfo.id,
+          highlightSelection,
+          'smiles'
+        ).then((res) => {
+          console.log(res);
+        });
         highlightText('#28a745', range, 'reliant-smile');
         removeTooltip();
       } else if (parentIdName == 'frown' || currentID == 'frown') {
-        payload.highlight_type = 'frowns';
-        axios
-          .post('http://localhost:4000/api/websites/addHighlights', payload)
-          .then((res) => {
-            console.log(res);
-          });
+        addHighlights(
+          currentURL,
+          currentUserInfo.id,
+          highlightSelection,
+          'frowns'
+        ).then((res) => {
+          console.log(res);
+        });
         highlightText('#dc3545', range, 'reliant-frown');
         removeTooltip();
       } else if (parentIdName == 'comment' || currentID == 'comment') {

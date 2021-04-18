@@ -1,0 +1,8 @@
+{
+  "env": {
+      "MONGODB_URI": {
+          "description": "The URI necessary to connect to the mongoDB servers",
+          "required": "true"
+      }
+  }
+}

@@ -1,6 +1,5 @@
 require('dotenv').config({ path: __dirname + '/../.env' });
 const express = require('express');
-const bodyParser = require('body-parser');
 const router = express.Router();
 const cors = require('cors');
 const app = express();
@@ -13,10 +12,10 @@ const questionRouter = require('./routes/questionsRouter');
 
 const mongoose = require('mongoose');
 const { isAssertionExpression } = require('typescript');
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
-var jsonParser = bodyParser.json();
-var urlencodedParser = bodyParser.urlencoded({ extended: false });
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 mongoose.connect(
   process.env.MONGODB_URI,
@@ -26,9 +25,11 @@ mongoose.connect(
   }
 );
 app.use(cors());
-app.use(jsonParser);
-app.use(urlencodedParser);
 app.use('/', router);
+
+if (process.env.NODE_ENV) {
+  console.log('Environment:', process.env.NODE_ENV);
+}
 
 //Specify endpoints for router
 app.use('/api/user', userRouter);
