@@ -31,6 +31,13 @@ const CommentContainer = React.forwardRef((props, ref) => {
   const containerRef = useRef(null);
   const height = useRef(null);
 
+  const handleKeyDown = (event) => {
+    if (event.keyCode === 27) {
+      console.log('Escaped pressed');
+      props.deleteCallback(props.id);
+    }
+  };
+
   const handleChange = (event) => {
     const textAreaLineHeight = parseInt(
       window
@@ -108,6 +115,8 @@ const CommentContainer = React.forwardRef((props, ref) => {
         value={textAreaText}
         rows={minRows}
         onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        autoFocus
       />
       <button
         className="comment-btn"

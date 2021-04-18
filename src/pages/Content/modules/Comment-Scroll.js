@@ -24,6 +24,21 @@ class CommentContainer {
 const margin = 20;
 const CommentScroll = React.forwardRef((props, ref) => {
   const [commentContainerList, setCommentContainerList] = useState([]);
+  //removeComment
+  const deleteComment = (id) => {
+    setCommentContainerList(
+      commentContainerList.filter((x) => {
+        return x.id != id;
+      })
+    );
+    removeSelection(id);
+  };
+  //removeSelection
+  function removeSelection(selectionTextId) {
+    let selection = document.getElementById(selectionTextId);
+    let parent = selection.parentNode;
+    parent.insertBefore(selection.firstChild, selection);
+  }
 
   //helper function to move surrounding containers out of the way to avoid overlap
   function shiftContainers(index) {
@@ -150,6 +165,7 @@ const CommentScroll = React.forwardRef((props, ref) => {
             left={commentContainer.left}
             comments={commentContainer.comments}
             callback={containerChangedCallback}
+            deleteCallback={deleteComment}
           ></CommentContainerComponent>
         );
       })}

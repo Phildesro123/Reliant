@@ -193,7 +193,7 @@ async function activateReliant() {
       mouseDownX = e.pageX;
       showTooltip = true;
 
-      // remove all selected css styles when you click anywher on the screen
+      // remove all selected css styles when you click anywhere on the screen
       Array.prototype.forEach.call(
         document.getElementsByClassName('reliant-selected'),
         (element) => {
@@ -230,7 +230,7 @@ async function activateReliant() {
           selection.baseNode.parentNode == selection.focusNode.parentNode
         )
       ) {
-        //TODO: Add modal to tell user that reliant doesn't support multip paragraph selections
+        //TODO: Add modal to tell user that reliant doesn't support multiple paragraph selections
         console.log('Please dont select multiple paragraphs');
         removeTooltip();
         clearSelection();
@@ -262,8 +262,8 @@ async function activateReliant() {
         true,
         document.getElementsByName('html')[0]
       );
-      console.log("Parent ID name:", parentIdName);
-      console.log("Current ID name:", currentID)
+      console.log('Parent ID name:', parentIdName);
+      console.log('Current ID name:', currentID);
       if (parentIdName == 'highlight' || currentID == 'highlight') {
         addHighlights(
           currentURL,
@@ -354,10 +354,10 @@ async function activateReliant() {
       mark.style.backgroundColor = color;
     }
     mark.className = className;
-    mark.id = selectionTextId;
+    mark.id = className + '_' + selectionTextId.toString();
     mark.onclick = () => {
       mark.className += ' reliant-selected';
-      window.commentScroll.moveToSelection(parseInt(mark.id));
+      window.commentScroll.moveToSelection(mark.id);
     };
 
     mark.appendChild(range.extractContents()); //Append the contents of the selection's range to our mark tag
@@ -367,6 +367,6 @@ async function activateReliant() {
     range.insertNode(mark); // Insert mark into the range
     console.log('Range after highlight:', range);
     selectionTextId += 1;
-    return parseInt(mark.id);
+    return mark.id;
   };
 }
