@@ -321,4 +321,59 @@ siteRouter.route('/addComment').post((req, res, next) => {
     });
   });
 });
+
+/**
+ * Usage: When the user posts a reply
+ * ex:
+ * send with a payload that at least has
+ *
+ * Payload: {
+ *  "url":"{currentURL from user}",
+ *  "parentID": {id of parent},
+ *  "parentContent": what are you replying to
+ *  "userID": {userID},
+ *  "userName": {userName},
+ *  "range": rangeSelection of containr
+ *  "content": Content
+ * }
+ * POST: Add user's commment.
+ */
+siteRouter.route('/addReply').post((req, res, next) => {
+  if (req.body.url == null) {
+    console.log('ERROR: Null url received');
+    return res.status(400).send({ message: 'Need a valid site URL' });
+  }
+  VisitedSites.findOne({ _id: req.body.url }, (err, result) => {
+    if (err || result == null) {
+      console.log(result);
+      console.log('Error:', err);
+      return res.status(400).send({ message: 'Current site not found' });
+    } else if (result.commentContainers.length != 0) {
+      result.commentContainers.forEach((container) => {
+        if (container.range == req.body.range) {
+          container.comments.find(el => el.content === req.body.parentContent 
+            && el.ownerID === req.body.parentID).replies.push({
+            content: req.body.content,
+            ownerID: req.body.userID,
+            ownerName: req.body.userName,
+            upvotes: 0,
+            downvotes: 0,
+            time: Date.now()
+          });
+        }
+      });
+    } 
+    result.save((err) => {
+      if (err) {
+        return res
+          .status(400)
+          .send({ message: 'Error occured in adding comment' });
+      } else {
+        return res.send({ message: 'Successfully added comment' });
+      }
+    });
+  });
+});
+
+
 module.exports = siteRouter;
