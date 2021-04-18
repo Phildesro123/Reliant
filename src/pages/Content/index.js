@@ -7,7 +7,7 @@ import { createTooltip, removeTooltip } from './modules/Tooltip-Component';
 import { createQuestionnaire, removeQuestionnaire } from './Questionnaire';
 import { authorName } from './authorName';
 import {
-  getSiteData,
+  addSite,
   addHighlights,
   getUserHighlights,
   updateWebsite,
@@ -84,7 +84,7 @@ async function activateReliant() {
       console.log('Internal server error in updateSites:', err);
     });
 
-  getSiteData(currentURL)
+  addSite(currentURL)
     .then((response) => {
       console.log(response);
     })
@@ -262,7 +262,8 @@ async function activateReliant() {
         true,
         document.getElementsByName('html')[0]
       );
-
+      console.log("Parent ID name:", parentIdName);
+      console.log("Current ID name:", currentID)
       if (parentIdName == 'highlight' || currentID == 'highlight') {
         addHighlights(
           currentURL,
