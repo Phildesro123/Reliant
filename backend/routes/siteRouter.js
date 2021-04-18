@@ -205,7 +205,9 @@ siteRouter.route('/addHighlights').post((req, res, next) => {
 siteRouter.route('/getUserHighlights').get((req, res, next) => {
   if (req.query.url == null || req.query.userID == null) {
     console.log('ERROR: Null query received');
-    return res.status(400).send({ message: 'Need a valid site URL and UserID' });
+    return res
+      .status(400)
+      .send({ message: 'Need a valid site URL and UserID' });
   }
   console.log('GET: Information about current site:', req.query.url);
   VisitedSites.findOne({ _id: req.query.url }, (err, result) => {
@@ -228,9 +230,8 @@ siteRouter.route('/getUserHighlights').get((req, res, next) => {
   });
 });
 
-
 /**
- * Usage: When page loads, check if theres comments that needs to get loiaded 
+ * Usage: When page loads, check if theres comments that needs to get loiaded
  * ex:
  * send with a payload that at least has
  *
@@ -238,10 +239,12 @@ siteRouter.route('/getUserHighlights').get((req, res, next) => {
  *  "url":"{currentURL from user}",
  * GET: Get user's saved comments from website.
  */
- siteRouter.route('/getComments').get((req, res, next) => {
+siteRouter.route('/getComments').get((req, res, next) => {
   if (req.query.url == null) {
     console.log('ERROR: Null query received');
-    return res.status(400).send({ message: 'Need a valid site URL and UserID' });
+    return res
+      .status(400)
+      .send({ message: 'Need a valid site URL and UserID' });
   }
   console.log('GET: Information about current site:', req.query.url);
   VisitedSites.findOne({ _id: req.query.url }, (err, result) => {
@@ -350,18 +353,23 @@ siteRouter.route('/addReply').post((req, res, next) => {
     } else if (result.commentContainers.length != 0) {
       result.commentContainers.forEach((container) => {
         if (container.range == req.body.range) {
-          container.comments.find(el => el.content === req.body.parentContent 
-            && el.ownerID === req.body.parentID).replies.push({
-            content: req.body.content,
-            ownerID: req.body.userID,
-            ownerName: req.body.userName,
-            upvotes: 0,
-            downvotes: 0,
-            time: Date.now()
-          });
+          container.comments
+            .find(
+              (el) =>
+                el.content === req.body.parentContent &&
+                el.ownerID === req.body.parentID
+            )
+            .replies.push({
+              content: req.body.content,
+              ownerID: req.body.userID,
+              ownerName: req.body.userName,
+              upvotes: 0,
+              downvotes: 0,
+              time: Date.now(),
+            });
         }
       });
-    } 
+    }
     result.save((err) => {
       if (err) {
         return res
@@ -374,5 +382,54 @@ siteRouter.route('/addReply').post((req, res, next) => {
   });
 });
 
-
+/**
+ * Usage: When the user deletes a comment
+ * ex:
+ * send with a payload that at least has
+ *
+ * Payload: {
+ *  "url":"{currentURL from user}",
+ *  "userID": {userID},
+ *  "range": rangeSelection,
+ *  "content": "Content of comment being deleted"
+ * }
+ * POST: Delete user's commment.
+ */
+siteRouter.route('/deleteComment').post((req, res, next) => {
+  console.log('POST: Deleting comment');
+  if (req.body.url == null) {
+    console.log('ERROR: Null url received');
+    return res.status(400).send({ message: 'Need a valid site URL' });
+  }
+  VisitedSites.findOne({ _id: req.body.url }, (err, result) => {
+    if (err || result == null) {
+      console.log(result);
+      console.log('Error:', err);
+      return res.status(400).send({ message: 'Current site not found' });
+    } else if (result.commentContainers.length != 0) {
+      result.commentContainers.forEach((container) => {
+        if (container.range == req.body.range) {
+          console.log('Container exists:', container);
+          const index = container.comments.findIndex(
+            (e) =>
+              e.content === req.body.content && e.ownerID === req.body.userID
+          );
+          if (index >= 0) {
+            console.log('Found comment at index:', index);
+            container.comments.splice(index);
+          }
+        }
+      });
+    }
+    result.save((err) => {
+      if (err) {
+        return res
+          .status(400)
+          .send({ message: 'Error occured in deleting comment' });
+      } else {
+        return res.send({ message: 'Successfully deleting comment' });
+      }
+    });
+  });
+});
 module.exports = siteRouter;
