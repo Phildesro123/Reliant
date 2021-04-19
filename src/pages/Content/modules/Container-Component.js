@@ -153,8 +153,8 @@ const Container = React.forwardRef((props, ref) => {
       className={'bordered-container container ' + props.className}
       style={
         props.className == 'comment-container'
-          ? { top: props.top + 'px', left: props.shift + 'px' }
-          : { top: props.top + 'px', right: props.shift + 'px' }
+          ? { top: props.top + 'px', right: props.shift + 'px' }
+          : { top: props.top + 'px', left: props.shift + 'px' }
       }
     >
       <div className="voting-container"></div>

@@ -34,7 +34,7 @@ const ContainerScroll = React.forwardRef((props, ref) => {
   //helper function to move surrounding containers out of the way to avoid overlap
   function shiftContainers(list, index) {
     let currentIndex = index;
-    list[currentIndex].shift = -40;
+    list[currentIndex].shift = 80;
     // move any overlapping items above current item up
     while (currentIndex > 0) {
       let currentElement = list[currentIndex];

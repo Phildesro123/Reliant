@@ -155,7 +155,7 @@ async function activateReliant() {
   if (first) {
     createQuestionnaire(currentUserInfo.id, currentURL, currentHostname);
     const noteScroll = document.createElement('div');
-    noteScroll.className = 'note-scroll';
+    noteScroll.className = 'reliant-scroll note-scroll';
     //TODO: Locate left side of text and put notes there for each page
     render(
       <ContainerScroll
@@ -166,10 +166,9 @@ async function activateReliant() {
       ></ContainerScroll>,
       noteScroll
     );
-    document.body.appendChild(noteScroll);
-
+    // document.body.appendChild(noteScroll);
     const commentScroll = document.createElement('div');
-    commentScroll.className = 'comment-scroll';
+    commentScroll.className = 'reliant-scroll comment-scroll';
     //TODO: Locate right side of text and put comment there for each page
     render(
       <ContainerScroll
@@ -180,7 +179,34 @@ async function activateReliant() {
       ></ContainerScroll>,
       commentScroll
     );
-    document.body.appendChild(commentScroll);
+    // document.body.appendChild(commentScroll);
+    if (
+      currentHostname.includes(URLS.VERGE) ||
+      currentHostname.includes(URLS.WIRED)
+    ) {
+      console.log('CREATEING WIRED SCROLL');
+      let main = document.getElementsByTagName('main')[0];
+      main.style.margin = 0;
+      let currentParent = main.parentNode;
+      let wrapperDiv = document.createElement('div');
+      wrapperDiv.style.display = 'inline-flex';
+      wrapperDiv.style.width = '100%';
+      wrapperDiv.style.margin = 'auto';
+      currentParent.replaceChild(wrapperDiv, main);
+
+      wrapperDiv.appendChild(noteScroll);
+      wrapperDiv.appendChild(main);
+      wrapperDiv.appendChild(commentScroll);
+      if (currentHostname.includes(URLS.WIRED)) {
+        let gridContent = document.getElementsByClassName('article__chunks')[0]
+          .childNodes;
+        for (let i = 0; i < gridContent.length; i++) {
+          console.log('Here', gridContent[i].classList);
+          console.log(gridContent[i].className);
+          gridContent[i].className = '';
+        }
+      }
+    }
     //Highlight everything
     even = (even + 1) % 2;
 
@@ -270,6 +296,12 @@ async function activateReliant() {
       //only run if tooltip is clicked
       if (!tooltipClicked) return false;
       clearSelection();
+      let scrollTop =
+        window.pageYOffset +
+        document
+          .getElementsByClassName('reliant-scroll')[0]
+          .getBoundingClientRect().top;
+
       const parentIdName = e.target.parentNode.getAttribute('id');
       const currentID = e.target.getAttribute('id');
       let highlightSelection = rangySerializer.serializeRange(
@@ -317,7 +349,7 @@ async function activateReliant() {
         window.commentScroll.addContainer(
           id,
           range.toString(),
-          selectionTopY,
+          selectionTopY - scrollTop,
           mouseDownX
         );
         removeTooltip();
@@ -326,7 +358,7 @@ async function activateReliant() {
         window.noteScroll.addContainer(
           id,
           range.toString(),
-          selectionTopY,
+          selectionTopY - scrollTop,
           mouseDownX
         );
         removeTooltip();
