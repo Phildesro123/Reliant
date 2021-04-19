@@ -8,6 +8,7 @@ const ContainerScroll = React.forwardRef((props, ref) => {
   const [containerList, setContainerList] = useState([]);
   //remove container and selection
   const deleteContainer = (id) => {
+    console.log('Deleting:', id);
     let index = containerList.findIndex((x) => {
       return x.id == id;
     });
@@ -21,9 +22,13 @@ const ContainerScroll = React.forwardRef((props, ref) => {
     } else {
       setContainerList(tempList);
     }
-    let selection = document.getElementById(id);
+
+    console.log('Temp list', tempList);
+    let selection = document.getElementById(id.split('_')[0] + '_selection');
     let parent = selection.parentNode;
-    parent.insertBefore(selection.firstChild, selection);
+    while (selection.childNodes.length > 0) {
+      parent.insertBefore(selection.childNodes[0], selection);
+    }
   };
 
   //helper function to move surrounding containers out of the way to avoid overlap
@@ -138,6 +143,12 @@ const ContainerScroll = React.forwardRef((props, ref) => {
       setContainerList(temp);
     }
   };
+
+  const containerClicked = (id) => {
+    window.scrollBy({ top: 100, behavior: 'smooth' });
+    console.log('Container Clicked:', id);
+  };
+
   // Exposes functions to ref (this allows them to be used outside of react components ie in the index.js file)
   useImperativeHandle(ref, () => ({
     addContainer,
@@ -159,6 +170,7 @@ const ContainerScroll = React.forwardRef((props, ref) => {
             buttonText={container.buttonText}
             callback={containerChangedCallback}
             deleteCallback={deleteContainer}
+            clickedCallback={containerClicked}
           ></ContainerComponent>
         );
       })}

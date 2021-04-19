@@ -93,7 +93,6 @@ input[type='radio'] {
 }
 
 .comment-scroll {
-  height: 100%;
   position: absolute;
   top: 0;
   right: 0;
@@ -101,7 +100,6 @@ input[type='radio'] {
 }
 
 .note-scroll {
-  height: 100%;
   position: absolute;
   top: 0;
   left: 0;
@@ -117,9 +115,9 @@ input[type='radio'] {
   }
 }
 
-.note-container {
+.container {
   background-color: white;
-  border-color: #0056b3;
+  text-align: center;
   position: absolute;
   width: 300px;
   overflow: hidden;
@@ -129,17 +127,8 @@ input[type='radio'] {
   /* delay showing it to allow the rest of the icons time to move out of the way first */
   animation: 1ms showContainer forwards;
 }
-.comment-container {
-  background-color: white;
-  position: absolute;
-  left: 0;
-  width: 300px;
-  overflow: hidden;
-  transition-duration: 100ms;
-  transform: translateY(-50px);
-  margin: 0;
-  /* delay showing it to allow the rest of the icons time to move out of the way first */
-  animation: 1ms showContainer forwards;
+.note-container {
+  border-color: #0056b3;
 }
 
 .comment-input-container {

@@ -156,7 +156,7 @@ async function activateReliant() {
     createQuestionnaire(currentUserInfo.id, currentURL, currentHostname);
     const noteScroll = document.createElement('div');
     noteScroll.className = 'note-scroll';
-    //TODO: Locate side of text and put commentScroll there for each page
+    //TODO: Locate left side of text and put notes there for each page
     render(
       <ContainerScroll
         type="note"
@@ -170,7 +170,7 @@ async function activateReliant() {
 
     const commentScroll = document.createElement('div');
     commentScroll.className = 'comment-scroll';
-    //TODO: Locate side of text and put commentScroll there for each page
+    //TODO: Locate right side of text and put comment there for each page
     render(
       <ContainerScroll
         type="comment"
@@ -363,6 +363,8 @@ async function activateReliant() {
 
   var selectionTextId = 0;
   const highlightText = (color, range, className, underline = false) => {
+    let containerId =
+      className + '-' + selectionTextId.toString() + '_container';
     var mark = document.createElement('span');
     if (underline) {
       mark = document.createElement('u');
@@ -374,12 +376,13 @@ async function activateReliant() {
       mark.style.backgroundColor = color;
     }
     mark.className = className;
-    mark.id = className + '_' + selectionTextId.toString();
+    mark.id = className + '-' + selectionTextId.toString() + '_selection';
     mark.onclick = () => {
+      console.log('HERHERHERHERH');
       if (mark.className == 'reliant-comment') {
-        window.commentScroll.moveToSelection(mark.id);
+        window.commentScroll.moveToSelection(containerId);
       } else if (mark.className == 'reliant-note') {
-        window.noteScroll.moveToSelection(mark.id);
+        window.noteScroll.moveToSelection(containerId);
       }
       mark.className += ' reliant-selected';
     };
@@ -391,6 +394,6 @@ async function activateReliant() {
     range.insertNode(mark); // Insert mark into the range
     console.log('Range after highlight:', range);
     selectionTextId += 1;
-    return mark.id;
+    return containerId;
   };
 }

@@ -4,6 +4,7 @@
   "options_page": "options.html",
   "permissions":[
     "contextMenus",
+    "storage",
     "identity",
     "identity.email",
     "tabs",
