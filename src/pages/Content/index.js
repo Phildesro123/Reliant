@@ -5,7 +5,6 @@ import 'rangy/lib/rangy-classapplier';
 import 'rangy/lib/rangy-highlighter';
 /* ===================================================================== */
 import rangySerializer from 'rangy/lib/rangy-serializer';
-import CommentScroll from './modules/Comment-Scroll';
 import { URLS } from '../Background/workingUrls';
 import { createTooltip, removeTooltip } from './modules/Tooltip-Component';
 import { createQuestionnaire, removeQuestionnaire } from './Questionnaire';
@@ -16,6 +15,7 @@ import {
   getUserHighlights,
   updateWebsite,
 } from '../../API/APIModule';
+import ContainerScroll from './modules/Container-Scroll';
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
@@ -50,7 +50,6 @@ async function getUserInfo() {
     });
   });
 }
-
 var first = true; //Used to ensure the questionnaire can only be injected once.
 var colors = []; // Array holding paragraph colors in the form [original, random]
 var even = 0; // 0 --> Original Color, 1 --> Random Color
@@ -64,15 +63,9 @@ window.onload = async function () {
 
   console.log("Class applier", classApplier)
   LOADED = true;
-  console.log('LOADED');
+  console.log('Reliant Activated');
   currentHostname = new URL(await getURL()).hostname;
-  console.log(currentHostname);
-  for (const key in URLS) {
-    if (currentHostname.includes(URLS[key])) {
-      activateReliant();
-      break;
-    }
-  }
+  activateReliant();
 };
 var timeOpened = new Date().getTime();
 
@@ -178,18 +171,73 @@ async function activateReliant() {
 
   if (first) {
     createQuestionnaire(currentUserInfo.id, currentURL, currentHostname);
-    const commentScroll = document.createElement('div');
-    commentScroll.className = 'comment-scroll';
-    //TODO: Locate side of text and put commentScroll there for each page
+    const noteScroll = document.createElement('div');
+    noteScroll.className = 'reliant-scroll note-scroll';
+    //TODO: Locate left side of text and put notes there for each page
     render(
-      <CommentScroll
+      <ContainerScroll
+        type="note"
+        ref={(cs) => {
+          window.noteScroll = cs;
+        }}
+      ></ContainerScroll>,
+      noteScroll
+    );
+    // document.body.appendChild(noteScroll);
+    const commentScroll = document.createElement('div');
+    commentScroll.className = 'reliant-scroll comment-scroll';
+    //TODO: Locate right side of text and put comment there for each page
+    render(
+      <ContainerScroll
+        type="comment"
         ref={(cs) => {
           window.commentScroll = cs;
         }}
-      ></CommentScroll>,
+      ></ContainerScroll>,
       commentScroll
     );
-    document.body.appendChild(commentScroll);
+    // document.body.appendChild(commentScroll);
+    let main = null;
+    if (currentHostname.includes(URLS.CNN)) {
+      main = document.getElementsByClassName('l-container')[0];
+      console.log(main);
+    } else {
+      console.log('CREATEING WIRED SCROLL');
+      main = document.getElementsByTagName('main')[0];
+
+      if (currentHostname.includes(URLS.WIRED)) {
+        let gridContent = document.getElementsByClassName('article__chunks')[0]
+          .childNodes;
+        for (let i = 0; i < gridContent.length; i++) {
+          console.log('Here', gridContent[i].classList);
+          console.log(gridContent[i].className);
+          gridContent[i].className = '';
+        }
+      }
+
+      if (currentHostname.includes(URLS.VOX)) {
+        var parent = main.parentNode;
+
+        // move all children out of the element
+        while (main.firstChild) parent.insertBefore(main.firstChild, main);
+
+        // remove the empty element
+        parent.removeChild(main);
+        main = parent;
+      }
+    }
+    main.style.margin = 0;
+    let currentParent = main.parentNode;
+    let wrapperDiv = document.createElement('div');
+    wrapperDiv.style.display = 'inline-flex';
+    wrapperDiv.style.width = '100%';
+    wrapperDiv.style.margin = 'auto';
+    currentParent.replaceChild(wrapperDiv, main);
+
+    wrapperDiv.appendChild(noteScroll);
+    wrapperDiv.appendChild(main);
+    wrapperDiv.appendChild(commentScroll);
+
     //Highlight everything
     even = (even + 1) % 2;
 
@@ -218,7 +266,7 @@ async function activateReliant() {
       mouseDownX = e.pageX;
       showTooltip = true;
 
-      // remove all selected css styles when you click anywher on the screen
+      // remove all selected css styles when you click anywhere on the screen
       Array.prototype.forEach.call(
         document.getElementsByClassName('reliant-selected'),
         (element) => {
@@ -257,7 +305,7 @@ async function activateReliant() {
           selection.baseNode.parentNode == selection.focusNode.parentNode
         )
       ) {
-        //TODO: Add modal to tell user that reliant doesn't support multip paragraph selections
+        //TODO: Add modal to tell user that reliant doesn't support multiple paragraph selections
         console.log('Please dont select multiple paragraphs');
         removeTooltip();
         clearSelection();
@@ -284,6 +332,12 @@ async function activateReliant() {
       //only run if tooltip is clicked
       if (!tooltipClicked) return false;
       clearSelection();
+      let scrollTop =
+        window.pageYOffset +
+        document
+          .getElementsByClassName('reliant-scroll')[0]
+          .getBoundingClientRect().top;
+
       const parentIdName = e.target.parentNode.getAttribute('id');
       const currentID = e.target.getAttribute('id');
       let highlightSelection = rangySerializer.serializeRange(
@@ -328,16 +382,21 @@ async function activateReliant() {
         removeTooltip();
       } else if (parentIdName == 'comment' || currentID == 'comment') {
         const id = highlightText('#dc3545', range, 'reliant-comment', true);
-        window.commentScroll.addCommentContainer(
+        window.commentScroll.addContainer(
           id,
           range.toString(),
-          selectionTopY,
+          selectionTopY - scrollTop,
           mouseDownX
         );
         removeTooltip();
       } else if (parentIdName == 'note' || currentID == 'note') {
-        highlightText('blue', range, 'reliant-note', true);
-        // TODO: Implement note
+        const id = highlightText('blue', range, 'reliant-note', true);
+        window.noteScroll.addContainer(
+          id,
+          range.toString(),
+          selectionTopY - scrollTop,
+          mouseDownX
+        );
         removeTooltip();
       }
     });
@@ -372,6 +431,8 @@ async function activateReliant() {
 
   var selectionTextId = 0;
   const highlightText = (color, range, className, underline = false) => {
+    let containerId =
+      className + '-' + selectionTextId.toString() + '_container';
     var mark = document.createElement('span');
     if (underline) {
       mark = document.createElement('u');
@@ -397,6 +458,17 @@ async function activateReliant() {
     //   mark.className += ' reliant-selected';
     //   window.commentScroll.moveToSelection(parseInt(mark.id));
 
+    mark.className = className;
+    mark.id = className + '-' + selectionTextId.toString() + '_selection';
+    mark.onclick = () => {
+      console.log('HERHERHERHERH');
+      if (mark.className == 'reliant-comment') {
+        window.commentScroll.moveToSelection(containerId);
+      } else if (mark.className == 'reliant-note') {
+        window.noteScroll.moveToSelection(containerId);
+      }
+      mark.className += ' reliant-selected';
+    };
 
     // mark.appendChild(range.extractContents()); //Append the contents of the selection's range to our mark tag
     // mark.normalize();
@@ -405,6 +477,6 @@ async function activateReliant() {
     // range.insertNode(mark); // Insert mark into the range
     // console.log('Range after highlight:', range);
     selectionTextId += 1;
-    return parseInt(mark.id);
+    return containerId;
   };
 }

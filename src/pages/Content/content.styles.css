@@ -68,13 +68,13 @@ input[type='radio'] {
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
     border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   color: #fff;
-  background-color: #28a745!important;
+  background-color: #28a745 !important;
   border-color: #28a745;
 }
 
 .submit-btn:hover {
   color: #fff;
-  background-color: #218838!important;
+  background-color: #218838 !important;
   border-color: #1e7e34;
 }
 
@@ -92,12 +92,18 @@ input[type='radio'] {
   opacity: 0.65;
 }
 
+.reliant-scroll {
+  position: relative;
+  min-width: 400px;
+}
 .comment-scroll {
-  height: 100%;
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 400px;
+  padding-right: 20px;
+  margin-right: auto;
+}
+
+.note-scroll {
+  padding-left: 20px;
+  margin-left: auto;
 }
 
 @keyframes showContainer {
@@ -109,10 +115,10 @@ input[type='radio'] {
   }
 }
 
-.comment-container {
+.container {
   background-color: white;
+  text-align: center;
   position: absolute;
-  left: 0;
   width: 300px;
   overflow: hidden;
   transition-duration: 100ms;
@@ -120,8 +126,9 @@ input[type='radio'] {
   margin: 0;
   /* delay showing it to allow the rest of the icons time to move out of the way first */
   animation: 1ms showContainer forwards;
-  /* animation-delay: 100ms; */
-  /* animation-fill-mode: forwards; */
+}
+.note-container {
+  border-color: #0056b3;
 }
 
 .comment-input-container {
@@ -156,6 +163,14 @@ input[type='radio'] {
   width: 100%;
   resize: none;
   margin-top: 10px;
+}
+
+.reliant-note:hover {
+  background-color: rgba(78, 78, 228, 0.438);
+}
+
+.reliant-note.reliant-selected {
+  background-color: rgba(78, 78, 228, 0.644);
 }
 
 .reliant-comment:hover {
@@ -1079,6 +1094,19 @@ button.bg-dark:focus {
   background-color: transparent !important;
 }
 
+main {
+  max-width: 1100px;
+  width: 100%;
+}
+.c-wide-block {
+  max-width: 1100px !important;
+  width: 100% !important;
+  margin: 0 !important;
+}
+div[class='pg-rail-tall__wrapper'] {
+  padding: 0 !important;
+}
+
 div[data-popper-reference-hidden='false'] {
   display: none;
 }
@@ -1109,10 +1137,6 @@ div[data-concert-ads-name] {
 div[class='sidebar-columns'] {
   display: none;
 }
-
-/* div[class="contain"] {
-  display: none;
-} */
 
 div.article-meta.article-meta-lower {
   left: auto;
@@ -1164,17 +1188,25 @@ aside.paywall-bar.paywall-bar--visible {
 #reliant-tooltip {
   position: absolute;
   padding-bottom: 10px;
-  -webkit-transform: translate(-50%,-100%)!important;
-  transform: translate(-50%, -100%)!important;
+  -webkit-transform: translate(-50%, -100%) !important;
+  transform: translate(-50%, -100%) !important;
 }
 
-#smile, #frown, #highlight, #comment, #note {
+#smile,
+#frown,
+#highlight,
+#comment,
+#note {
   border: 0;
   padding: 0.25rem 0.5rem;
 }
 
-#smile-icon, #frown-icon, #highlight-icon, #comment-icon, #note-icon {
-pointer-events: none;
+#smile-icon,
+#frown-icon,
+#highlight-icon,
+#comment-icon,
+#note-icon {
+  pointer-events: none;
 }
 
 .reliant-highlight {

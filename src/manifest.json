@@ -4,6 +4,7 @@
   "options_page": "options.html",
   "permissions":[
     "contextMenus",
+    "storage",
     "identity",
     "identity.email",
     "tabs",
@@ -22,7 +23,8 @@
     "128": "icon.png"
   },
   "content_scripts": [{
-    "matches": ["http://*/*", "https://*/*", "<all_urls>"],
+    "matches": ["https://www.nytimes.com/*", "https://www.theverge.com/*", "https://www.wired.com/*", "https://www.cnn.com/*", "https://www.vox.com/*"],
+    "exclude_matches":["https://www.nytimes.com/", "https://www.theverge.com/", "https://www.wired.com/", "https://www.cnn.com/", "https://www.vox.com/"],
     "js": ["contentScript.bundle.js"],
     "css": ["content.styles.css"],
     "run_at": "document_end"
