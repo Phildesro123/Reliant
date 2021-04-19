@@ -113,11 +113,19 @@ const Popup = () => {
                 block
                 onClick={() => {
                   if (activated) {
-                    message('deactivate');
-                    setActivated(false);
+                    console.log("Was Activated")
+                    chrome.storage.local.set({"enabled": "false"}, () => {
+                      console.log("Inside Set")
+                      message('deactivate');
+                      setActivated(false);
+                    })
                   } else {
-                    message('activate');
-                    setActivated(true);
+                    console.log("Was Not Activated")
+                    chrome.storage.local.set({"enabled": "true"}, () => {
+                      console.log("Inside set")
+                      message('activate');
+                      setActivated(true);
+                    })
                   }
                 }}
               >
