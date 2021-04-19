@@ -33,7 +33,7 @@ function Comment(props) {
     setUpVote(upVote + 1);
   }
   function updateDownVote() {
-    setDownVote(downVote - 1);
+    setDownVote(downVote + 1);
   }
 
   return (

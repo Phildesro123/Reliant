@@ -104,8 +104,8 @@ const Container = React.forwardRef((props, ref) => {
             displayName={userInfo.email.split('@')[0]}
             id={userInfo.id}
             commentContent={content}
-            upVote={50}
-            downVote={1}
+            upVote={0}
+            downVote={0}
             canReply={true}
             time={times}
           ></Comment>
