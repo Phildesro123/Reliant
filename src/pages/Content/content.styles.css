@@ -92,18 +92,19 @@ input[type='radio'] {
   opacity: 0.65;
 }
 
+.reliant-scroll {
+  background-color: #0056b3;
+  position: relative;
+  min-width: 400px;
+}
 .comment-scroll {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 400px;
+  padding-right: 20px;
+  margin-right: auto;
 }
 
 .note-scroll {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 400px;
+  padding-left: 20px;
+  margin-left: auto;
 }
 
 @keyframes showContainer {
@@ -1094,6 +1095,10 @@ button.bg-dark:focus {
   background-color: transparent !important;
 }
 
+main {
+  max-width: 1100px;
+}
+
 div[data-popper-reference-hidden='false'] {
   display: none;
 }
@@ -1124,10 +1129,6 @@ div[data-concert-ads-name] {
 div[class='sidebar-columns'] {
   display: none;
 }
-
-/* div[class="contain"] {
-  display: none;
-} */
 
 div.article-meta.article-meta-lower {
   left: auto;
