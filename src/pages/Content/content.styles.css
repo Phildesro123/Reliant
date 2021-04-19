@@ -1176,3 +1176,15 @@ aside.paywall-bar.paywall-bar--visible {
 #smile-icon, #frown-icon, #highlight-icon, #comment-icon, #note-icon {
 pointer-events: none;
 }
+
+.reliant-highlight {
+  background-color: #ffc107;
+}
+
+.reliant-smile {
+  background-color: #28a745;
+}
+
+.reliant-frown {
+  background-color: #dc3545;
+}
