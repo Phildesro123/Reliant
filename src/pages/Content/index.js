@@ -47,21 +47,14 @@ async function getUserInfo() {
     });
   });
 }
-
 var first = true; //Used to ensure the questionnaire can only be injected once.
 var colors = []; // Array holding paragraph colors in the form [original, random]
 var even = 0; // 0 --> Original Color, 1 --> Random Color
 window.onload = async function () {
   LOADED = true;
-  console.log('LOADED');
+  console.log('Reliant Activated');
   currentHostname = new URL(await getURL()).hostname;
-  console.log(currentHostname);
-  for (const key in URLS) {
-    if (currentHostname.includes(URLS[key])) {
-      activateReliant();
-      break;
-    }
-  }
+  activateReliant();
 };
 var timeOpened = new Date().getTime();
 
@@ -180,23 +173,14 @@ async function activateReliant() {
       commentScroll
     );
     // document.body.appendChild(commentScroll);
-    if (
-      currentHostname.includes(URLS.VERGE) ||
-      currentHostname.includes(URLS.WIRED)
-    ) {
+    let main = null;
+    if (currentHostname.includes(URLS.CNN)) {
+      main = document.getElementsByClassName('l-container')[0];
+      console.log(main);
+    } else {
       console.log('CREATEING WIRED SCROLL');
-      let main = document.getElementsByTagName('main')[0];
-      main.style.margin = 0;
-      let currentParent = main.parentNode;
-      let wrapperDiv = document.createElement('div');
-      wrapperDiv.style.display = 'inline-flex';
-      wrapperDiv.style.width = '100%';
-      wrapperDiv.style.margin = 'auto';
-      currentParent.replaceChild(wrapperDiv, main);
+      main = document.getElementsByTagName('main')[0];
 
-      wrapperDiv.appendChild(noteScroll);
-      wrapperDiv.appendChild(main);
-      wrapperDiv.appendChild(commentScroll);
       if (currentHostname.includes(URLS.WIRED)) {
         let gridContent = document.getElementsByClassName('article__chunks')[0]
           .childNodes;
@@ -206,7 +190,30 @@ async function activateReliant() {
           gridContent[i].className = '';
         }
       }
+
+      if (currentHostname.includes(URLS.VOX)) {
+        var parent = main.parentNode;
+
+        // move all children out of the element
+        while (main.firstChild) parent.insertBefore(main.firstChild, main);
+
+        // remove the empty element
+        parent.removeChild(main);
+        main = parent;
+      }
     }
+    main.style.margin = 0;
+    let currentParent = main.parentNode;
+    let wrapperDiv = document.createElement('div');
+    wrapperDiv.style.display = 'inline-flex';
+    wrapperDiv.style.width = '100%';
+    wrapperDiv.style.margin = 'auto';
+    currentParent.replaceChild(wrapperDiv, main);
+
+    wrapperDiv.appendChild(noteScroll);
+    wrapperDiv.appendChild(main);
+    wrapperDiv.appendChild(commentScroll);
+
     //Highlight everything
     even = (even + 1) % 2;
 
