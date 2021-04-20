@@ -90,6 +90,23 @@ export const updateWebsite = async (userId, website) => {
 };
 
 /**
+ * Get stored notes from reliant database
+ * @param url URL of website you want notes for
+ * @param userID UserID
+ * @returns note containers
+ */
+export const getNotes = async (url, userID) => {
+  const res = await axios.get('user/getNotes', {
+    params: {
+      url,
+      _id: userID,
+    },
+  });
+
+  return await res;
+};
+
+/**
  * Add/Edit a note
  * @param userID UserID
  * @param url URL of website
@@ -101,7 +118,7 @@ export const addOrEditNote = async (userID, url, range, content) => {
     _id: userID,
     url,
     range,
-    content
+    content,
   });
 
   return await res;
@@ -109,19 +126,19 @@ export const addOrEditNote = async (userID, url, range, content) => {
 
 /**
  * Delete a note
- * @param userID UserID 
- * @param url URL of the website 
+ * @param userID UserID
+ * @param url URL of the website
  * @param range Range of the note
  */
 export const deleteNote = async (userID, url, range) => {
   const res = await axios.post('user/deleteNotes', {
     _id: userID,
     url,
-    range
+    range,
   });
 
   return await res;
-}
+};
 //Website Client API
 
 /**
@@ -224,8 +241,8 @@ export const addComment = async (url, userID, userName, range, content) => {
 };
 
 /**
- * Reply to a comment 
- * @param url URL of website 
+ * Reply to a comment
+ * @param url URL of website
  * @param parentID OwnerID of comment
  * @param parentContent Content of comment
  * @param userID OwnerID of user replying
@@ -267,8 +284,8 @@ export const deleteComment = async (url, userID, range, content) => {
     url,
     userID,
     range,
-    content
+    content,
   });
 
   return await res;
-}
+};
