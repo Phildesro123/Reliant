@@ -1,10 +1,8 @@
 import React from 'react';
 import { render } from 'react-dom';
 import rangy from 'rangy';
-import 'rangy/lib/rangy-classapplier';
-import 'rangy/lib/rangy-highlighter';
+import 'rangy/lib/rangy-textrange'
 /* ===================================================================== */
-import rangySerializer from 'rangy/lib/rangy-serializer';
 import { URLS } from '../Background/workingUrls';
 import { createTooltip, removeTooltip } from './modules/Tooltip-Component';
 import { createQuestionnaire, removeQuestionnaire } from './Questionnaire';
@@ -55,13 +53,6 @@ var colors = []; // Array holding paragraph colors in the form [original, random
 var even = 0; // 0 --> Original Color, 1 --> Random Color
 window.onload = async function () {
   rangy.init();
-  console.log('Rangy object:', rangy);
-  classApplier = rangy.createClassApplier('reliant-frown', {
-    elementTagName:'span',
-    elementProperties:''
-  });
-
-  console.log("Class applier", classApplier)
   LOADED = true;
   console.log('Reliant Activated');
   currentHostname = new URL(await getURL()).hostname;
@@ -102,66 +93,53 @@ async function activateReliant() {
 
       if (res.data.frowns.length > 0) {
         res.data.frowns.forEach((element) => {
-          console.log('Serialized selection:', element.selection);
-
-          if (rangySerializer.canDeserializeRange(element.selection)) {
             try {
               highlightText(
                 '#dc3545',
-                rangySerializer.deserializeRange(
-                  element.selection,
-                  rootNode[0],
-                  document
+                deserializeSelection(
+                  element.selection
                 ),
                 'reliant-frown'
               );
+              clearSelection();
             } catch (error) {
               console.log('Frown error:', error);
               console.log('Highlight failed to restore');
             }
-          }
         });
       }
       if (res.data.smiles.length > 0) {
         res.data.smiles.forEach((element) => {
-          console.log('Serialized selection:', element.selection);
-          if (rangySerializer.canDeserializeRange(element.selection)) {
             try {
               highlightText(
                 '#28a745',
-                rangySerializer.deserializeRange(
-                  element.selection,
-                  rootNode[0],
-                  document
+                deserializeSelection(
+                  element.selection
                 ).nativeRange,
                 'reliant-smile'
               );
+              clearSelection();
             } catch (error) {
               console.log('Smile error:', error);
               console.log('Highlight failed to restore');
             }
-          }
         });
       }
       if (res.data.highlights.length > 0) {
         res.data.highlights.forEach((element) => {
-          console.log('Serialized selection:', element.selection);
-          if (rangySerializer.canDeserializeRange(element.selection)) {
             try {
               highlightText(
                 '#ffc107',
-                rangySerializer.deserializeRange(
-                  element.selection,
-                  rootNode[0],
-                  document
+                deserializeSelection(
+                  element.selection
                 ).nativeRange,
                 'reliant-highlight'
               );
+              clearSelection();
             } catch (error) {
               console.log('Highlight error:', error);
               console.log('Highlight Failed to restore');
             }
-          }
         });
       }
     })
@@ -241,13 +219,6 @@ async function activateReliant() {
     //Highlight everything
     even = (even + 1) % 2;
 
-    function clearSelection() {
-      if (window.getSelection) {
-        window.getSelection().removeAllRanges();
-      } else if (document.selectionText) {
-        document.selectionText.empty();
-      }
-    }
 
     var mouseDownX = 0;
     var selectionTopY = 0;
@@ -294,8 +265,6 @@ async function activateReliant() {
     document.addEventListener('mouseup', (e) => {
       if (tooltipClicked || !showTooltip) return false;
       let selection = window.getSelection();
-      let rangySelection = rangy.getSelection();
-      console.log("This is my rangy selection kms:", rangySelection)
       let selectionText = selection.toString();
 
       // Triggers when multi paragraph selection occurs
@@ -315,8 +284,8 @@ async function activateReliant() {
       //Render the tooltip
       if (selectionText.length > 0) {
         range = selection.getRangeAt(0);
-        savedSelection = rangySelection;
-        console.log("The saved selection is: ", savedSelection)
+        savedSelection = serializeCurrentSelection();
+        console.log('The saved selection is: ', savedSelection);
         const boundingBox = range.getBoundingClientRect();
         const selectionCenterX = (mouseDownX + boundingBox.right) / 2;
         selectionTopY = boundingBox.y + window.pageYOffset;
@@ -340,11 +309,7 @@ async function activateReliant() {
 
       const parentIdName = e.target.parentNode.getAttribute('id');
       const currentID = e.target.getAttribute('id');
-      let highlightSelection = rangySerializer.serializeRange(
-        range,
-        true,
-        document.getElementsByName('html')[0]
-      );
+      let highlightSelection = savedSelection;
       console.log('Parent ID name:', parentIdName);
       console.log('Current ID name:', currentID);
       if (parentIdName == 'highlight' || currentID == 'highlight') {
@@ -356,7 +321,7 @@ async function activateReliant() {
         ).then((res) => {
           console.log(res);
         });
-        highlightText('#ffc107', savedSelection, 'reliant-highlight');
+        highlightText('#ffc107', range, 'reliant-highlight');
         removeTooltip();
       } else if (parentIdName == 'smile' || currentID == 'smile') {
         addHighlights(
@@ -441,22 +406,22 @@ async function activateReliant() {
       mark.style.textDecorationThickness = '.2rem';
       mark.style.textDecorationSkipInk = 'none';
     } else {
-      //mark.style.backgroundColor = color;
+      mark.style.backgroundColor = color;
     }
-    const highlight = rangy.createHighlighter();
-    console.log("Highlight:", highlight);
-    highlight.addClassApplier(rangy.createClassApplier(className, {
-      ignoreWhiteSpace: true,
-      tagNames: ["span", "a"],
-    }))
-    console.log("Highlight:", highlight);
-    console.log("Saved Selection:", range)
-    highlight.highlightSelection(className, {selection: savedSelection})
-    // mark.className = className;
-    // mark.id = selectionTextId;
-    // mark.onclick = () => {
-    //   mark.className += ' reliant-selected';
-    //   window.commentScroll.moveToSelection(parseInt(mark.id));
+    // const highlight = rangy.createHighlighter();
+    // console.log("Highlight:", highlight);
+    // highlight.addClassApplier(rangy.createClassApplier(className, {
+    //   ignoreWhiteSpace: true,
+    //   tagNames: ["span", "a"],
+    // }))
+    // console.log("Highlight:", highlight);
+    // console.log("Saved Selection:", range)
+    // highlight.highlightSelection(className, {selection: savedSelection})
+    // // mark.className = className;
+    // // mark.id = selectionTextId;
+    // // mark.onclick = () => {
+    // //   mark.className += ' reliant-selected';
+    // //   window.commentScroll.moveToSelection(parseInt(mark.id));
 
     mark.className = className;
     mark.id = className + '-' + selectionTextId.toString() + '_selection';
@@ -470,13 +435,73 @@ async function activateReliant() {
       mark.className += ' reliant-selected';
     };
 
-    // mark.appendChild(range.extractContents()); //Append the contents of the selection's range to our mark tag
-    // mark.normalize();
-    // console.log('Mark element:', mark);
-    // range.deleteContents(); // Not sure if this is necessary, but just in case I'm removing the rangeContents to make sure no extra elements
-    // range.insertNode(mark); // Insert mark into the range
-    // console.log('Range after highlight:', range);
+    mark.appendChild(range.extractContents()); //Append the contents of the selection's range to our mark tag
+    mark.normalize();
+    range.deleteContents(); // Not sure if this is necessary, but just in case I'm removing the rangeContents to make sure no extra elements
+    range.insertNode(mark); // Insert mark into the range
     selectionTextId += 1;
     return containerId;
   };
+}
+
+function deserializeSelection(selection) {
+  const baseSelection = rangy.getSelection(document.documentElement);
+  const selItem = JSON.parse(selection);
+  baseSelection.removeAllRanges();
+  const parentRange = rangy.createRange();
+  parentRange.selectNodeContents(document.documentElement);
+
+  const findRange = rangy.createRange();
+  const findOptions = {
+    withinRange: parentRange,
+  };
+  let findCount = 0;
+  while (findRange.findText(selItem.Text, findOptions)) {
+    if (findCount === selItem.FindIndex) {
+      //todo -- do something with the range;
+      baseSelection.setSingleRange(findRange);
+      return findRange;
+    }
+    findRange.collapse(false);
+    findCount++;
+  }
+  return null;
+}
+
+
+function clearSelection() {
+  if (window.getSelection) {
+    window.getSelection().removeAllRanges();
+  } else if (document.selectionText) {
+    document.selectionText.empty();
+  }
+}
+function serializeCurrentSelection() {
+  const sel = rangy.getSelection();
+  let selectedText = sel.toString();
+  const parentRange = rangy.createRange();
+
+  selectedText = selectedText.replace(/\xA0/g, ' ');
+  parentRange.selectNodeContents(document.documentElement);
+  const selToSerialzie = {
+    Text: selectedText,
+    FindIndex: -1,
+  };
+
+  const findRange = rangy.createRange();
+  const findOptions = {
+    withinRange: parentRange,
+  };
+  let findCount = 0;
+  while (findRange.findText(selectedText, findOptions)) {
+    const intersects = findRange.intersection(sel._ranges[0]);
+    if (intersects && intersects !== null) {
+      console.log("Something intersected");
+      selToSerialzie.FindIndex = findCount;
+      break;
+    }
+    findRange.collapse(false);
+    findCount++;
+  }
+  return JSON.stringify(selToSerialzie);
 }
