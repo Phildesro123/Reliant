@@ -155,12 +155,38 @@ async function activateReliant() {
     .catch((err) => {
       console.log('Internal server error in addSite:', err);
     });
+
+  let scrollTop =
+  window.pageYOffset +
+  document
+    .getElementsByClassName('reliant-scroll')[0]
+    .getBoundingClientRect().top;
   getComments(currentURL).then((res) => {
-    console.log('getCommentsß:', res.data);
     if (res.data.length > 0) {
-      res.data.forEach((comment) => {
-        console.log('Comment', comment);
-        //TODO: ADD comments here
+      res.data.forEach((commentContainer) => {
+        const commentRange = deserializeSelection(commentContainer.range);
+        const selectionText = commentRange.toString()
+        const selectionTopY = commentRange.nativeRange.getBoundingClientRect().y + window.pageYOffset;
+        const id = highlightText('#dc3545', commentRange, 'reliant-comment', true)
+        let content = []
+        commentContainer.comments.forEach((comment) => {
+          content.push({
+            "userId":comment.ownerID,
+            "displayName":comment.ownerName,
+            "content":comment.content,
+            "time":comment.time,
+            "upVotes":comment.upvotes,
+            "downVotes":comment.downvotes
+          })
+        })
+        window.commentScroll.addContainer(
+          commentContainer.range,
+          id,
+          selectionText,
+          selectionTopY - scrollTop,
+          0,
+          content
+        )
       });
     }
   });
@@ -169,7 +195,19 @@ async function activateReliant() {
     if (res.data.length > 0) {
       res.data.forEach((note) => {
         console.log('Note', note);
+        const noteRange = deserializeSelection(note.range);
+        const selectionTopY = noteRange.nativeRange.getBoundingClientRect().y + window.pageYOffset;
         //TODO: ADD notes here
+        const selectionText = noteRange.toString()
+        const id = highlightText('blue', noteRange, 'reliant-note', true);
+        window.noteScroll.addContainer(
+          noteRange,
+          id,
+          selectionText,
+          selectionTopY - scrollTop,
+          0,
+          [{"content": note.content, "time":note.time}]
+        );
       });
     }
   });
@@ -430,20 +468,6 @@ async function activateReliant() {
     } else {
       mark.style.backgroundColor = color;
     }
-    // const highlight = rangy.createHighlighter();
-    // console.log("Highlight:", highlight);
-    // highlight.addClassApplier(rangy.createClassApplier(className, {
-    //   ignoreWhiteSpace: true,
-    //   tagNames: ["span", "a"],
-    // }))
-    // console.log("Highlight:", highlight);
-    // console.log("Saved Selection:", range)
-    // highlight.highlightSelection(className, {selection: savedSelection})
-    // // mark.className = className;
-    // // mark.id = selectionTextId;
-    // // mark.onclick = () => {
-    // //   mark.className += ' reliant-selected';
-    // //   window.commentScroll.moveToSelection(parseInt(mark.id));
 
     mark.className = className;
     mark.id = className + '-' + selectionTextId.toString() + '_selection';

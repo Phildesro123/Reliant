@@ -190,6 +190,7 @@ const ContainerScroll = React.forwardRef((props, ref) => {
             deleteCallback={deleteContainer}
             clickedCallback={containerClicked}
             content={container.content}
+            selected={container.content.length > 0 ? false : true}
           ></ContainerComponent>
         );
       })}

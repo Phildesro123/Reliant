@@ -29,7 +29,7 @@ const Container = React.forwardRef((props, ref) => {
   const maxRows = 5;
   const [contentList, setContentList] = useState([]);
   const [textAreaText, setTextAreaText] = useState('');
-  const [selected, setSelected] = useState(true);
+  const [selected, setSelected] = useState(props.selected);
   const [canSave, setCanSave] = useState(true);
   const textAreaRef = useRef(null);
   const containerRef = useRef(null);
@@ -156,7 +156,7 @@ const Container = React.forwardRef((props, ref) => {
         addContentToList(
           <Comment
             key={'comment_key_' + tempKey}
-            displayName={content.ownerName}
+            displayName={content.displayName}
             id={content.userId}
             commentContent={content.content}
             upVote={content.upVotes}
