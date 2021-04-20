@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import rangy from 'rangy';
-import 'rangy/lib/rangy-textrange'
+import 'rangy/lib/rangy-textrange';
 /* ===================================================================== */
 import { URLS } from '../Background/workingUrls';
 import { createTooltip, removeTooltip } from './modules/Tooltip-Component';
@@ -157,28 +157,35 @@ async function activateReliant() {
     });
 
   let scrollTop =
-  window.pageYOffset +
-  document
-    .getElementsByClassName('reliant-scroll')[0]
-    .getBoundingClientRect().top;
+    window.pageYOffset +
+    document.getElementsByClassName('reliant-scroll')[0].getBoundingClientRect()
+      .top;
   getComments(currentURL).then((res) => {
+    console.log('getComments:', res.data);
     if (res.data.length > 0) {
       res.data.forEach((commentContainer) => {
         const commentRange = deserializeSelection(commentContainer.range);
-        const selectionText = commentRange.toString()
-        const selectionTopY = commentRange.nativeRange.getBoundingClientRect().y + window.pageYOffset;
-        const id = highlightText('#dc3545', commentRange, 'reliant-comment', true)
-        let content = []
+        const selectionText = commentRange.toString();
+        const selectionTopY =
+          commentRange.nativeRange.getBoundingClientRect().y +
+          window.pageYOffset;
+        const id = highlightText(
+          '#dc3545',
+          commentRange,
+          'reliant-comment',
+          true
+        );
+        let content = [];
         commentContainer.comments.forEach((comment) => {
           content.push({
-            "userId":comment.ownerID,
-            "displayName":comment.ownerName,
-            "content":comment.content,
-            "time":comment.time,
-            "upVotes":comment.upvotes,
-            "downVotes":comment.downvotes
-          })
-        })
+            userId: comment.ownerID,
+            displayName: comment.ownerName,
+            content: comment.content,
+            time: comment.time,
+            upVotes: comment.upvotes,
+            downVotes: comment.downvotes,
+          });
+        });
         window.commentScroll.addContainer(
           commentContainer.range,
           id,
@@ -186,7 +193,7 @@ async function activateReliant() {
           selectionTopY - scrollTop,
           0,
           content
-        )
+        );
       });
     }
   });
@@ -194,11 +201,11 @@ async function activateReliant() {
     console.log('getNotes:', res.data);
     if (res.data.length > 0) {
       res.data.forEach((note) => {
-        console.log('Note', note);
         const noteRange = deserializeSelection(note.range);
-        const selectionTopY = noteRange.nativeRange.getBoundingClientRect().y + window.pageYOffset;
+        const selectionTopY =
+          noteRange.nativeRange.getBoundingClientRect().y + window.pageYOffset;
         //TODO: ADD notes here
-        const selectionText = noteRange.toString()
+        const selectionText = noteRange.toString();
         const id = highlightText('blue', noteRange, 'reliant-note', true);
         window.noteScroll.addContainer(
           noteRange,
@@ -206,7 +213,7 @@ async function activateReliant() {
           selectionText,
           selectionTopY - scrollTop,
           0,
-          [{"content": note.content, "time":note.time}]
+          [{ content: note.content, time: note.time }]
         );
       });
     }
@@ -218,53 +225,47 @@ async function activateReliant() {
 
       if (res.data.frowns.length > 0) {
         res.data.frowns.forEach((element) => {
-            try {
-              highlightText(
-                '#dc3545',
-                deserializeSelection(
-                  element.selection
-                ),
-                'reliant-frown'
-              );
-              clearSelection();
-            } catch (error) {
-              console.log('Frown error:', error);
-              console.log('Highlight failed to restore');
-            }
+          try {
+            highlightText(
+              '#dc3545',
+              deserializeSelection(element.selection),
+              'reliant-frown'
+            );
+            clearSelection();
+          } catch (error) {
+            console.log('Frown error:', error);
+            console.log('Highlight failed to restore');
+          }
         });
       }
       if (res.data.smiles.length > 0) {
         res.data.smiles.forEach((element) => {
-            try {
-              highlightText(
-                '#28a745',
-                deserializeSelection(
-                  element.selection
-                ).nativeRange,
-                'reliant-smile'
-              );
-              clearSelection();
-            } catch (error) {
-              console.log('Smile error:', error);
-              console.log('Highlight failed to restore');
-            }
+          try {
+            highlightText(
+              '#28a745',
+              deserializeSelection(element.selection).nativeRange,
+              'reliant-smile'
+            );
+            clearSelection();
+          } catch (error) {
+            console.log('Smile error:', error);
+            console.log('Highlight failed to restore');
+          }
         });
       }
       if (res.data.highlights.length > 0) {
         res.data.highlights.forEach((element) => {
-            try {
-              highlightText(
-                '#ffc107',
-                deserializeSelection(
-                  element.selection
-                ).nativeRange,
-                'reliant-highlight'
-              );
-              clearSelection();
-            } catch (error) {
-              console.log('Highlight error:', error);
-              console.log('Highlight Failed to restore');
-            }
+          try {
+            highlightText(
+              '#ffc107',
+              deserializeSelection(element.selection).nativeRange,
+              'reliant-highlight'
+            );
+            clearSelection();
+          } catch (error) {
+            console.log('Highlight error:', error);
+            console.log('Highlight Failed to restore');
+          }
         });
       }
     })
@@ -277,7 +278,6 @@ async function activateReliant() {
 
     //Highlight everything
     even = (even + 1) % 2;
-
 
     var mouseDownX = 0;
     var selectionTopY = 0;
@@ -513,7 +513,6 @@ function deserializeSelection(selection) {
   return null;
 }
 
-
 function clearSelection() {
   if (window.getSelection) {
     window.getSelection().removeAllRanges();
@@ -541,7 +540,7 @@ function serializeCurrentSelection() {
   while (findRange.findText(selectedText, findOptions)) {
     const intersects = findRange.intersection(sel._ranges[0]);
     if (intersects && intersects !== null) {
-      console.log("Something intersected");
+      console.log('Something intersected');
       selToSerialzie.FindIndex = findCount;
       break;
     }

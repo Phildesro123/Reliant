@@ -57,6 +57,7 @@ const Container = React.forwardRef((props, ref) => {
     } else {
       setSelected(false);
       setContentList((contentList) => {
+        console.log('ContentList', contentList);
         if (contentList.length == 0) {
           setTextAreaText((textAreaText) => {
             if (textAreaText.trim() == '') {
@@ -96,8 +97,9 @@ const Container = React.forwardRef((props, ref) => {
     today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
 
   const addContentToList = (content) => {
-    setContentList([...contentList, content].map((c) => c));
-    tempKey += 1;
+    console.log('Content In', content);
+    console.log('Exisiting Content List:', contentList);
+    setContentList([...contentList, ...content]);
     setTextAreaText('');
   };
 
@@ -111,7 +113,7 @@ const Container = React.forwardRef((props, ref) => {
           addComment(url, userInfo.id, displayName, props.range, content)
             .then((response) => {
               console.log('Add Comment Response', response);
-              addContentToList(
+              addContentToList([
                 <Comment
                   key={'comment_key_' + tempKey}
                   displayName={displayName}
@@ -121,8 +123,8 @@ const Container = React.forwardRef((props, ref) => {
                   downVote={0}
                   canReply={false}
                   time={times}
-                ></Comment>
-              );
+                ></Comment>,
+              ]);
             })
             .catch((err) => {
               console.log('Add Note Error', err);
@@ -133,13 +135,13 @@ const Container = React.forwardRef((props, ref) => {
           addOrEditNote(userInfo.id, url, props.range, content)
             .then((response) => {
               console.log('Add Note Response', response);
-              addContentToList(
+              addContentToList([
                 <Note
                   key={'note_key_' + tempKey}
                   time={times}
                   content={content}
-                ></Note>
-              );
+                ></Note>,
+              ]);
             })
             .catch((err) => {
               console.log('Add Note Error:', err);
@@ -149,13 +151,12 @@ const Container = React.forwardRef((props, ref) => {
       });
     });
   };
-
   useEffect(() => {
-    props.content.forEach((content) => {
-      if (props.className == 'comment-container') {
-        addContentToList(
+    if (props.className == 'comment-container') {
+      addContentToList(
+        props.content.map((content) => (
           <Comment
-            key={'comment_key_' + tempKey}
+            key={'comment_key_' + tempKey++}
             displayName={content.displayName}
             id={content.userId}
             commentContent={content.content}
@@ -164,17 +165,20 @@ const Container = React.forwardRef((props, ref) => {
             canReply={false}
             time={content.time}
           ></Comment>
-        );
-      } else {
-        addContentToList(
+        ))
+      );
+    } else {
+      addContentToList(
+        props.content.map((content) => (
           <Note
-            key={'note_key_' + tempKey}
+            key={'note_key_' + tempKey++}
             time={content.time}
             content={content.content}
           ></Note>
-        );
-      }
-    });
+        ))
+      );
+    }
+
     //add when mounted
     document.addEventListener('mousedown', handleMouseDown);
     // return funciton to be called when unmounted
@@ -223,7 +227,6 @@ const Container = React.forwardRef((props, ref) => {
             rows={minRows}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
-            autoFocus
           />
           <button
             className="comment-btn"
