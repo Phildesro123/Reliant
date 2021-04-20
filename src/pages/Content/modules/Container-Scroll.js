@@ -24,6 +24,8 @@ const ContainerScroll = React.forwardRef((props, ref) => {
     }
 
     console.log('Temp list', tempList);
+
+    //Deleting underline
     let selection = document.getElementById(id.split('_')[0] + '_selection');
     let parent = selection.parentNode;
     while (selection.childNodes.length > 0) {
@@ -188,6 +190,7 @@ const ContainerScroll = React.forwardRef((props, ref) => {
             deleteCallback={deleteContainer}
             clickedCallback={containerClicked}
             content={container.content}
+            selected={container.content.length > 0 ? false : true}
           ></ContainerComponent>
         );
       })}
