@@ -49,11 +49,9 @@ userRouter.route('/updateSites').post((req, res, next) => {
   Users.findById(req.body._id, (err, results) => {
     if (err || results == null) {
       // Don't want any null results put into the DB
-      return res
-        .status(400)
-        .send({
-          message: "Error occured in finding user or user doesn't exist",
-        });
+      return res.status(400).send({
+        message: "Error occured in finding user or user doesn't exist",
+      });
     } else {
       if (
         !results.visitedSites.some(
@@ -127,7 +125,7 @@ userRouter.route('/getNotes').get((req, res, next) => {
     }
     console.log('Notes:', user.notes);
     const resultNotes = user.notes.filter(
-      (entry) => entry.url === req.body.url
+      (entry) => entry.url === req.query.url
     );
     return res.status(200).send(resultNotes);
   });
@@ -180,7 +178,9 @@ userRouter.route('/addNotes').post((req, res, next) => {
     user.save((err) => {
       if (err) {
         console.log(err);
-        return res.status(200).send({ message: 'Error occured in saving note' });
+        return res
+          .status(200)
+          .send({ message: 'Error occured in saving note' });
       }
       return res.status(200).send(user);
     });
@@ -195,11 +195,8 @@ userRouter.route('/addNotes').post((req, res, next) => {
  * POST: Add note to user's notes array or update it.
  */
 userRouter.route('/deleteNotes').post((req, res, next) => {
-  console.log("POST: Deleting comment")
-  if (
-    req.body._id == null ||
-    req.body.url == null ||
-    req.body.range == null) {
+  console.log('POST: Deleting comment');
+  if (req.body._id == null || req.body.url == null || req.body.range == null) {
     console.log('ERROR: Null userID');
     return res
       .status(400)
@@ -218,14 +215,16 @@ userRouter.route('/deleteNotes').post((req, res, next) => {
       (e) => e.url === req.body.url && e.range === req.body.range
     );
     if (index >= 0) {
-      console.log("Note index found at:", index)
-      console.log("Note found is:", user.notes[index])
-      user.notes.splice(index)
+      console.log('Note index found at:', index);
+      console.log('Note found is:', user.notes[index]);
+      user.notes.splice(index);
     }
     user.save((err) => {
       if (err) {
         console.log(err);
-        return res.status(200).send({ message: 'Error occured in deleting note' });
+        return res
+          .status(200)
+          .send({ message: 'Error occured in deleting note' });
       }
       return res.status(200).send(user);
     });

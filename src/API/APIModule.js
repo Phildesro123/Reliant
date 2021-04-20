@@ -90,6 +90,23 @@ export const updateWebsite = async (userId, website) => {
 };
 
 /**
+ * Get stored notes from reliant database
+ * @param url URL of website you want notes for
+ * @param userID UserID
+ * @returns note containers
+ */
+export const getNotes = async (url, userID) => {
+  const res = await axios.get('user/getNotes', {
+    params: {
+      url,
+      _id: userID,
+    },
+  });
+
+  return await res;
+};
+
+/**
  * Add/Edit a note
  * @param userID UserID
  * @param url URL of website

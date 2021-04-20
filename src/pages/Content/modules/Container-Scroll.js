@@ -116,14 +116,22 @@ const ContainerScroll = React.forwardRef((props, ref) => {
   };
 
   //Adds container into array in order or selectionTop
-  const addContainer = (range, id, selectionText, top, startX) => {
+  const addContainer = (
+    range,
+    id,
+    selectionText,
+    top,
+    startX,
+    content = []
+  ) => {
     let container = new Container(
       props.type,
       id,
       range,
       selectionText,
       top,
-      startX
+      startX,
+      content
     );
     if (containerList.length == 0) {
       // containerList.push(container);
@@ -179,6 +187,7 @@ const ContainerScroll = React.forwardRef((props, ref) => {
             callback={containerChangedCallback}
             deleteCallback={deleteContainer}
             clickedCallback={containerClicked}
+            content={container.content}
           ></ContainerComponent>
         );
       })}

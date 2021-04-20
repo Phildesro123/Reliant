@@ -119,7 +119,7 @@ const Container = React.forwardRef((props, ref) => {
                   commentContent={content}
                   upVote={0}
                   downVote={0}
-                  canReply={true}
+                  canReply={false}
                   time={times}
                 ></Comment>
               );
@@ -151,6 +151,30 @@ const Container = React.forwardRef((props, ref) => {
   };
 
   useEffect(() => {
+    props.content.forEach((content) => {
+      if (props.className == 'comment-container') {
+        addContentToList(
+          <Comment
+            key={'comment_key_' + tempKey}
+            displayName={content.ownerName}
+            id={content.userId}
+            commentContent={content.content}
+            upVote={content.upVotes}
+            downVote={content.downVotes}
+            canReply={false}
+            time={content.time}
+          ></Comment>
+        );
+      } else {
+        addContentToList(
+          <Note
+            key={'note_key_' + tempKey}
+            time={content.time}
+            content={content.content}
+          ></Note>
+        );
+      }
+    });
     //add when mounted
     document.addEventListener('mousedown', handleMouseDown);
     // return funciton to be called when unmounted
