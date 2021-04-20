@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { FaAngleRight } from 'react-icons/fa';
 import Comment from './Comment-Component';
 import Note from './Note-Component';
+import { addOrEditNote, addComment } from '../../../API/APIModule';
 /**
  * Comment-Container
  *    Title (Selected Text)
@@ -29,6 +30,7 @@ const Container = React.forwardRef((props, ref) => {
   const [contentList, setContentList] = useState([]);
   const [textAreaText, setTextAreaText] = useState('');
   const [selected, setSelected] = useState(true);
+  const [canSave, setCanSave] = useState(true);
   const textAreaRef = useRef(null);
   const containerRef = useRef(null);
   const height = useRef(null);
@@ -93,34 +95,58 @@ const Container = React.forwardRef((props, ref) => {
   const times =
     today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
 
+  const addContentToList = (content) => {
+    setContentList([...contentList, content].map((c) => c));
+    tempKey += 1;
+    setTextAreaText('');
+  };
+
   const commentClicked = (content) => {
     textAreaRef.current.rows = minRows;
     chrome.runtime.sendMessage('userInfo', (userInfo) => {
-      const newList = [
-        ...contentList,
-        props.className == 'comment-container' ? (
-          <Comment
-            key={'comment_key_' + tempKey}
-            displayName={userInfo.email.split('@')[0]}
-            id={userInfo.id}
-            commentContent={content}
-            upVote={0}
-            downVote={0}
-            canReply={true}
-            time={times}
-          ></Comment>
-        ) : (
-          <Note
-            key={'note_key_' + tempKey}
-            time={times}
-            content={content}
-          ></Note>
-        ),
-      ];
-
-      setContentList(newList.map((comment) => comment));
-      tempKey += 1;
-      setTextAreaText('');
+      chrome.runtime.sendMessage('activeURL', (url) => {
+        const displayName = userInfo.email.split('@')[0];
+        if (props.className == 'comment-container') {
+          //Save Comment
+          addComment(url, userInfo.id, displayName, props.range, content)
+            .then((response) => {
+              console.log('Add Comment Response', response);
+              addContentToList(
+                <Comment
+                  key={'comment_key_' + tempKey}
+                  displayName={displayName}
+                  id={userInfo.id}
+                  commentContent={content}
+                  upVote={0}
+                  downVote={0}
+                  canReply={true}
+                  time={times}
+                ></Comment>
+              );
+            })
+            .catch((err) => {
+              console.log('Add Note Error', err);
+              setCanSave(false);
+            });
+        } else {
+          //Save Note
+          addOrEditNote(userInfo.id, url, props.range, content)
+            .then((response) => {
+              console.log('Add Note Response', response);
+              addContentToList(
+                <Note
+                  key={'note_key_' + tempKey}
+                  time={times}
+                  content={content}
+                ></Note>
+              );
+            })
+            .catch((err) => {
+              console.log('Add Note Error:', err);
+              setCanSave(false);
+            });
+        }
+      });
     });
   };
 
@@ -179,8 +205,10 @@ const Container = React.forwardRef((props, ref) => {
             className="comment-btn"
             disabled={textAreaText.trim() == ''}
             onClick={() => commentClicked(textAreaText)}
+            style={!canSave ? { backgroundColor: 'red' } : {}}
           >
-            {props.buttonText} <FaAngleRight></FaAngleRight>
+            {canSave ? props.buttonText : 'Error: please reload'}{' '}
+            <FaAngleRight></FaAngleRight>
           </button>
         </div>
       ) : (

@@ -354,6 +354,7 @@ async function activateReliant() {
       } else if (parentIdName == 'comment' || currentID == 'comment') {
         const id = highlightText('#dc3545', range, 'reliant-comment', true);
         window.commentScroll.addContainer(
+          highlightSelection,
           id,
           range.toString(),
           selectionTopY - scrollTop,
@@ -363,6 +364,7 @@ async function activateReliant() {
       } else if (parentIdName == 'note' || currentID == 'note') {
         const id = highlightText('blue', range, 'reliant-note', true);
         window.noteScroll.addContainer(
+          highlightSelection,
           id,
           range.toString(),
           selectionTopY - scrollTop,
@@ -391,7 +393,6 @@ async function activateReliant() {
       } else if (req.type === 'getAuthors') {
         getURL().then((url) => {
           sendResponse(authorName(new URL(url).hostname));
-          // sendResponse(['Pablo Escobar', 'Youssef Asaad']);
         });
       } else if (req.type === 'deactivate') {
         deactivateReliant();
@@ -417,7 +418,6 @@ async function activateReliant() {
     mark.className = className;
     mark.id = className + '-' + selectionTextId.toString() + '_selection';
     mark.onclick = () => {
-      console.log('HERHERHERHERH');
       if (mark.className == 'reliant-comment') {
         window.commentScroll.moveToSelection(containerId);
       } else if (mark.className == 'reliant-note') {

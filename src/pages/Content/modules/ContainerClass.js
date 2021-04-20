@@ -1,5 +1,5 @@
 export default class Container {
-  constructor(type, id, selectionText, top, startX) {
+  constructor(type, id, range, selectionText, top, startX) {
     this.className = type + '-container';
     this.id = id;
     this.selectionText = selectionText;
@@ -10,5 +10,6 @@ export default class Container {
     this.buttonText = type == 'comment' ? 'Comment' : 'Save';
     this.startX = startX;
     this.comments = [];
+    this.range = range;
   }
 }
