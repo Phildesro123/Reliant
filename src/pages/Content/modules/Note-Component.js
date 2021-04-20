@@ -2,7 +2,7 @@ import React from 'react';
 
 function Note(props) {
   return (
-    <div className="note" key={props.key} style={{ textAlign: 'left' }}>
+    <div className="note" style={{ textAlign: 'left' }}>
       <p style={{ marginBottom: 0 }}>{props.content}</p>
       <span
         style={{

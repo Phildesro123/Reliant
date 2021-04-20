@@ -12,6 +12,8 @@ import {
   addHighlights,
   getUserHighlights,
   updateWebsite,
+  getNotes,
+  getComments,
 } from '../../API/APIModule';
 import ContainerScroll from './modules/Container-Scroll';
 
@@ -71,6 +73,73 @@ async function activateReliant() {
   currentUserInfo = await getUserInfo();
   currentHostname = new URL(currentURL).hostname;
 
+  const noteScroll = document.createElement('div');
+  noteScroll.className = 'reliant-scroll note-scroll';
+  //Creates notes scroll
+  render(
+    <ContainerScroll
+      type="note"
+      ref={(cs) => {
+        window.noteScroll = cs;
+      }}
+    ></ContainerScroll>,
+    noteScroll
+  );
+  // document.body.appendChild(noteScroll);
+  const commentScroll = document.createElement('div');
+  commentScroll.className = 'reliant-scroll comment-scroll';
+  //Creates commentScroll
+  render(
+    <ContainerScroll
+      type="comment"
+      ref={(cs) => {
+        window.commentScroll = cs;
+      }}
+    ></ContainerScroll>,
+    commentScroll
+  );
+  // document.body.appendChild(commentScroll);
+  let main = null;
+  if (currentHostname.includes(URLS.CNN)) {
+    main = document.getElementsByClassName('l-container')[0];
+    console.log(main);
+  } else {
+    console.log('CREATEING WIRED SCROLL');
+    main = document.getElementsByTagName('main')[0];
+
+    if (currentHostname.includes(URLS.WIRED)) {
+      let gridContent = document.getElementsByClassName('article__chunks')[0]
+        .childNodes;
+      for (let i = 0; i < gridContent.length; i++) {
+        console.log('Here', gridContent[i].classList);
+        console.log(gridContent[i].className);
+        gridContent[i].className = '';
+      }
+    }
+
+    if (currentHostname.includes(URLS.VOX)) {
+      var parent = main.parentNode;
+
+      // move all children out of the element
+      while (main.firstChild) parent.insertBefore(main.firstChild, main);
+
+      // remove the empty element
+      parent.removeChild(main);
+      main = parent;
+    }
+  }
+  main.style.margin = 0;
+  let currentParent = main.parentNode;
+  let wrapperDiv = document.createElement('div');
+  wrapperDiv.style.display = 'inline-flex';
+  wrapperDiv.style.width = '100%';
+  wrapperDiv.style.margin = 'auto';
+  currentParent.replaceChild(wrapperDiv, main);
+
+  wrapperDiv.appendChild(noteScroll);
+  wrapperDiv.appendChild(main);
+  wrapperDiv.appendChild(commentScroll);
+
   updateWebsite(currentUserInfo.id, { _id: currentURL, timespent: 0 })
     .then(() => {
       console.log('Data has been sent to the server');
@@ -86,6 +155,24 @@ async function activateReliant() {
     .catch((err) => {
       console.log('Internal server error in addSite:', err);
     });
+  getComments(currentURL).then((res) => {
+    console.log('getCommentsß:', res.data);
+    if (res.data.length > 0) {
+      res.data.forEach((comment) => {
+        console.log('Comment', comment);
+        //TODO: ADD comments here
+      });
+    }
+  });
+  getNotes(currentURL, currentUserInfo.id).then((res) => {
+    console.log('getNotes:', res.data);
+    if (res.data.length > 0) {
+      res.data.forEach((note) => {
+        console.log('Note', note);
+        //TODO: ADD notes here
+      });
+    }
+  });
   getUserHighlights(currentURL, currentUserInfo.id)
     .then((res) => {
       const rootNode = document.getElementsByName('html');
@@ -149,72 +236,6 @@ async function activateReliant() {
 
   if (first) {
     createQuestionnaire(currentUserInfo.id, currentURL, currentHostname);
-    const noteScroll = document.createElement('div');
-    noteScroll.className = 'reliant-scroll note-scroll';
-    //TODO: Locate left side of text and put notes there for each page
-    render(
-      <ContainerScroll
-        type="note"
-        ref={(cs) => {
-          window.noteScroll = cs;
-        }}
-      ></ContainerScroll>,
-      noteScroll
-    );
-    // document.body.appendChild(noteScroll);
-    const commentScroll = document.createElement('div');
-    commentScroll.className = 'reliant-scroll comment-scroll';
-    //TODO: Locate right side of text and put comment there for each page
-    render(
-      <ContainerScroll
-        type="comment"
-        ref={(cs) => {
-          window.commentScroll = cs;
-        }}
-      ></ContainerScroll>,
-      commentScroll
-    );
-    // document.body.appendChild(commentScroll);
-    let main = null;
-    if (currentHostname.includes(URLS.CNN)) {
-      main = document.getElementsByClassName('l-container')[0];
-      console.log(main);
-    } else {
-      console.log('CREATEING WIRED SCROLL');
-      main = document.getElementsByTagName('main')[0];
-
-      if (currentHostname.includes(URLS.WIRED)) {
-        let gridContent = document.getElementsByClassName('article__chunks')[0]
-          .childNodes;
-        for (let i = 0; i < gridContent.length; i++) {
-          console.log('Here', gridContent[i].classList);
-          console.log(gridContent[i].className);
-          gridContent[i].className = '';
-        }
-      }
-
-      if (currentHostname.includes(URLS.VOX)) {
-        var parent = main.parentNode;
-
-        // move all children out of the element
-        while (main.firstChild) parent.insertBefore(main.firstChild, main);
-
-        // remove the empty element
-        parent.removeChild(main);
-        main = parent;
-      }
-    }
-    main.style.margin = 0;
-    let currentParent = main.parentNode;
-    let wrapperDiv = document.createElement('div');
-    wrapperDiv.style.display = 'inline-flex';
-    wrapperDiv.style.width = '100%';
-    wrapperDiv.style.margin = 'auto';
-    currentParent.replaceChild(wrapperDiv, main);
-
-    wrapperDiv.appendChild(noteScroll);
-    wrapperDiv.appendChild(main);
-    wrapperDiv.appendChild(commentScroll);
 
     //Highlight everything
     even = (even + 1) % 2;
@@ -348,6 +369,7 @@ async function activateReliant() {
       } else if (parentIdName == 'comment' || currentID == 'comment') {
         const id = highlightText('#dc3545', range, 'reliant-comment', true);
         window.commentScroll.addContainer(
+          highlightSelection,
           id,
           range.toString(),
           selectionTopY - scrollTop,
@@ -357,6 +379,7 @@ async function activateReliant() {
       } else if (parentIdName == 'note' || currentID == 'note') {
         const id = highlightText('blue', range, 'reliant-note', true);
         window.noteScroll.addContainer(
+          highlightSelection,
           id,
           range.toString(),
           selectionTopY - scrollTop,
@@ -385,7 +408,6 @@ async function activateReliant() {
       } else if (req.type === 'getAuthors') {
         getURL().then((url) => {
           sendResponse(authorName(new URL(url).hostname));
-          // sendResponse(['Pablo Escobar', 'Youssef Asaad']);
         });
       } else if (req.type === 'deactivate') {
         deactivateReliant();
@@ -426,7 +448,6 @@ async function activateReliant() {
     mark.className = className;
     mark.id = className + '-' + selectionTextId.toString() + '_selection';
     mark.onclick = () => {
-      console.log('HERHERHERHERH');
       if (mark.className == 'reliant-comment') {
         window.commentScroll.moveToSelection(containerId);
       } else if (mark.className == 'reliant-note') {
