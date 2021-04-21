@@ -8,12 +8,10 @@ const ContainerScroll = React.forwardRef((props, ref) => {
   const [containerList, setContainerList] = useState([]);
   //remove container and selection
   const deleteContainer = (id) => {
-    console.log('Deleting:', id);
     let index = containerList.findIndex((x) => {
       return x.id == id;
     });
     index = index - 1 < 0 ? 0 : index - 1;
-    console.log('Index to shift', index);
     const tempList = containerList.filter((x) => {
       return x.id != id;
     });
@@ -22,8 +20,6 @@ const ContainerScroll = React.forwardRef((props, ref) => {
     } else {
       setContainerList(tempList);
     }
-
-    console.log('Temp list', tempList);
 
     //Deleting underline
     let selection = document.getElementById(id.split('_')[0] + '_selection');
@@ -34,9 +30,9 @@ const ContainerScroll = React.forwardRef((props, ref) => {
   };
 
   //helper function to move surrounding containers out of the way to avoid overlap
-  function shiftContainers(list, index) {
+  function shiftContainers(list, index, shift = true) {
     let currentIndex = index;
-    list[currentIndex].shift = 80;
+    list[currentIndex].shift = shift ? 80 : 0;
     // move any overlapping items above current item up
     while (currentIndex > 0) {
       let currentElement = list[currentIndex];
@@ -117,23 +113,19 @@ const ContainerScroll = React.forwardRef((props, ref) => {
     shiftContainers(list, index);
   };
 
+  const dumpContainers = (containers) => {
+    setContainerList(containers);
+  };
+
   //Adds container into array in order or selectionTop
-  const addContainer = (
-    range,
-    id,
-    selectionText,
-    top,
-    startX,
-    content = []
-  ) => {
+  const addContainer = (range, id, selectionText, top, startX) => {
     let container = new Container(
       props.type,
       id,
       range,
       selectionText,
       top,
-      startX,
-      content
+      startX
     );
     if (containerList.length == 0) {
       // containerList.push(container);
@@ -168,6 +160,7 @@ const ContainerScroll = React.forwardRef((props, ref) => {
 
   // Exposes functions to ref (this allows them to be used outside of react components ie in the index.js file)
   useImperativeHandle(ref, () => ({
+    dumpContainers,
     addContainer,
     moveToSelection,
   }));

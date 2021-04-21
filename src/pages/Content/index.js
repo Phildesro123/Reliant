@@ -16,6 +16,7 @@ import {
   getComments,
 } from '../../API/APIModule';
 import ContainerScroll from './modules/Container-Scroll';
+import Container from './modules/ContainerClass';
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
@@ -162,8 +163,8 @@ async function activateReliant() {
       .top;
   getComments(currentURL).then((res) => {
     console.log('getComments:', res.data);
-    if (res.data.length > 0) {
-      res.data.forEach((commentContainer) => {
+    window.commentScroll.dumpContainers(
+      res.data.map((commentContainer) => {
         const commentRange = deserializeSelection(commentContainer.range);
         const selectionText = commentRange.toString();
         const selectionTopY =
@@ -175,48 +176,48 @@ async function activateReliant() {
           'reliant-comment',
           true
         );
-        let content = [];
-        commentContainer.comments.forEach((comment) => {
-          content.push({
-            userId: comment.ownerID,
-            displayName: comment.ownerName,
-            content: comment.content,
-            time: comment.time,
-            upVotes: comment.upvotes,
-            downVotes: comment.downvotes,
-          });
-        });
-        window.commentScroll.addContainer(
-          commentContainer.range,
+
+        return new Container(
+          'comment',
           id,
+          commentContainer.range,
           selectionText,
           selectionTopY - scrollTop,
           0,
-          content
+          commentContainer.comments.map((comment) => {
+            return {
+              userId: comment.ownerID,
+              displayName: comment.ownerName,
+              content: comment.content,
+              time: comment.time,
+              upVotes: comment.upvotes,
+              downVotes: comment.downvotes,
+            };
+          })
         );
-      });
-    }
+      })
+    );
   });
   getNotes(currentURL, currentUserInfo.id).then((res) => {
     console.log('getNotes:', res.data);
-    if (res.data.length > 0) {
-      res.data.forEach((note) => {
+    window.noteScroll.dumpContainers(
+      res.data.map((note) => {
         const noteRange = deserializeSelection(note.range);
+        const selectionText = noteRange.toString();
         const selectionTopY =
           noteRange.nativeRange.getBoundingClientRect().y + window.pageYOffset;
-        //TODO: ADD notes here
-        const selectionText = noteRange.toString();
         const id = highlightText('blue', noteRange, 'reliant-note', true);
-        window.noteScroll.addContainer(
-          noteRange,
+        return new Container(
+          'note',
           id,
+          note.range,
           selectionText,
           selectionTopY - scrollTop,
           0,
           [{ content: note.content, time: note.time }]
         );
-      });
-    }
+      })
+    );
   });
   getUserHighlights(currentURL, currentUserInfo.id)
     .then((res) => {
