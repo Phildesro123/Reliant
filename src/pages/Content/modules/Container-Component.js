@@ -27,7 +27,9 @@ var tempKey = 0;
 const Container = React.forwardRef((props, ref) => {
   const minRows = 2;
   const maxRows = 5;
-  const [contentList, setContentList] = useState([]);
+  const [contentList, setContentList] = useState(
+    initContentList(props.className, props.content)
+  );
   const [textAreaText, setTextAreaText] = useState('');
   const [selected, setSelected] = useState(props.selected);
   const [canSave, setCanSave] = useState(true);
@@ -57,7 +59,6 @@ const Container = React.forwardRef((props, ref) => {
     } else {
       setSelected(false);
       setContentList((contentList) => {
-        console.log('ContentList', contentList);
         if (contentList.length == 0) {
           setTextAreaText((textAreaText) => {
             if (textAreaText.trim() == '') {
@@ -92,7 +93,7 @@ const Container = React.forwardRef((props, ref) => {
     setTextAreaText(event.target.value);
   };
 
-  const formatTime = (time) => {
+  function formatTime(time) {
     const currentDateTime = new Date();
     const months = currentDateTime.getMonth() - time.getMonth();
     const seconds = (currentDateTime - time) / 1000;
@@ -126,7 +127,7 @@ const Container = React.forwardRef((props, ref) => {
     const years = months * 12;
 
     return `${years} ${years == 1 ? 'month' : 'months'} ago`;
-  };
+  }
 
   const addContentToList = (content) => {
     console.log('Content In', content);
@@ -183,36 +184,33 @@ const Container = React.forwardRef((props, ref) => {
       });
     });
   };
-  useEffect(() => {
-    if (props.content.length > 0) {
-      if (props.className == 'comment-container') {
-        addContentToList(
-          props.content.map((content) => (
-            <Comment
-              key={'comment_key_' + tempKey++}
-              displayName={content.displayName}
-              id={content.userId}
-              commentContent={content.content}
-              upVote={content.upVotes}
-              downVote={content.downVotes}
-              canReply={false}
-              time={formatTime(new Date(content.time))}
-            ></Comment>
-          ))
-        );
-      } else {
-        addContentToList(
-          props.content.map((content) => (
-            <Note
-              key={'note_key_' + tempKey++}
-              time={formatTime(new Date(content.time))}
-              content={content.content}
-            ></Note>
-          ))
-        );
-      }
-    }
 
+  function initContentList(className, content) {
+    if (content.length == 0) return [];
+    if (className == 'comment-container') {
+      return content.map((content) => (
+        <Comment
+          key={'comment_key_' + tempKey++}
+          displayName={content.displayName}
+          id={content.userId}
+          commentContent={content.content}
+          upVote={content.upVotes}
+          downVote={content.downVotes}
+          canReply={false}
+          time={formatTime(new Date(content.time))}
+        ></Comment>
+      ));
+    }
+    return content.map((content) => (
+      <Note
+        key={'note_key_' + tempKey++}
+        time={formatTime(new Date(content.time))}
+        content={content.content}
+      ></Note>
+    ));
+  }
+
+  useEffect(() => {
     //add when mounted
     document.addEventListener('mousedown', handleMouseDown);
     // return funciton to be called when unmounted
@@ -222,12 +220,17 @@ const Container = React.forwardRef((props, ref) => {
   }, []);
 
   useEffect(() => {
+    console.log('Use Effect', props.id);
+    if (selected) {
+      textAreaRef.current.focus();
+    }
     const offsetHeight = containerRef.current.offsetHeight;
     //check if height is changed (the - 1 and + 1 are there since offsetHeight is converted from float to int so this accommodates the rounding errors)
     const changed = !(
       offsetHeight - 1 <= height.current && height.current <= offsetHeight + 1
     );
     if (changed) {
+      console.log('Callback from:', props.id);
       height.current = offsetHeight;
       props.callback(containerRef.current);
     }
@@ -252,6 +255,7 @@ const Container = React.forwardRef((props, ref) => {
       {selected || textAreaText.trim() != '' ? (
         <div>
           <textarea
+            autoFocus={console.log('Rendered')}
             ref={textAreaRef}
             className="comment-input"
             type="text"

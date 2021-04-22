@@ -6,6 +6,7 @@ import ContainerComponent from './Container-Component';
 const margin = 20;
 const ContainerScroll = React.forwardRef((props, ref) => {
   const [containerList, setContainerList] = useState([]);
+  const [containerDump, setContainerDump] = useState(false);
   //remove container and selection
   const deleteContainer = (id) => {
     let index = containerList.findIndex((x) => {
@@ -78,9 +79,16 @@ const ContainerScroll = React.forwardRef((props, ref) => {
 
   //Callback function passed to container to use when it is updated
   const containerChangedCallback = (containerData) => {
+    console.log('Container Dump:', containerDump);
     var elementPos = containerList.findIndex((x) => {
       return x.id == containerData.id;
     });
+    // if (containerDump && elementPos == containerList.length - 1) {
+    //   console.log('Last Element');
+    //   setContainerDump(false);
+    //   moveToSelection(elementPos);
+    //   return;
+    // } else if (containerDump) return;
     const height = containerData.offsetHeight;
     containerList[elementPos].bottom = height + containerList[elementPos].top;
     shiftContainers(containerList, elementPos);
@@ -114,7 +122,10 @@ const ContainerScroll = React.forwardRef((props, ref) => {
   };
 
   const dumpContainers = (containers) => {
-    setContainerList(containers);
+    setContainerDump(true);
+    setContainerList(
+      containers.sort((a, b) => (a.selectionTop > b.selectionTop ? 1 : -1))
+    );
   };
 
   //Adds container into array in order or selectionTop

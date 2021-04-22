@@ -21,4 +21,8 @@ export default class Container {
     this.content = content;
     this.range = range;
   }
+
+  get getSelectionTop() {
+    //TODO: get top of selection dynamically
+  }
 }

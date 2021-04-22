@@ -123,7 +123,7 @@ userRouter.route('/getNotes').get((req, res, next) => {
       console.log('error occured');
       return res.status(400).send({ message: 'User not found.' });
     }
-    console.log('Notes:', user.notes);
+    console.log(`${user.notes.length} note(s) found`);
     const resultNotes = user.notes.filter(
       (entry) => entry.url === req.query.url
     );
