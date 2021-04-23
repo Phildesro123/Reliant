@@ -211,9 +211,9 @@ Project Link: [https://github.com/your_username/repo_name](https://github.com/yo
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[forks-shield]: https://img.shields.io/github/forks/othneildrew/Best-README-Template.svg?style=for-the-badge
+[forks-shield]: https://img.shields.io/github/forks/Phildesro123/Reliant
 [forks-url]: https://github.com/Phildesro123/Reliant/network/members
-[stars-shield]:	https://img.shields.io/github/forks/Phildesro123/Reliant
+[stars-shield]:	https://img.shields.io/github/stars/Phildesro123/Reliant
 [stars-url]: https://github.com/Phildesro123/Reliant/stargazers
 [issues-shield]: https://img.shields.io/github/issues/Phildesro123/Reliant
 [issues-url]: https://github.com/Phildesro123/Reliant/issues
