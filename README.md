@@ -77,18 +77,21 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+<a href="https://github.com/Phildesro123/Reliant">
+  <img src="src/assets/img/4.png">
+</a>
 
-There are many great README templates available on GitHub, however, I didn't find one that really suit my needs so I created this enhanced one. I want to create a README template so amazing that it'll be the last one you ever need -- I think this is it.
+This is Reliant – a browser extension that enhances your article reading experience. 
 
-Here's why:
-* Your time should be focused on creating something amazing. A project that solves a problem and helps others
-* You shouldn't be doing the same tasks over and over like creating a README from scratch
-* You should element DRY principles to the rest of your life :smile:
+In 2021, an average of 5,200 articles are produced by major news outlets every day. It feels like there’s so much information out there that makes it harder for one person to decide what’s true and what’s not. In a world full of misinformation, this project aims to spark discussion amongst readers, allowing them to make the best decision regarding the reliability of their article. In short, we hope to simplify the process of gathering information about the article's credibility. 
 
-Of course, no one template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue. Thanks to all the people have have contributed to expanding this template!
+We do this by:
+* Author Reliability Score 
+* Author Background Information
+* Comments
+* Notes
+* Highlights
 
-A list of commonly used resources that I find helpful are listed in the acknowledgements.
 
 ### Built With
 * [React](https://reactjs.org/)
@@ -152,9 +155,19 @@ npm start
 
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+Here is an example of all the features Reliant can bring to you!
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+<a href="https://github.com/Phildesro123/Reliant">
+  <img src="src/assets/img/all_features.png">
+</a>
+
+
+Note: Reliant can only be used on these sites:
+* https://www.nytimes.com/
+* https://www.theverge.com/
+* https://www.wired.com/
+* https://www.cnn.com/ 
+* https://www.vox.com/
 
 
 
