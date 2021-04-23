@@ -1,153 +1,234 @@
-# Reliant
+<!--
+*** Thanks for checking out the Best-README-Template. If you have a suggestion
+*** that would make this better, please fork the repo and create a pull request
+*** or simply open an issue with the tag "enhancement".
+*** Thanks again! Now go create something AMAZING! :D
+-->
 
-<img src="src/assets/img/icon-128.png" width="64"/>
 
-# Chrome Extension Boilerplate with React 17 and Webpack 5
 
-[![npm](https://img.shields.io/npm/v/chrome-extension-boilerplate-react)](https://www.npmjs.com/package/chrome-extension-boilerplate-react)
-[![npm-download](https://img.shields.io/npm/dw/chrome-extension-boilerplate-react)](https://www.npmjs.com/package/chrome-extension-boilerplate-react)
-[![npm](https://img.shields.io/npm/dm/chrome-extension-boilerplate-react)](https://www.npmjs.com/package/chrome-extension-boilerplate-react)
+<!-- PROJECT SHIELDS -->
+<!--
+*** I'm using markdown "reference style" links for readability.
+*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
+*** See the bottom of this document for the declaration of the reference variables
+*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
+*** https://www.markdownguide.org/basic-syntax/#reference-style-links
+-->
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+***
 
-[![dependencies Status](https://david-dm.org/lxieyang/chrome-extension-boilerplate-react/status.svg)](https://david-dm.org/lxieyang/chrome-extension-boilerplate-react)
-[![devDependencies Status](https://david-dm.org/lxieyang/chrome-extension-boilerplate-react/dev-status.svg)](https://david-dm.org/lxieyang/chrome-extension-boilerplate-react?type=dev)
+<!-- PROJECT LOGO -->
+<br />
+<p align="center">
+  <a href="https://github.com/Phildesro123/Reliant">
+    <img src="src/assets/img/Reliant_Logo.svg" alt="Logo" >
+  </a>
 
-## Announcements
+  <h3 align="center">Reliant</h3>
 
-- **_Recently updated from React ~~16~~ to 17 and Webpack ~~4~~ to 5!_**
-- **_Recently added [TypeScript](https://www.typescriptlang.org/) Support!_**
+  <p align="center">
+    An awesome README template to jumpstart your projects!
+    <br />
+    <a href="https://github.com/othneildrew/Best-README-Template"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a>
+    ·
+    <a href="https://github.com/othneildrew/Best-README-Template/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/othneildrew/Best-README-Template/issues">Request Feature</a>
+  </p>
+</p>
 
-## Features
 
-This is a basic Chrome Extensions boilerplate to help you write modular and modern Javascript code, load CSS easily and [automatic reload the browser on code changes](https://webpack.github.io/docs/webpack-dev-server.html#automatic-refresh).
 
-This boilerplate is updated with:
+<!-- TABLE OF CONTENTS -->
+<details open="open">
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgements">Acknowledgements</a></li>
+  </ol>
+</details>
 
-- [React 17](https://reactjs.org)
-- [Webpack 5](https://webpack.js.org/)
-- [React Hot Loader](https://github.com/gaearon/react-hot-loader)
-- [eslint-config-react-app](https://www.npmjs.com/package/eslint-config-react-app)
-- [Prettier](https://prettier.io/)
-- [TypeScript](https://www.typescriptlang.org/)
 
-This boilerplate is heavily inspired by and adapted from [https://github.com/samuelsimoes/chrome-extension-webpack-boilerplate](https://github.com/samuelsimoes/chrome-extension-webpack-boilerplate), with additional support for React 17 features and Webpack 5.
 
-Please open up an issue to nudge me to keep the npm packages up-to-date. FYI, it takes time to make different packages with different versions work together nicely.
+<!-- ABOUT THE PROJECT -->
+## About The Project
 
-## Installing and Running
+<a href="https://github.com/Phildesro123/Reliant">
+  <img src="src/assets/img/4.png">
+</a>
 
-### Procedures:
+This is Reliant – a browser extension that enhances your article reading experience. 
 
-1. Check if your [Node.js](https://nodejs.org/) version is >= **14**.
-2. Clone this repository.
-3. Change the package's `name`, `description`, and `repository` fields in `package.json`.
-4. Change the name of your extension on `src/manifest.json`.
-5. Run `npm install` to install the dependencies.
-6. Run `npm start`
-7. Load your extension on Chrome following:
+In 2021, an average of 5,200 articles are produced by major news outlets every day. It feels like there’s so much information out there that makes it harder for one person to decide what’s true and what’s not. In a world full of misinformation, this project aims to spark discussion amongst readers, allowing them to make the best decision regarding the reliability of their article. In short, we hope to simplify the process of gathering information about the article's credibility. 
+
+We do this by:
+* Author Reliability Score 
+* Author Background Information
+* Comments
+* Notes
+* Highlights
+
+
+### Built With
+* [React](https://reactjs.org/)
+* [Bootstrap](https://getbootstrap.com/)
+* [Webpack](https://webpack.js.org/)
+
+
+
+<!-- GETTING STARTED -->
+## Getting Started
+
+This is an example of how you may give instructions on setting up your project locally.
+To get a local copy up and running follow these simple example steps.
+
+### Prerequisites
+
+You'll need [npm](https://nodejs.org/en/) to run this project.
+  ```sh
+  npm install npm@latest -g
+  ```
+
+### Installation
+
+First, install the packages for the client.
+```
+npm install
+```
+Optional: If you're planning on running a development server (Must have mongoDB access)
+```
+cd backend/
+npm install
+```
+Optional: If you're planning on running a development server
+create a `.env` on the root level and add your MongoDB connection string
+
+Example:
+```
+MONGODB_URI = mongodb+srv://username:password@cluster0-jtpxd.mongodb.net/admin
+```
+## Running the extension
+To run the extension using a development server on `localhost:4000` like:
+```
+npm run dev
+```
+To run the extension using the production server:
+```
+npm run prod
+```
+
+To run the extension with the client only:
+```
+npm start
+```
+
+### Loading the extension on Chrome
+ Load your extension on Chrome with the following:
    1. Access `chrome://extensions/`
    2. Check `Developer mode`
    3. Click on `Load unpacked extension`
    4. Select the `build` folder.
-8. Happy hacking.
 
-## Structure
+## Usage
 
-All your extension's code must be placed in the `src` folder.
+Here is an example of all the features Reliant can bring to you!
 
-The boilerplate is already prepared to have a popup, an options page, a background page, and a new tab page (which replaces the new tab page of your browser). But feel free to customize these.
-
-## TypeScript
-
-This boilerplate now supports TypeScript! The `Options` Page is implemented using TypeScript. Please refer to `src/pages/Options/` for example usages.
-
-## Webpack auto-reload and HRM
-
-To make your workflow much more efficient this boilerplate uses the [webpack server](https://webpack.github.io/docs/webpack-dev-server.html) to development (started with `npm start`) with auto reload feature that reloads the browser automatically every time that you save some file in your editor.
-
-You can run the dev mode on other port if you want. Just specify the env var `port` like this:
-
-```
-$ PORT=6002 npm run start
-```
-
-## Content Scripts
-
-Although this boilerplate uses the webpack dev server, it's also prepared to write all your bundles files on the disk at every code change, so you can point, on your extension manifest, to your bundles that you want to use as [content scripts](https://developer.chrome.com/extensions/content_scripts), but you need to exclude these entry points from hot reloading [(why?)](https://github.com/samuelsimoes/chrome-extension-webpack-boilerplate/issues/4#issuecomment-261788690). To do so you need to expose which entry points are content scripts on the `webpack.config.js` using the `chromeExtensionBoilerplate -> notHotReload` config. Look the example below.
-
-Let's say that you want use the `myContentScript` entry point as content script, so on your `webpack.config.js` you will configure the entry point and exclude it from hot reloading, like this:
-
-```js
-{
-  …
-  entry: {
-    myContentScript: "./src/js/myContentScript.js"
-  },
-  chromeExtensionBoilerplate: {
-    notHotReload: ["myContentScript"]
-  }
-  …
-}
-```
-
-and on your `src/manifest.json`:
-
-```json
-{
-  "content_scripts": [
-    {
-      "matches": ["https://www.google.com/*"],
-      "js": ["myContentScript.bundle.js"]
-    }
-  ]
-}
-```
-
-## Intelligent Code Completion
-
-Thanks to [@hudidit](https://github.com/lxieyang/chrome-extension-boilerplate-react/issues/4)'s kind suggestions, this boilerplate supports chrome-specific intelligent code completion using [@types/chrome](https://www.npmjs.com/package/@types/chrome). For example:
-
-![intellisense](https://lxieyang.github.io/static/chrome-extension-boilerplate-dev-intellisense-ed9e7c485d3eaf66417e5da4748e2c97.png)
-
-## Packing
-
-After the development of your extension run the command
-
-```
-$ NODE_ENV=production npm run build
-```
-
-Now, the content of `build` folder will be the extension ready to be submitted to the Chrome Web Store. Just take a look at the [official guide](https://developer.chrome.com/webstore/publish) to more infos about publishing.
-
-## Secrets
-
-If you are developing an extension that talks with some API you probably are using different keys for testing and production. Is a good practice you not commit your secret keys and expose to anyone that have access to the repository.
-
-To this task this boilerplate import the file `./secrets.<THE-NODE_ENV>.js` on your modules through the module named as `secrets`, so you can do things like this:
-
-_./secrets.development.js_
-
-```js
-export default { key: '123' };
-```
-
-_./src/popup.js_
-
-```js
-import secrets from 'secrets';
-ApiCall({ key: secrets.key });
-```
-
-:point_right: The files with name `secrets.*.js` already are ignored on the repository.
-
-## Resources:
-
-- [Webpack documentation](https://webpack.js.org/concepts/)
-- [Chrome Extension documentation](https://developer.chrome.com/extensions/getstarted)
-
----
-
-Michael Xieyang Liu | [Website](https://lxieyang.github.io)
-------------
+<a href="https://github.com/Phildesro123/Reliant">
+  <img src="src/assets/img/all_features.png">
+</a>
 
 
-Websites Reliant should work on: Medium, NY times, CNN, Fox, Verge, Vox/Wired
+Note: Reliant can only be used on these sites:
+* https://www.nytimes.com/
+* https://www.theverge.com/
+* https://www.wired.com/
+* https://www.cnn.com/ 
+* https://www.vox.com/
+
+
+
+<!-- ROADMAP -->
+## Roadmap
+
+See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a list of proposed features (and known issues).
+
+
+
+<!-- CONTRIBUTING -->
+## Contributing
+All issues are kept under the `Issues` tab. If you find anything you'd like to
+add or see fixed, add it there. 
+
+To make a change:
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+Pull requests should be reviewed by at least one active contributor. 
+Please include screenshots with any frontend changes.
+
+
+<!-- LICENSE -->
+## License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+
+
+<!-- CONTACT -->
+## Contact
+
+Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com
+
+Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
+
+
+
+<!-- ACKNOWLEDGEMENTS -->
+## Acknowledgements
+* [React Chrome Extension Boilerplate](https://github.com/lxieyang/chrome-extension-boilerplate-react)
+* [Rangy](https://github.com/timdown/rangy)
+* [Webpack documentation](https://webpack.js.org/concepts/)
+* [Chrome extension documentation](https://developer.chrome.com/docs/extensions/mv3/getstarted/)
+
+
+
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[forks-shield]: https://img.shields.io/github/forks/Phildesro123/Reliant
+[forks-url]: https://github.com/Phildesro123/Reliant/network/members
+[stars-shield]:	https://img.shields.io/github/stars/Phildesro123/Reliant
+[stars-url]: https://github.com/Phildesro123/Reliant/stargazers
+[issues-shield]: https://img.shields.io/github/issues/Phildesro123/Reliant
+[issues-url]: https://github.com/Phildesro123/Reliant/issues
+[license-shield]: https://img.shields.io/github/license/Phildesro123/Reliant
+[license-url]: https://github.com/Phildesro123/Reliant/blob/main/LICENSE
+[product-screenshot]: images/screenshot.png
