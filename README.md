@@ -89,7 +89,6 @@ In 2021, an average of 5,200 articles are produced by major news outlets every d
 We do this by:
 * Author Reliability Score 
 * Author Background Information
-* Top User Highlights
 * Comments
 * Notes
 * Highlights
