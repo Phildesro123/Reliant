@@ -80,7 +80,9 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://github.com/Phildesro123/Reliant/blob/readmeUpdateTwo/src/assets/img/4.png)
+<a href="https://github.com/Phildesro123/Reliant">
+  <img src="src/assets/img/4.png">
+</a>
 
 This is Reliant – a browser extension that enhances your article reading experience. 
 
