@@ -169,7 +169,7 @@ Note: Reliant can only be used on these sites:
 <!-- ROADMAP -->
 ## Roadmap
 
-See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a list of proposed features (and known issues).
+See the [open issues](https://github.com/Phildesro123/Reliant/issues) for a list of proposed features (and known issues).
 
 
 
