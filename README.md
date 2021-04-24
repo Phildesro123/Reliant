@@ -205,9 +205,13 @@ Distributed under the MIT License. See `LICENSE` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com
+Philippe Desrosiers - [Linkedin](https://www.linkedin.com/in/philippe-desrosiers/) - pdesrosiers3@gatech.edu <br />
+Cooper Meitz - [Linkedin](https://www.linkedin.com/in/coopermeitz/) - cmeitz3@gatech.edu <br />
+Youssef Asaad - [Linkedin](https://www.linkedin.com/in/youssef-asaad/) - yasaad3@gatech.edu <br />
+Avinash Sivakumar - [Linkedin](https://www.linkedin.com/in/avinash-sivakumar/) - asivakumar36@gatech.edu <br />
+Andrew Bondurant - [Linkedin](https://www.linkedin.com/in/andrew-bondurant-776b99150/) - abondurant30@gatech.edu
 
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
+Project Link: [https://github.com/Phildesro123/Reliant](https://github.com/Phildesro123/Reliant)
 
 
 
