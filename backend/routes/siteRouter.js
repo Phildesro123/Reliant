@@ -1,4 +1,5 @@
 let express = require('express');
+const { container } = require('webpack');
 const VisitedSites = require('../models/visitedSites');
 const siteRouter = express.Router();
 /**
@@ -282,21 +283,12 @@ siteRouter.route('/addComment').post((req, res, next) => {
       console.log(result);
       console.log('Error:', err);
       return res.status(400).send({ message: 'Current site not found' });
-    } else if (result.commentContainers.length != 0) {
-      result.commentContainers.forEach((container) => {
-        if (container.range == req.body.range) {
-          container.comments.push({
-            content: req.body.content,
-            ownerID: req.body.userID,
-            ownerName: req.body.userName,
-            upvotes: 0,
-            downvotes: 0,
-            time: Date.now(),
-            replies: [],
-          });
-        }
-      });
-    } else {
+    }
+    const containerIndex = result.commentContainers.findIndex(
+      (container) => container.range == req.body.range
+    );
+    console.log('Found Container at index:', containerIndex);
+    if (containerIndex == -1) {
       result.commentContainers.push({
         range: req.body.range,
         comments: [
@@ -311,7 +303,18 @@ siteRouter.route('/addComment').post((req, res, next) => {
           },
         ],
       });
+    } else {
+      result.commentContainers[containerIndex].comments.push({
+        content: req.body.content,
+        ownerID: req.body.userID,
+        ownerName: req.body.userName,
+        upvotes: 0,
+        downvotes: 0,
+        time: Date.now(),
+        replies: [],
+      });
     }
+
     result.save((err) => {
       if (err) {
         return res

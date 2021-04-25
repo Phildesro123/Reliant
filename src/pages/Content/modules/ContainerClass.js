@@ -1,5 +1,5 @@
 export default class Container {
-  constructor(type, id, range, selectionText, top, startX, content) {
+  constructor(type, id, range, selectionText, top, startX, content = []) {
     this.className = type + '-container';
     this.id = id;
     this.selectionText = selectionText;
@@ -20,5 +20,9 @@ export default class Container {
      */
     this.content = content;
     this.range = range;
+  }
+
+  get getSelectionTop() {
+    //TODO: get top of selection dynamically
   }
 }
