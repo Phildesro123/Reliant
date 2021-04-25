@@ -17,6 +17,7 @@ import {
 } from '../../API/APIModule';
 import ContainerScroll from './modules/Container-Scroll';
 import Container from './modules/ContainerClass';
+import ActivatedContainer from './modules/Activated-Component';
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
@@ -68,6 +69,9 @@ async function activateReliant() {
     console.log('page not loaded');
     return; // Prevents Reliant from being activated if the site is not done loading.
   }
+  const activatedDiv = document.createElement('div');
+  render(<ActivatedContainer></ActivatedContainer>, activatedDiv);
+  document.body.appendChild(activatedDiv);
   ACTIVATED = true;
   console.log('activated reliant', getActivateState());
   currentURL = await getURL();
@@ -101,6 +105,7 @@ async function activateReliant() {
   );
   // document.body.appendChild(commentScroll);
   let main = null;
+  console.log('HOSTNAME', currentHostname);
   if (currentHostname.includes(URLS.CNN)) {
     main = document.getElementsByClassName('l-container')[0];
     console.log(main);
