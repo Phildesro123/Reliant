@@ -289,3 +289,23 @@ export const deleteComment = async (url, userID, range, content) => {
 
   return await res;
 };
+
+/**
+ * Upvote or Downvote a comment
+ * @param url URL of website 
+ * @param userID UserID of comment owner
+ * @param range Range of comment container
+ * @param upvotes Number of upvotes
+ * @param downvotes Number of downvotes 
+ */
+export const changeCommentVote = async (url, userID, range, upvotes, downvotes) => {
+  const res = await axios.post('websites/changeVoteComment', {
+    url,
+    userID,
+    range,
+    upvotes,
+    downvotes
+  });
+
+  return await res;
+}
