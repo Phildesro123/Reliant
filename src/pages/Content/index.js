@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import rangy from 'rangy';
-import 'rangy/lib/rangy-textrange'
+import 'rangy/lib/rangy-textrange';
 /* ===================================================================== */
 import { URLS } from '../Background/workingUrls';
 import { createTooltip, removeTooltip } from './modules/Tooltip-Component';
@@ -16,6 +16,8 @@ import {
   getComments,
 } from '../../API/APIModule';
 import ContainerScroll from './modules/Container-Scroll';
+import Container from './modules/ContainerClass';
+import ActivatedContainer from './modules/Activated-Component';
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
@@ -67,6 +69,9 @@ async function activateReliant() {
     console.log('page not loaded');
     return; // Prevents Reliant from being activated if the site is not done loading.
   }
+  const activatedDiv = document.createElement('div');
+  render(<ActivatedContainer></ActivatedContainer>, activatedDiv);
+  document.body.appendChild(activatedDiv);
   ACTIVATED = true;
   console.log('activated reliant', getActivateState());
   currentURL = await getURL();
@@ -100,6 +105,7 @@ async function activateReliant() {
   );
   // document.body.appendChild(commentScroll);
   let main = null;
+  console.log('HOSTNAME', currentHostname);
   if (currentHostname.includes(URLS.CNN)) {
     main = document.getElementsByClassName('l-container')[0];
     console.log(main);
@@ -157,59 +163,66 @@ async function activateReliant() {
     });
 
   let scrollTop =
-  window.pageYOffset +
-  document
-    .getElementsByClassName('reliant-scroll')[0]
-    .getBoundingClientRect().top;
+    window.pageYOffset +
+    document.getElementsByClassName('reliant-scroll')[0].getBoundingClientRect()
+      .top;
   getComments(currentURL).then((res) => {
-    if (res.data.length > 0) {
-      res.data.forEach((commentContainer) => {
+    console.log('getComments:', res.data);
+    window.commentScroll.dumpContainers(
+      res.data.map((commentContainer) => {
         const commentRange = deserializeSelection(commentContainer.range);
-        const selectionText = commentRange.toString()
-        const selectionTopY = commentRange.nativeRange.getBoundingClientRect().y + window.pageYOffset;
-        const id = highlightText('#dc3545', commentRange, 'reliant-comment', true)
-        let content = []
-        commentContainer.comments.forEach((comment) => {
-          content.push({
-            "userId":comment.ownerID,
-            "displayName":comment.ownerName,
-            "content":comment.content,
-            "time":comment.time,
-            "upVotes":comment.upvotes,
-            "downVotes":comment.downvotes
-          })
-        })
-        window.commentScroll.addContainer(
-          commentContainer.range,
+        const selectionText = commentRange.toString();
+        const selectionTopY =
+          commentRange.nativeRange.getBoundingClientRect().y +
+          window.pageYOffset;
+        const id = highlightText(
+          '#dc3545',
+          commentRange,
+          'reliant-comment',
+          true
+        );
+
+        return new Container(
+          'comment',
           id,
+          commentContainer.range,
           selectionText,
           selectionTopY - scrollTop,
           0,
-          content
-        )
-      });
-    }
+          commentContainer.comments.map((comment) => {
+            return {
+              userId: comment.ownerID,
+              displayName: comment.ownerName,
+              content: comment.content,
+              time: comment.time,
+              upVotes: comment.upvotes,
+              downVotes: comment.downvotes,
+            };
+          })
+        );
+      })
+    );
   });
   getNotes(currentURL, currentUserInfo.id).then((res) => {
     console.log('getNotes:', res.data);
-    if (res.data.length > 0) {
-      res.data.forEach((note) => {
-        console.log('Note', note);
+    window.noteScroll.dumpContainers(
+      res.data.map((note) => {
         const noteRange = deserializeSelection(note.range);
-        const selectionTopY = noteRange.nativeRange.getBoundingClientRect().y + window.pageYOffset;
-        //TODO: ADD notes here
-        const selectionText = noteRange.toString()
+        const selectionText = noteRange.toString();
+        const selectionTopY =
+          noteRange.nativeRange.getBoundingClientRect().y + window.pageYOffset;
         const id = highlightText('blue', noteRange, 'reliant-note', true);
-        window.noteScroll.addContainer(
-          noteRange,
+        return new Container(
+          'note',
           id,
+          note.range,
           selectionText,
           selectionTopY - scrollTop,
           0,
-          [{"content": note.content, "time":note.time}]
+          [{ content: note.content, time: note.time }]
         );
-      });
-    }
+      })
+    );
   });
   getUserHighlights(currentURL, currentUserInfo.id)
     .then((res) => {
@@ -218,53 +231,47 @@ async function activateReliant() {
 
       if (res.data.frowns.length > 0) {
         res.data.frowns.forEach((element) => {
-            try {
-              highlightText(
-                '#dc3545',
-                deserializeSelection(
-                  element.selection
-                ),
-                'reliant-frown'
-              );
-              clearSelection();
-            } catch (error) {
-              console.log('Frown error:', error);
-              console.log('Highlight failed to restore');
-            }
+          try {
+            highlightText(
+              '#dc3545',
+              deserializeSelection(element.selection),
+              'reliant-frown'
+            );
+            clearSelection();
+          } catch (error) {
+            console.log('Frown error:', error);
+            console.log('Highlight failed to restore');
+          }
         });
       }
       if (res.data.smiles.length > 0) {
         res.data.smiles.forEach((element) => {
-            try {
-              highlightText(
-                '#28a745',
-                deserializeSelection(
-                  element.selection
-                ).nativeRange,
-                'reliant-smile'
-              );
-              clearSelection();
-            } catch (error) {
-              console.log('Smile error:', error);
-              console.log('Highlight failed to restore');
-            }
+          try {
+            highlightText(
+              '#28a745',
+              deserializeSelection(element.selection).nativeRange,
+              'reliant-smile'
+            );
+            clearSelection();
+          } catch (error) {
+            console.log('Smile error:', error);
+            console.log('Highlight failed to restore');
+          }
         });
       }
       if (res.data.highlights.length > 0) {
         res.data.highlights.forEach((element) => {
-            try {
-              highlightText(
-                '#ffc107',
-                deserializeSelection(
-                  element.selection
-                ).nativeRange,
-                'reliant-highlight'
-              );
-              clearSelection();
-            } catch (error) {
-              console.log('Highlight error:', error);
-              console.log('Highlight Failed to restore');
-            }
+          try {
+            highlightText(
+              '#ffc107',
+              deserializeSelection(element.selection).nativeRange,
+              'reliant-highlight'
+            );
+            clearSelection();
+          } catch (error) {
+            console.log('Highlight error:', error);
+            console.log('Highlight Failed to restore');
+          }
         });
       }
     })
@@ -277,7 +284,6 @@ async function activateReliant() {
 
     //Highlight everything
     even = (even + 1) % 2;
-
 
     var mouseDownX = 0;
     var selectionTopY = 0;
@@ -513,7 +519,6 @@ function deserializeSelection(selection) {
   return null;
 }
 
-
 function clearSelection() {
   if (window.getSelection) {
     window.getSelection().removeAllRanges();
@@ -541,7 +546,7 @@ function serializeCurrentSelection() {
   while (findRange.findText(selectedText, findOptions)) {
     const intersects = findRange.intersection(sel._ranges[0]);
     if (intersects && intersects !== null) {
-      console.log("Something intersected");
+      console.log('Something intersected');
       selToSerialzie.FindIndex = findCount;
       break;
     }

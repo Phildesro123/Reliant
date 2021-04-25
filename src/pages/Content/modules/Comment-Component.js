@@ -39,20 +39,57 @@ function Comment(props) {
   return (
     <div className="comment">
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            textAlign: 'left',
+          }}
+        >
           <p style={{ fontWeight: 'bold', margin: 0 }}>{props.displayName}</p>
-          <p
-            style={{
-              marginTop: 'auto',
-              marginLeft: '20px',
-              marginBottom: 'auto',
-              marginRight: 'auto',
-              fontSize: '12pt',
-              lineHeight: 'normal',
-            }}
-          >
-            {props.commentContent}
-          </p>
+          <div style={{ marginLeft: '20px', borderLeft: '1px solid' }}>
+            <p
+              style={{
+                marginLeft: '10px',
+                marginBottom: 0,
+                fontSize: '11pt',
+                lineHeight: 'normal',
+              }}
+            >
+              {props.commentContent}
+            </p>
+            <div
+              style={{
+                display: 'inline-flex',
+                justifyContent: 'space-between',
+                alignItems: 'baseline',
+                width: '100%',
+              }}
+            >
+              <span
+                style={{
+                  margin: 0,
+                  marginLeft: '15px',
+                  fontSize: '8pt',
+                  color: 'lightgrey',
+                }}
+              >
+                {props.time}
+              </span>
+              <span></span>
+              {props.canReply ? (
+                <button
+                  style={{
+                    color: 'lightblue',
+                    fontSize: '10pt',
+                    marginRight: '20px',
+                  }}
+                >
+                  reply
+                </button>
+              ) : null}
+            </div>
+          </div>
         </div>
         <div
           style={{
@@ -65,47 +102,28 @@ function Comment(props) {
           <button className="vote-btn" onClick={updateUpvote}>
             <div style={{ display: 'inline-flex' }}>
               <p className="vote-count">{upVote}</p>
-              <FaRegThumbsUp style={{ margin: 'auto' }} />
+              <FaAngleRight
+                style={{
+                  margin: 'auto',
+                  transform: 'rotate(-90deg) scaleY(1.25)',
+                  color: 'green',
+                }}
+              />
             </div>
           </button>
           <button className="vote-btn" onClick={updateDownVote}>
             <div style={{ display: 'inline-flex' }}>
               <p className="vote-count">{downVote}</p>
-              <FaRegThumbsDown style={{ margin: 'auto' }} />
+              <FaAngleRight
+                style={{
+                  margin: 'auto',
+                  transform: 'rotate(90deg) scaleY(1.25)',
+                  color: '#DC3545',
+                }}
+              />
             </div>
           </button>
         </div>
-      </div>
-      <div
-        style={{
-          display: 'inline-flex',
-          justifyContent: 'space-between',
-          alignItems: 'baseline',
-          width: '100%',
-        }}
-      >
-        <span
-          style={{
-            margin: 0,
-            marginLeft: '20px',
-            fontSize: '8pt',
-            color: 'grey',
-          }}
-        >
-          At time: {props.time}
-        </span>
-        <span></span>
-        {props.canReply ? (
-          <button
-            style={{
-              color: 'lightblue',
-              fontSize: '10pt',
-              marginRight: '20px',
-            }}
-          >
-            reply
-          </button>
-        ) : null}
       </div>
     </div>
   );

@@ -27,7 +27,9 @@ var tempKey = 0;
 const Container = React.forwardRef((props, ref) => {
   const minRows = 2;
   const maxRows = 5;
-  const [contentList, setContentList] = useState([]);
+  const [contentList, setContentList] = useState(
+    initContentList(props.className, props.content)
+  );
   const [textAreaText, setTextAreaText] = useState('');
   const [selected, setSelected] = useState(props.selected);
   const [canSave, setCanSave] = useState(true);
@@ -91,13 +93,46 @@ const Container = React.forwardRef((props, ref) => {
     setTextAreaText(event.target.value);
   };
 
-  var today = new Date();
-  const times =
-    today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
+  function formatTime(time) {
+    const currentDateTime = new Date();
+    const months = currentDateTime.getMonth() - time.getMonth();
+    const seconds = (currentDateTime - time) / 1000;
+    if (seconds < 1) return 'Now';
+
+    let flooredValue = Math.floor(seconds);
+    if (flooredValue < 60)
+      return `${flooredValue} ${flooredValue == 1 ? 'second' : 'seconds'} ago`;
+    const minutes = seconds / 60;
+    flooredValue = Math.floor(minutes);
+    if (flooredValue < 60)
+      return `${flooredValue} ${flooredValue == 1 ? 'minute' : 'minutes'} ago`;
+
+    const hours = minutes / 60;
+    flooredValue = Math.floor(hours);
+    if (flooredValue < 24)
+      return `${flooredValue} ${flooredValue == 1 ? 'hour' : 'hours'} ago`;
+
+    const days = hours / 24;
+    flooredValue = Math.floor(days);
+    if (flooredValue < 7)
+      return `${flooredValue} ${flooredValue == 1 ? 'day' : 'days'} ago`;
+
+    const weeks = days / 7;
+    flooredValue = Math.floor(weeks);
+    if (months < 1)
+      return `${flooredValue} ${flooredValue == 1 ? 'week' : 'weeks'} ago`;
+
+    if (months < 12) return `${months} ${months == 1 ? 'month' : 'months'} ago`;
+
+    const years = months * 12;
+
+    return `${years} ${years == 1 ? 'month' : 'months'} ago`;
+  }
 
   const addContentToList = (content) => {
-    setContentList([...contentList, content].map((c) => c));
-    tempKey += 1;
+    console.log('Content In', content);
+    console.log('Exisiting Content List:', contentList);
+    setContentList([...contentList, ...content]);
     setTextAreaText('');
   };
 
@@ -111,7 +146,7 @@ const Container = React.forwardRef((props, ref) => {
           addComment(url, userInfo.id, displayName, props.range, content)
             .then((response) => {
               console.log('Add Comment Response', response);
-              addContentToList(
+              addContentToList([
                 <Comment
                   key={'comment_key_' + tempKey}
                   displayName={displayName}
@@ -120,9 +155,9 @@ const Container = React.forwardRef((props, ref) => {
                   upVote={0}
                   downVote={0}
                   canReply={false}
-                  time={times}
-                ></Comment>
-              );
+                  time={formatTime(new Date())}
+                ></Comment>,
+              ]);
             })
             .catch((err) => {
               console.log('Add Note Error', err);
@@ -133,13 +168,13 @@ const Container = React.forwardRef((props, ref) => {
           addOrEditNote(userInfo.id, url, props.range, content)
             .then((response) => {
               console.log('Add Note Response', response);
-              addContentToList(
+              addContentToList([
                 <Note
                   key={'note_key_' + tempKey}
-                  time={times}
                   content={content}
-                ></Note>
-              );
+                  time={formatTime(new Date())}
+                ></Note>,
+              ]);
             })
             .catch((err) => {
               console.log('Add Note Error:', err);
@@ -150,31 +185,32 @@ const Container = React.forwardRef((props, ref) => {
     });
   };
 
+  function initContentList(className, content) {
+    if (content.length == 0) return [];
+    if (className == 'comment-container') {
+      return content.map((content) => (
+        <Comment
+          key={'comment_key_' + tempKey++}
+          displayName={content.displayName}
+          id={content.userId}
+          commentContent={content.content}
+          upVote={content.upVotes}
+          downVote={content.downVotes}
+          canReply={false}
+          time={formatTime(new Date(content.time))}
+        ></Comment>
+      ));
+    }
+    return content.map((content) => (
+      <Note
+        key={'note_key_' + tempKey++}
+        time={formatTime(new Date(content.time))}
+        content={content.content}
+      ></Note>
+    ));
+  }
+
   useEffect(() => {
-    props.content.forEach((content) => {
-      if (props.className == 'comment-container') {
-        addContentToList(
-          <Comment
-            key={'comment_key_' + tempKey}
-            displayName={content.displayName}
-            id={content.userId}
-            commentContent={content.content}
-            upVote={content.upVotes}
-            downVote={content.downVotes}
-            canReply={false}
-            time={content.time}
-          ></Comment>
-        );
-      } else {
-        addContentToList(
-          <Note
-            key={'note_key_' + tempKey}
-            time={content.time}
-            content={content.content}
-          ></Note>
-        );
-      }
-    });
     //add when mounted
     document.addEventListener('mousedown', handleMouseDown);
     // return funciton to be called when unmounted
@@ -184,13 +220,17 @@ const Container = React.forwardRef((props, ref) => {
   }, []);
 
   useEffect(() => {
+    console.log('Use Effect', props.id);
+    if (selected) {
+      textAreaRef.current.focus();
+    }
     const offsetHeight = containerRef.current.offsetHeight;
     //check if height is changed (the - 1 and + 1 are there since offsetHeight is converted from float to int so this accommodates the rounding errors)
     const changed = !(
       offsetHeight - 1 <= height.current && height.current <= offsetHeight + 1
     );
     if (changed) {
-      const previousHeight = height.current;
+      console.log('Callback from:', props.id);
       height.current = offsetHeight;
       props.callback(containerRef.current);
     }
@@ -215,6 +255,7 @@ const Container = React.forwardRef((props, ref) => {
       {selected || textAreaText.trim() != '' ? (
         <div>
           <textarea
+            autoFocus={console.log('Rendered')}
             ref={textAreaRef}
             className="comment-input"
             type="text"
@@ -223,7 +264,6 @@ const Container = React.forwardRef((props, ref) => {
             rows={minRows}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
-            autoFocus
           />
           <button
             className="comment-btn"
