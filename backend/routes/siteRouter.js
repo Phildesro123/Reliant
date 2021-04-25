@@ -432,4 +432,109 @@ siteRouter.route('/deleteComment').post((req, res, next) => {
     });
   });
 });
+
+
+/**
+ * Usage: When the user up/downvotes a comment
+ * ex:
+ * send with a payload that at least has
+ *
+ * Payload: {
+ *  "url":"{currentURL from user}",
+ *  "userID": {userID of OG commenter},
+ *  "range": rangeSelection,
+ *  "upvotes": number of upvotes,
+ *  "downvotes": number of downvotes
+ * }
+ * POST: Change a comment's score
+ */
+ siteRouter.route('/changeVoteComment').post((req, res, next) => {
+  console.log('POST: Adding vote on comment');
+  if (req.body.url == null) {
+    console.log('ERROR: Null url received');
+    return res.status(400).send({ message: 'Need a valid site URL' });
+  }
+  VisitedSites.findOne({ _id: req.body.url }, (err, result) => {
+    if (err || result == null) {
+      console.log(result);
+      console.log('Error:', err);
+      return res.status(400).send({ message: 'Current site not found' });
+    } else if (result.commentContainers.length != 0) {
+      result.commentContainers.forEach((container) => {
+        if (container.range == req.body.range) {
+          console.log('Container exists:', container);
+          const index = container.comments.findIndex(
+            (e) => e.ownerID === req.body.userID
+          );
+          if (index >= 0) {
+            console.log('Found comment at index:', index);
+            container.comments[index].upvotes = req.body.upvotes;
+            container.comments[index].downvotes = req.body.downvotes
+          }
+        }
+      });
+    }
+    result.save((err) => {
+      if (err) {
+        return res
+          .status(400)
+          .send({ message: 'Error occured in changing comment score comment' });
+      } else {
+        return res.send({ message: 'Successfully changed comment score' });
+      }
+    });
+  });
+});
+
+/**
+ * Usage: When the user up/downvotes a reply
+ * ex:
+ * send with a payload that at least has
+ *
+ * Payload: {
+ *  "url":"{currentURL from user}",
+ *  "userID": {userID of OG commenter},
+ *  "range": rangeSelection,
+ *  "upvotes": number of upvotes,
+ *  "downvotes": number of downvotes
+ * }
+ * POST: Change a comment's score
+ */
+ siteRouter.route('/changeVoteReply').post((req, res, next) => {
+  console.log('POST: Adding vote on comment');
+  if (req.body.url == null) {
+    console.log('ERROR: Null url received');
+    return res.status(400).send({ message: 'Need a valid site URL' });
+  }
+  VisitedSites.findOne({ _id: req.body.url }, (err, result) => {
+    if (err || result == null) {
+      console.log(result);
+      console.log('Error:', err);
+      return res.status(400).send({ message: 'Current site not found' });
+    } else if (result.commentContainers.length != 0) {
+      result.commentContainers.forEach((container) => {
+        if (container.range == req.body.range) {
+          console.log('Container exists:', container);
+          const index = container.comments.findIndex(
+            (e) => e.ownerID === req.body.userID
+          );
+          if (index >= 0) {
+            console.log('Found comment at index:', index);
+            container.comments[index].upvotes = req.body.upvotes;
+            container.comments[index].downvotes = req.body.downvotes
+          }
+        }
+      });
+    }
+    result.save((err) => {
+      if (err) {
+        return res
+          .status(400)
+          .send({ message: 'Error occured in changing comment score comment' });
+      } else {
+        return res.send({ message: 'Successfully changed comment score' });
+      }
+    });
+  });
+});
 module.exports = siteRouter;
