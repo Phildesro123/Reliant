@@ -103,37 +103,7 @@ const Popup = () => {
               </span>
             </div>
           </div>
-          <Row className="m-0" style={{ paddingTop: '10px' }}>
-            <Col className="pl-0" style={{ paddingRight: '5px' }}>
-              <Button variant="outline-primary" block>
-                Comment
-              </Button>
-            </Col>
-            <Col className="pr-0" style={{ paddingLeft: '5px' }}>
-              <Button
-                block
-                onClick={() => {
-                  if (activated) {
-                    console.log("Was Activated")
-                    chrome.storage.local.set({"enabled": "false"}, () => {
-                      console.log("Inside Set")
-                      message('deactivate');
-                      setActivated(false);
-                    })
-                  } else {
-                    console.log("Was Not Activated")
-                    chrome.storage.local.set({"enabled": "true"}, () => {
-                      console.log("Inside set")
-                      message('activate');
-                      setActivated(true);
-                    })
-                  }
-                }}
-              >
-                {activated ? 'Deactivate' : 'Activate'}
-              </Button>
-            </Col>
-          </Row>
+
         </Col>
         <div style={{ paddingTop: '10px', width: '100%', textAlign: 'center' }}>
           <h6 style={{ margin: '0px', fontSize: '10px' }}>
