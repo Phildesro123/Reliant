@@ -79,7 +79,6 @@ const ContainerScroll = React.forwardRef((props, ref) => {
 
   //Callback function passed to container to use when it is updated
   const containerChangedCallback = (containerData) => {
-    console.log('Container Dump:', containerDump);
     var elementPos = containerList.findIndex((x) => {
       return x.id == containerData.id;
     });
