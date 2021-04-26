@@ -231,4 +231,77 @@ userRouter.route('/deleteNotes').post((req, res, next) => {
   });
 });
 
+/**
+ * Usage: When user submits suggested info to be reviewed
+ * Payload: {
+ * _id":"{some ID}",
+ * url: "website URL",
+ * suggestion: User's created suggestion
+ * }
+ * POST: Create new user if one doesn't already exist.
+ */
+userRouter.route('/submitSuggestion').post((req, res, next) => {
+  console.log('Add suggested info to users');
+  if (
+    req.body._id == null ||
+    req.body.url == null ||
+    req.body.suggestion == null
+  ) {
+    return res
+      .status(400)
+      .send({ message: 'Null elements are found in payload' });
+  }
+
+  Users.findById(req.body._id, (err, user) => {
+    if (err || user == null) {
+      return res.status(400).send({ message: 'Error ocurred in finding user' });
+    }
+    const index = user.visitedSites.findIndex((el) => req.body.url === el._id);
+    if (index >= 0) {
+      user.visitedSites[index].suggestedInfo = req.body.suggestion;
+    }
+
+    user.save((saveError)=>{
+      if (saveError) {
+        console.log(saveError);
+        return res.status(400).send({message: 'Error occured in saving user'})
+      }
+      return res.status(200).send({message: 'Successfully submitted user suggestion'})
+    })
+  });
+});
+
+/**
+ * Usage: Probably when the extension is installed.
+ * params: {
+ * _id":"{some ID}",
+ * url: "website URL",
+ * }
+ * GET: Create new user if one doesn't already exist.
+ */
+ userRouter.route('/getSuggestedInfo').get((req, res, next) => {
+  console.log('GET: user suggested info');
+  if (
+    req.query._id == null ||
+    req.query.url == null 
+  ) {
+    return res
+      .status(400)
+      .send({ message: 'Null elements are found in payload' });
+  }
+
+  Users.findById(req.query._id, (err, user) => {
+    if (err || user == null) {
+      return res.status(400).send({ message: 'Error ocurred in finding user' });
+    }
+    const index = user.visitedSites.findIndex((el) => req.query.url === el._id);
+    if (index >= 0) {
+      if (user.visitedSites[index].suggestedInfo) {
+      return res.status(200).send(user.visitedSites[index].suggestedInfo)
+      }
+    } else {
+      return res.status(400).send({message: "No suggested Info existed"})
+    }
+  });
+});
 module.exports = userRouter;

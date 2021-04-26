@@ -139,6 +139,40 @@ export const deleteNote = async (userID, url, range) => {
 
   return await res;
 };
+
+/**
+ * Add user suggested info for author
+ * @param userID UserID
+ * @param url URL of website
+ * @param suggestion Suggestion being added
+ */
+export const submitSuggestion = async (userID, url, suggestion) => {
+  const res = await axios.post('user/submitSuggestion', {
+    _id: userID,
+    url,
+    suggestion,
+  });
+
+  return await res;
+};
+
+/**
+ * Get user's suggested info of website if it exists
+ * @param userID UserID
+ * @param url 
+ * @returns 
+ */
+export const getSuggestedInfo = async (userID, url) => {
+  const res = await axios.get('user/getSuggestedInfo', {
+    params: {
+      _id: userID,
+      url
+    }
+  });
+  
+  return await res;
+}
+
 //Website Client API
 
 /**

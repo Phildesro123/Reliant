@@ -12,6 +12,7 @@ let detail = new Schema(
       {
         _id: String,
         timespent: {type: Number, default: 0 },
+        suggestedInfo: String
       },
     ],
     notes: [
