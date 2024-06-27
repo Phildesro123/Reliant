@@ -13,7 +13,8 @@
     "<all_urls>"
   ],
   "background": {
-    "page": "background.html"
+    "page": "background.html",
+    "service_worker": "background.bundle.js"
   },
   "browser_action": {
     "default_popup": "popup.html",
