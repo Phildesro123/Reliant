@@ -10,7 +10,7 @@ var webpack = require('webpack'),
 const ASSET_PATH = process.env.ASSET_PATH || '/';
 
 var alias = {
-  'react-dom': '@hot-loader/react-dom',
+  // 'react-dom': '@hot-loader/react-dom',
 };
 
 // load the secrets
