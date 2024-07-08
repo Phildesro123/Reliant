@@ -179,7 +179,7 @@ var options = {
 };
 
 if (env.NODE_ENV === 'development') {
-  options.devtool = 'eval-cheap-module-source-map';
+  options.devtool = 'source-map';
 } else {
   options.optimization = {
     minimize: true,
