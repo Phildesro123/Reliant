@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client'
 import rangy from 'rangy';
 import 'rangy/lib/rangy-textrange';
 /* ===================================================================== */
@@ -21,6 +21,8 @@ import ActivatedContainer from './modules/Activated-Component';
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
+const domNode = document.getElementById('root');
+const root = createRoot(domNode)
 var ACTIVATED = false;
 var LOADED = false;
 var paragraphs = null;
@@ -70,7 +72,7 @@ async function activateReliant() {
     return; // Prevents Reliant from being activated if the site is not done loading.
   }
   const activatedDiv = document.createElement('div');
-  render(<ActivatedContainer></ActivatedContainer>, activatedDiv);
+  root.render(<ActivatedContainer></ActivatedContainer>, activatedDiv);
   document.body.appendChild(activatedDiv);
   ACTIVATED = true;
   console.log('activated reliant', getActivateState());
@@ -81,7 +83,7 @@ async function activateReliant() {
   const noteScroll = document.createElement('div');
   noteScroll.className = 'reliant-scroll note-scroll';
   //Creates notes scroll
-  render(
+  root.render(
     <ContainerScroll
       type="note"
       ref={(cs) => {
@@ -94,7 +96,7 @@ async function activateReliant() {
   const commentScroll = document.createElement('div');
   commentScroll.className = 'reliant-scroll comment-scroll';
   //Creates commentScroll
-  render(
+  root.render(
     <ContainerScroll
       type="comment"
       ref={(cs) => {
