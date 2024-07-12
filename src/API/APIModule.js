@@ -19,7 +19,7 @@ export const getQuestion = async (genre) => {
     },
   });
 
-  return await res;
+  return res;
 };
 
 // Reviews Client API
@@ -37,7 +37,7 @@ export const getResults = async (userId, url) => {
     },
   });
 
-  return await res;
+  return res;
 };
 
 /**
@@ -55,7 +55,7 @@ export const addReview = async (_id, results, score, time) => {
     timeNeeded: time,
   });
 
-  return await res;
+  return res;
 };
 
 // User Client API
@@ -72,7 +72,7 @@ export const addUser = async (userId, email) => {
     displayName: email,
   });
 
-  return await res;
+  return res;
 };
 
 /**
@@ -86,7 +86,7 @@ export const updateWebsite = async (userId, website) => {
     website,
   });
 
-  return await res;
+  return res;
 };
 
 /**
@@ -103,7 +103,7 @@ export const getNotes = async (url, userID) => {
     },
   });
 
-  return await res;
+  return res;
 };
 
 /**
@@ -121,7 +121,7 @@ export const addOrEditNote = async (userID, url, range, content) => {
     content,
   });
 
-  return await res;
+  return res;
 };
 
 /**
@@ -137,7 +137,7 @@ export const deleteNote = async (userID, url, range) => {
     range,
   });
 
-  return await res;
+  return res;
 };
 //Website Client API
 
@@ -151,7 +151,7 @@ export const getSiteData = async (url) => {
       _id: url,
     },
   });
-  return await res;
+  return res;
 };
 
 /**
@@ -163,7 +163,7 @@ export const addSite = async (url) => {
     _id: url,
   });
 
-  return await res;
+  return res;
 };
 
 /**
@@ -179,7 +179,7 @@ export const getUserHighlights = async (url, userID) => {
     },
   });
 
-  return await res;
+  return res;
 };
 
 /**
@@ -202,7 +202,7 @@ export const addHighlights = async (
     highlight_type,
   });
 
-  return await res;
+  return res;
 };
 
 /**
@@ -217,7 +217,7 @@ export const getComments = async (url) => {
     },
   });
 
-  return await res;
+  return res;
 };
 
 /**
@@ -237,7 +237,7 @@ export const addComment = async (url, userID, userName, range, content) => {
     content,
   });
 
-  return await res;
+  return res;
 };
 
 /**
@@ -269,7 +269,7 @@ export const addReply = async (
     content,
   });
 
-  return await res;
+  return res;
 };
 
 /**
@@ -287,7 +287,7 @@ export const deleteComment = async (url, userID, range, content) => {
     content,
   });
 
-  return await res;
+  return res;
 };
 
 /**
@@ -307,5 +307,5 @@ export const changeCommentVote = async (url, userID, range, upvotes, downvotes) 
     downvotes
   });
 
-  return await res;
+  return res;
 }
